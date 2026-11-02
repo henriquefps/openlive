@@ -237,14 +237,17 @@ func TestMacStream(t *testing.T) {
 		t.Errorf("layers %+v", got)
 	}
 	seen := map[string]int{}
+	lastPTS := map[string]time.Duration{}
 	deadline := time.After(5 * time.Second)
 	for seen["f"] < 5 || seen["h"] < 5 || seen["q"] < 5 {
 		select {
 		case f := <-s.Video():
 			seen[f.RID]++
-			if seen[f.RID] > 1 && (f.Duration < 16*time.Millisecond || f.Duration > 17*time.Millisecond) {
-				t.Fatalf("layer %s duration %s, want ~16.7ms from the PTS", f.RID, f.Duration)
+			// The PTS goes through: the publisher spaces the RTP timestamps by it (FrameClock).
+			if d := f.PTS - lastPTS[f.RID]; seen[f.RID] > 1 && (d < 16*time.Millisecond || d > 17*time.Millisecond) {
+				t.Fatalf("layer %s PTS step %s, want ~16.7ms", f.RID, d)
 			}
+			lastPTS[f.RID] = f.PTS
 		case err := <-s.Err():
 			t.Fatal(err)
 		case <-deadline:

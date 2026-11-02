@@ -169,7 +169,9 @@ func (s *gstStream) stopped() bool {
 
 // connect copies every sample of an appsink into out. It runs on the branch's streaming
 // thread and blocks when out is full (a live source then drops raw frames upstream,
-// never encoded ones, which would break decoding until the next IDR).
+// never encoded ones, which would break decoding until the next IDR). duration is only
+// the nominal one: frames are not evenly spaced (videorate drops, a still or damage-only
+// capture), so the publisher spaces the RTP timestamps by the PTS (FrameClock).
 func (s *gstStream) connect(sink gstapp.AppSink, rid string, duration time.Duration, out chan<- EncodedFrame) {
 	h := sink.ConnectNewSample(func(sink gstapp.AppSink) gst.FlowReturn {
 		sample := sink.PullSample()

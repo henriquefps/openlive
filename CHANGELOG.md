@@ -3,6 +3,18 @@
 All notable changes to Openlive. The server (Worker and web app) and the helper share one version.
 The wire protocol has its own version, in [docs/PROTOCOL.md](docs/PROTOCOL.md).
 
+## 0.1.3 (2026-11-02)
+
+Helper fixes.
+
+- Video no longer drifts seconds behind the audio. The helper stamped every video frame with
+  the nominal frame time, so a still screen, a Wayland capture that only sends changed frames or
+  a capture restart (resizing the shared window) slowed the video clock down; viewers' jitter
+  buffers grew up to about 10 s while the audio stayed on time. Video timestamps now follow real
+  time on Linux and macOS.
+- The helper announces the protocol it really speaks (1.20; it said 1.12). The web no longer
+  calls it outdated, and the voice sink and the "Allow visual clicks" switch in Go live show up.
+
 ## 0.1.2 (2026-11-02)
 
 The first public release.

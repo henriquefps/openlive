@@ -69,6 +69,9 @@ type Publisher struct {
 	sessionID string
 	published []PublishedTrack
 	video     map[string]*webrtc.TrackLocalStaticSample
+	// clocks space each layer's frames on the RTP clock (media.FrameClock); only
+	// pumpVideo touches them.
+	clocks    map[string]*media.FrameClock
 	audio     *webrtc.TrackLocalStaticSample
 	keyframes map[string]*media.Keyframes
 
@@ -160,6 +163,7 @@ func Publish(ctx context.Context, cfg Config, stream media.Stream, sig Signaler)
 		sig:       sig,
 		stream:    stream,
 		video:     map[string]*webrtc.TrackLocalStaticSample{},
+		clocks:    map[string]*media.FrameClock{},
 		keyframes: map[string]*media.Keyframes{},
 		layers:    map[string]*LayerStats{},
 		forced:    map[string]time.Time{},
@@ -556,9 +560,7 @@ func (p *Publisher) writeVideo(f media.EncodedFrame) {
 	if !ok {
 		return
 	}
-	if err := t.WriteSample(pionmedia.Sample{Data: f.Data, Duration: f.Duration}); err != nil && !errors.Is(err, io.ErrClosedPipe) {
-		p.log.Warn("write video sample", "rid", f.RID, "err", err)
-	}
+	p.writeVideoSample(t, f, time.Now())
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	s := p.layers[f.RID]
@@ -572,6 +574,26 @@ func (p *Publisher) writeVideo(f media.EncodedFrame) {
 			s.LastIDRDelay = time.Since(at)
 			p.log.Info("forced IDR out of the encoder", "rid", f.RID, "after", s.LastIDRDelay.Round(100*time.Microsecond), "bytes", len(f.Data))
 		}
+	}
+}
+
+// writeVideoSample sends f with its RTP timestamp following the real time since the
+// layer's previous frame (media.FrameClock), not the frame's nominal duration: pion
+// advances the timestamp after a sample by its Duration, so the gap goes first as an empty
+// sample (it only moves the clock) and the frame itself has no duration.
+func (p *Publisher) writeVideoSample(t *webrtc.TrackLocalStaticSample, f media.EncodedFrame, now time.Time) {
+	c := p.clocks[f.RID]
+	if c == nil {
+		c = &media.FrameClock{}
+		p.clocks[f.RID] = c
+	}
+	if gap := c.Gap(f.PTS, now); gap > 0 {
+		if err := t.WriteSample(pionmedia.Sample{Duration: gap}); err != nil && !errors.Is(err, io.ErrClosedPipe) {
+			p.log.Warn("advance video clock", "rid", f.RID, "err", err)
+		}
+	}
+	if err := t.WriteSample(pionmedia.Sample{Data: f.Data}); err != nil && !errors.Is(err, io.ErrClosedPipe) {
+		p.log.Warn("write video sample", "rid", f.RID, "err", err)
 	}
 }
 

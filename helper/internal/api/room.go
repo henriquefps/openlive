@@ -25,8 +25,12 @@ import (
 // capabilities) needs nothing here: capability_disabled is an error like the others, and
 // room.updated goes to web tabs only. 1.10 (the voice channel) neither: voice messages go to web
 // tabs only, and the room refuses them from a helper. 1.11 (the text chat) and 1.12 (cameras in
-// the voice channel) neither, for the same reason.
-var ProtocolVersion = protocol.ProtocolVersion{Major: 1, Minor: 12}
+// the voice channel) neither, for the same reason. 1.13 to 1.20 are all spoken: AV1 (1.14,
+// 1.17), the do_quota_exceeded code (1.15), the voice sink (1.16), the encoded layers (1.19)
+// and pointer pings (1.20). It stayed at 1.12 by mistake until 1.20, so the web hid the voice
+// sink and the go-live pings switch and called the helper outdated; it must follow the
+// protocol package now (TestProtocolVersionIsCurrent). Kept as a literal: helper:publish reads it.
+var ProtocolVersion = protocol.ProtocolVersion{Major: 1, Minor: 20}
 
 // PingInterval is how often the client pings (PROTOCOL.md §4).
 const PingInterval = 30 * time.Second

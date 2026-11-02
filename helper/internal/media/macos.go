@@ -420,7 +420,6 @@ type macStream struct {
 	stats    CaptureStats
 	last     sidecar.Stats
 	thumb    []byte
-	lastPTS  map[int]uint64
 	audioApp *sidecar.AppInfo
 }
 
@@ -433,7 +432,6 @@ func newMacStream(conn net.Conn, cmd *exec.Cmd, layers []Layer, audio bool, log 
 		done:     make(chan struct{}),
 		loopDone: make(chan struct{}),
 		exited:   make(chan struct{}),
-		lastPTS:  map[int]uint64{},
 	}
 	if audio {
 		s.audio = make(chan EncodedFrame, 64)
@@ -618,18 +616,12 @@ func (s *macStream) readLoop() {
 	}
 }
 
-// videoFrame is a frame with its duration from the layer's previous PTS: ScreenCaptureKit
-// sends nothing for a still screen, so frames are not evenly spaced and the RTP clock must
-// follow the real gaps.
+// videoFrame turns a sidecar frame into an EncodedFrame. ScreenCaptureKit sends nothing for
+// a still screen, so frames are not evenly spaced: Duration is only the nominal 1/fps, and
+// the publisher spaces the RTP timestamps by the PTS and the wall clock (FrameClock).
 func (s *macStream) videoFrame(v sidecar.Video) EncodedFrame {
 	l := s.layers[v.Layer]
 	d := time.Second / time.Duration(max(1, l.FPS))
-	s.mu.Lock()
-	if prev, ok := s.lastPTS[v.Layer]; ok && v.PTSNanos > prev {
-		d = min(max(time.Duration(v.PTSNanos-prev), time.Millisecond), time.Second)
-	}
-	s.lastPTS[v.Layer] = v.PTSNanos
-	s.mu.Unlock()
 	return EncodedFrame{RID: l.RID, Data: v.Data, Keyframe: v.Keyframe, PTS: time.Duration(v.PTSNanos), Duration: d}
 }
 
