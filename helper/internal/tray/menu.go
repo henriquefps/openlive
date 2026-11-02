@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
-// Package tray shows the helper in the system tray through StatusNotifierItem (D-Bus): KDE
-// Plasma, GNOME with the AppIndicator extension, waybar and most other Linux panels
-//. The icon says idle, live or paused; the menu shows the status and
-// controls the stream. Without a tray host the helper runs headless.
+// Package tray shows the helper in the system tray through StatusNotifierItem
+// (D-Bus): KDE Plasma, GNOME with the AppIndicator extension, waybar and most other Linux
+// panels. The icon says idle, live or paused; the menu shows the status and controls the
+// stream. Without a tray host the helper runs headless.
 package tray
 
 import (

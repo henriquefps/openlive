@@ -54,8 +54,8 @@ type Config struct {
 	SettingEngine *webrtc.SettingEngine
 }
 
-// msid stream id shared by the audio and video tracks, so the viewer keeps them in sync
-//.
+// msid stream id shared by the audio and video tracks, so the viewer keeps them
+// in sync.
 const streamID = "openlive"
 
 // Publisher is a live publication of one media.Stream.

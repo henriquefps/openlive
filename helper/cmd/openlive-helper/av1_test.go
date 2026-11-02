@@ -49,8 +49,8 @@ func TestWithAV1Decision(t *testing.T) {
 	}
 }
 
-// TestWithAV1Mode: the AV1 layer's bitrate follows the preset's mode in the room
-//: 65 % of the H.264 top layer to save data, 100 % for quality.
+// TestWithAV1Mode: the AV1 layer's bitrate follows the preset's mode in the room:
+// 65 % of the H.264 top layer to save data, 100 % for quality.
 func TestWithAV1Mode(t *testing.T) {
 	preset, layers := gameLayers(t)
 	nvidia := func(e string) bool { return e == "nvh264enc" || e == "nvav1enc" }

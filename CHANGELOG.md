@@ -19,7 +19,7 @@ The first public release.
 - A native helper for Linux (Wayland, through the portal and PipeWire; NVENC, VA-API or x264)
   and macOS 13 or later (ScreenCaptureKit and VideoToolbox, signed and notarized).
 - Screen or single window with that app's sound; start, pause (privacy curtain), change quality
-  and stop from the web. Presets up to 1440p60, and 1080p120 and 1440p120 when the admin allows
+  and stop from the web. Presets up to 4K60 (native resolution), and 1080p120 and 1440p120 when the admin allows
   120 fps, sent as simulcast layers.
 - Visual clicks, if the streamer allows them: a viewer clicks the video and a pulsing marker with
   their name and their chosen color and shape shows on the streamer's screen. KDE Plasma for now.

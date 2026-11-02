@@ -68,8 +68,8 @@ func ParseKind(s string) (Kind, error) {
 	return 0, fmt.Errorf("unknown source %q (want monitor or window)", s)
 }
 
-// Source is what is being shared, for the UI: "always show what is being shared"
-//.
+// Source is what is being shared, for the UI: "always show what is being
+// shared".
 type Source struct {
 	Kind  Kind
 	Label string

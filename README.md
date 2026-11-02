@@ -21,20 +21,20 @@ voice channel with cameras and a text chat.
 - **Ownership and control.** Sign-up is by invite, and the group sets its own roles, room rules
   and bans. No platform decides what your group can do or whether it exists. The code is
   AGPL-3.0 and you host it yourself.
-- **Quality without a subscription.** Streams at 1080p60 and 1440p60 (1080p120 and 1440p120 if the
-  admin allows), about 100 ms behind the streamer's screen, for everyone in the group. Discord's
+- **Quality without a subscription.** Streams up to 4K60 (1080p120 and 1440p120 if the admin
+  allows), about 100 ms behind the streamer's screen, for everyone in the group. Discord's
   public Go Live tiers list HD streaming as a [Nitro](https://discord.com/nitro) perk.
 
-|                               | Openlive                                                        | Discord                                   |
-| ----------------------------- | --------------------------------------------------------------- | ----------------------------------------- |
-| Screen streams                | 1080p60 and 1440p60 (120 fps opt-in), ~100 ms, no subscription  | HD streaming is a Nitro perk              |
-| Voice                         | Per room: mute, deafen, push-to-talk, per-person volume         | Yes                                       |
-| Text                          | Per room: mentions, unread, retention you choose (none to 90 d) | Yes                                       |
-| Cameras                       | In voice, 360p and 180p layers, 6 per room by default           | Yes                                       |
-| Who holds the data            | Your group, in your Cloudflare account                          | Discord                                   |
-| Who sets the rules            | Your group's admins                                             | Discord's terms, then the server's admins |
-| Cost                          | Free within Cloudflare's 1,000 GB a month; brakes at your limit | Free, with paid Nitro tiers               |
-| DMs, bots, push notifications | Not yet                                                         | Yes                                       |
+|                               | Openlive                                                           | Discord                                   |
+| ----------------------------- | ------------------------------------------------------------------ | ----------------------------------------- |
+| Screen streams                | Up to 4K60, 120 fps up to 1440p (opt-in), ~100 ms, no subscription | HD streaming is a Nitro perk              |
+| Voice                         | Per room: mute, deafen, push-to-talk, per-person volume            | Yes                                       |
+| Text                          | Per room: mentions, unread, retention you choose (none to 90 d)    | Yes                                       |
+| Cameras                       | In voice, 360p and 180p layers, 6 per room by default              | Yes                                       |
+| Who holds the data            | Your group, in your Cloudflare account                             | Discord                                   |
+| Who sets the rules            | Your group's admins                                                | Discord's terms, then the server's admins |
+| Cost                          | Free within Cloudflare's 1,000 GB a month; brakes at your limit    | Free, with paid Nitro tiers               |
+| DMs, bots, push notifications | Not yet                                                            | Yes                                       |
 
 Openlive's numbers are measured on one machine (see [Numbers](#numbers)); there is no measured
 side-by-side test against Discord.
@@ -210,7 +210,8 @@ cameras use Chrome's fake microphone and camera.
   tray.
 - Visual clicks, if the streamer allows them: a viewer clicks the video and a pulsing marker with
   their name shows on the streamer's screen (KDE Plasma for now). Nothing is clicked for real.
-- Presets: text and code (1080p30), game (1080p60), max (1440p60) and native, plus Game 120
+- Presets: text and code (1080p30), game (1080p60), max (1440p60) and native (the screen's own
+  resolution, up to 4K60), plus Game 120
   (1080p120) and Max 120 (1440p120) when the admin allows 120 fps. Sent as simulcast layers so
   each viewer gets what their connection holds.
 
@@ -268,12 +269,12 @@ portable: [docs/why-cloudflare.md](docs/why-cloudflare.md).
 
 ## Numbers
 
-| What                   | Measured                                                                 |
-| ---------------------- | ------------------------------------------------------------------------ |
-| Glass-to-glass latency | about 100 ms (median 102 ms at 1080p60, 91 ms at 1440p60)                |
-| First frame            | about 0.4 s (median 363 ms, pulling on hover)                            |
-| Quality                | 1080p60 and 1440p60; 1080p120 and 1440p120 presets, off by default       |
-| Free bandwidth         | 1,000 GB a month per instance (Cloudflare Realtime), about 19 full hours |
+| What                   | Measured                                                                      |
+| ---------------------- | ----------------------------------------------------------------------------- |
+| Glass-to-glass latency | about 100 ms (median 102 ms at 1080p60, 91 ms at 1440p60)                     |
+| First frame            | about 0.4 s (median 363 ms, pulling on hover)                                 |
+| Quality                | 1080p60 and 1440p60; native up to 4K60; 1080p120 and 1440p120, off by default |
+| Free bandwidth         | 1,000 GB a month per instance (Cloudflare Realtime), about 19 full hours      |
 
 ## Self-host
 

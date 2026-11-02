@@ -108,12 +108,30 @@ interface Person {
   slotId?: string;
 }
 
+/** Where every scenario's fake clock starts (a Tuesday noon UTC). */
+const START_AT = Date.UTC(2026, 10, 3, 12, 0, 0);
+
+/**
+ * The SpaceDO of the test space outlives a test (its storage is not isolated per test): the
+ * presence rows and alarm a previous scenario left, stamped with its fake clock, would change how
+ * often this one moves the alarm (3 times a day after another scenario, 49 alone). Starts clean.
+ */
+async function resetSpace(): Promise<void> {
+  const space = env.SPACE.get(env.SPACE.idFromName(SPACE_ID));
+  await runInDurableObject(space, async (_i, state) => {
+    state.storage.sql.exec('DELETE FROM room_presence');
+    await state.storage.deleteAlarm();
+  });
+}
+
 /** Runs `shape` on a fake clock and returns what it cost. */
 async function scenario(shape: Shape): Promise<{ report: SqlRecord[]; counter: UsageCounter }> {
   const sfu = new FakeSfu().install();
   const counter = new UsageCounter().install();
-  let now = Date.now();
+  // A fixed start, not the wall clock: the cost must not depend on the time of day it runs.
+  let now = START_AT;
   vi.spyOn(Date, 'now').mockImplementation(() => now);
+  await resetSpace();
   const roomId = await newRoom({ settings: { capabilities: CAPS } });
   const room = roomStub(roomId);
   await counter.attach(room, 'RoomDO');
