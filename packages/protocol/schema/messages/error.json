@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/error.json",
+  "title": "ErrorMessage",
+  "description": "A request failed, or the connection is about to be closed. Carries the request id when it answers one.",
+  "x-openlive": {
+    "phase": 1,
+    "channels": ["room", "hub", "space"],
+    "from": ["server"],
+    "to": ["web", "helper"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "error" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "../codes.json#/$defs/ErrorPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false
+}

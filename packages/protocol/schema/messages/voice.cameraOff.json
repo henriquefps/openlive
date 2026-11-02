@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/voice.cameraOff.json",
+  "title": "VoiceCameraOffMessage",
+  "description": "Turn someone's camera off (since 1.12), same rule as voice.serverMute: canModerate, the owner acts on anyone else, an admin on members and guests. The room closes the camera at the SFU and the target's tab gets voice.cameraStopped with reason moderator; they may turn it on again.",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "voice.cameraOff"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/VoiceCameraOffPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "VoiceCameraOffPayload": {
+      "title": "VoiceCameraOffPayload",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "$ref": "../common.json#/$defs/Id"
+        }
+      },
+      "required": ["userId"],
+      "additionalProperties": false
+    }
+  }
+}

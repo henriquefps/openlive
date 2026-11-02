@@ -1,0 +1,26 @@
+{
+  "name": "@openlive/protocol",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema/*": "./schema/*"
+  },
+  "scripts": {
+    "generate": "node scripts/generate.ts",
+    "check:generated": "node scripts/generate.ts --check",
+    "lint": "eslint .",
+    "typecheck": "tsc",
+    "test": "pnpm check:generated && vitest run",
+    "test:go": "cd go && go vet ./... && go test ./... && golangci-lint run ./..."
+  },
+  "dependencies": {
+    "ajv": "8.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/slot.renew.json",
+  "title": "SlotRenewMessage",
+  "description": "Lease heartbeat. Send every leaseMs/3; the slot is released about leaseMs after the last renewal.",
+  "x-openlive": {
+    "phase": 1,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["slot.renewed", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "slot.renew" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/SlotRenewPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "SlotRenewPayload": {
+      "title": "SlotRenewPayload",
+      "type": "object",
+      "properties": { "slotId": { "$ref": "../common.json#/$defs/Id" } },
+      "required": ["slotId"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/chat.edited.json",
+  "title": "ChatEditedMessage",
+  "description": "A chat message was edited: the reply to chat.edit (with its id) and an event to everyone else (since 1.11).",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["server"],
+    "to": ["web"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "chat.edited"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/ChatEditedPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "ChatEditedPayload": {
+      "title": "ChatEditedPayload",
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "$ref": "../common.json#/$defs/Id"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "editedAt": {
+          "$ref": "../common.json#/$defs/UnixMs"
+        },
+        "mentions": {
+          "type": "array",
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "../common.json#/$defs/Id"
+          }
+        }
+      },
+      "required": ["messageId", "text", "editedAt", "mentions"],
+      "additionalProperties": false
+    }
+  }
+}

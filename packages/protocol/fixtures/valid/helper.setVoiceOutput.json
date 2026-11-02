@@ -1,0 +1,5 @@
+{
+  "type": "helper.setVoiceOutput",
+  "id": "25",
+  "payload": { "deviceId": "d_pc", "label": "Speakers (USB Audio)" }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/stream.terminate.json",
+  "title": "StreamTerminateMessage",
+  "description": "End a stream from the web: your own, or anyone's with canModerate. The room sends stream.stop to the helper.",
+  "x-openlive": {
+    "phase": 2,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "stream.terminate" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/StreamTerminatePayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "StreamTerminatePayload": {
+      "title": "StreamTerminatePayload",
+      "type": "object",
+      "properties": { "streamId": { "$ref": "../common.json#/$defs/Id" } },
+      "required": ["streamId"],
+      "additionalProperties": false
+    }
+  }
+}

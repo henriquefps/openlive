@@ -1,0 +1,78 @@
+name: Bug report
+description: Something does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Security problems go through SECURITY.md, not here. Remove
+        anything private (your instance's address, e-mails, tokens) from logs before posting.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go live with the 1080p60 preset
+        2. Open the room on a second computer
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      multiple: true
+      options:
+        - Web app (watching, rooms, chat, voice)
+        - Helper (capture, encoding, streaming, tray)
+        - API / server
+        - Self-host setup or guide
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Arch (kernel 7.3), Fedora 45, Windows 11, macOS 27...
+    validations:
+      required: true
+  - type: input
+    id: desktop
+    attributes:
+      label: Desktop and compositor (Linux)
+      placeholder: KDE Plasma 6.8 on Wayland, GNOME 50, Hyprland, Sway...
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU and driver
+      placeholder: NVIDIA RTX 4080, driver 615.78; AMD RX 7800 XT, Mesa 26.2...
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      placeholder: Chrome 152, Firefox 150, Safari on iOS 27...
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: The helper (`openlive-helper version`, tarball or Flatpak) and the instance's commit, if you know it.
+  - type: textarea
+    id: doctor
+    attributes:
+      label: openlive-helper doctor
+      description: For anything about streaming, paste the output of `openlive-helper doctor` (Flatpak - `flatpak run dev.hfps.OpenliveHelper doctor`).
+      render: text
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: The helper's output with `-v`, the browser console, or `wrangler tail`, around the problem.
+      render: text

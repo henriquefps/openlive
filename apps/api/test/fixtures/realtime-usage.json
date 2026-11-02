@@ -1,0 +1,27 @@
+{
+  "data": {
+    "viewer": {
+      "accounts": [
+        {
+          "sfuByDay": [
+            {
+              "dimensions": { "appId": "app-openlive-dev", "date": "2026-10-26" },
+              "sum": { "egressBytes": 12500000000 }
+            },
+            {
+              "dimensions": { "appId": "app-openlive-dev", "date": "2026-10-27" },
+              "sum": { "egressBytes": 3400000000 }
+            }
+          ],
+          "turnByDay": [
+            {
+              "dimensions": { "keyId": "turn-key-1", "date": "2026-10-26" },
+              "sum": { "egressBytes": 600000000 }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "errors": null
+}

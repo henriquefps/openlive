@@ -1,0 +1,28 @@
+name: Feature request
+description: An idea for Openlive.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What your group is trying to do and what gets in the way today.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What you would like Openlive to do. Sketches and examples from other apps help.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Workarounds you use now, or other ways to solve it.
+  - type: textarea
+    id: cost
+    attributes:
+      label: Cost and self-hosting
+      description: Openlive runs on each group's own Cloudflare account. Would this add traffic, storage or a new service?

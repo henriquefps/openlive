@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/hello.json",
+  "title": "HelloMessage",
+  "description": "First message on every connection. Authentication already happened at the HTTP upgrade; hello carries the protocol version and what kind of client this is.",
+  "x-openlive": {
+    "phase": 1,
+    "channels": ["room", "hub", "space"],
+    "from": ["web", "helper"],
+    "to": ["server"],
+    "replies": ["welcome", "hub.welcome", "space.presence"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "hello" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelloPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelloPayload": {
+      "title": "HelloPayload",
+      "type": "object",
+      "properties": {
+        "protocol": { "$ref": "../common.json#/$defs/ProtocolVersion" },
+        "client": { "$ref": "../common.json#/$defs/ClientKind" },
+        "clientVersion": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-+][0-9A-Za-z.-]+)?$"
+        },
+        "deviceId": {
+          "$ref": "../common.json#/$defs/Id",
+          "description": "Required when client is helper."
+        },
+        "tabId": {
+          "$ref": "../common.json#/$defs/Id",
+          "description": "Web only: random id of the browser tab, kept for the tab's lifetime. A newer connection with the same tabId replaces the older one (close 4002)."
+        }
+      },
+      "required": ["protocol", "client", "clientVersion"],
+      "additionalProperties": false,
+      "if": { "properties": { "client": { "const": "helper" } } },
+      "then": { "required": ["deviceId"] }
+    }
+  }
+}

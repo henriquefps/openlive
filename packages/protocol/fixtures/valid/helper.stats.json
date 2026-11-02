@@ -1,0 +1,14 @@
+{
+  "type": "helper.stats",
+  "payload": {
+    "deviceId": "d_pc",
+    "streamId": "st_1",
+    "targetBitrateKbps": 8000,
+    "sentBitrateKbps": 7850,
+    "fps": 59.94,
+    "width": 1920,
+    "height": 1080,
+    "packetLossPct": 0.2,
+    "rttMs": 18
+  }
+}

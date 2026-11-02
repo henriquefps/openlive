@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/helper.listSources.json",
+  "title": "HelperListSourcesMessage",
+  "description": "List capturable screens and windows. Thumbnails follow as helper.sourceThumbnail to the requesting web session only.",
+  "x-openlive": {
+    "phase": 3,
+    "channels": ["hub"],
+    "from": ["web"],
+    "to": ["helper"],
+    "replies": ["helper.sources", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "helper.listSources" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelperListSourcesPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelperListSourcesPayload": {
+      "title": "HelperListSourcesPayload",
+      "type": "object",
+      "properties": {
+        "deviceId": { "$ref": "../common.json#/$defs/Id" },
+        "thumbnails": { "type": "boolean" }
+      },
+      "required": ["deviceId", "thumbnails"],
+      "additionalProperties": false
+    }
+  }
+}

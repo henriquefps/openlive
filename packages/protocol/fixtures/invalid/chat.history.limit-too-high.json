@@ -1,0 +1,1 @@
+{ "type": "chat.history", "payload": { "limit": 500 } }

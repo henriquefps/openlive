@@ -1,0 +1,37 @@
+{
+  "name": "openlive",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.15.0",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "build": "pnpm --filter @openlive/web build && pnpm --filter @openlive/api build",
+    "setup": "node scripts/setup/src/main.ts",
+    "version:set": "node scripts/setup/src/version-set.ts",
+    "helper:publish": "node scripts/setup/src/helper-publish.ts",
+    "lint": "eslint .",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "i18n:check": "pnpm --filter @openlive/web i18n:check",
+    "spdx:check": "node scripts/spdx-headers.mjs",
+    "spdx:fix": "node scripts/spdx-headers.mjs --fix",
+    "notices": "node scripts/third-party-notices.mjs",
+    "screenshots": "pnpm --filter @openlive/screenshots shoot"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.13.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-i18next": "6.1.5",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.13.0",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0"
+  }
+}

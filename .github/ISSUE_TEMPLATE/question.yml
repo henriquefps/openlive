@@ -1,0 +1,20 @@
+name: Question
+description: How do I...? Why does Openlive...?
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the [README](https://github.com/henriquefps/openlive#readme) and the
+        [self-hosting guide](https://github.com/henriquefps/openlive/blob/main/docs/self-host.md) first.
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What you are trying to do, and what you already tried or read.

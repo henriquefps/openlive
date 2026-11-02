@@ -1,0 +1,10 @@
+{
+  "type": "stream.announce",
+  "payload": {
+    "sfuSessionId": "x",
+    "source": { "kind": "screen", "label": "DP-1" },
+    "preset": "max",
+    "tracks": [],
+    "hasAudio": false
+  }
+}

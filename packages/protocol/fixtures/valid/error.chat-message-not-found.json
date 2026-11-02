@@ -1,0 +1,5 @@
+{
+  "type": "error",
+  "id": "31",
+  "payload": { "code": "chat_message_not_found", "messageId": "m_12" }
+}

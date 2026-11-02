@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/slot.request.json",
+  "title": "SlotRequestMessage",
+  "description": "Ask for a viewer slot on a stream. Required before subscribing at the SFU.",
+  "x-openlive": {
+    "phase": 1,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["slot.granted", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "slot.request" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/SlotRequestPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "SlotRequestPayload": {
+      "title": "SlotRequestPayload",
+      "type": "object",
+      "properties": { "streamId": { "$ref": "../common.json#/$defs/Id" } },
+      "required": ["streamId"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "voice.tracks",
+  "payload": {
+    "tracks": [{ "trackId": "vt_1", "userId": "u_bia" }],
+    "cameras": [
+      { "trackId": "ct_1", "userId": "u_bia", "rids": ["h", "l"] },
+      { "trackId": "ct_2", "userId": "u_caio", "rids": [] }
+    ]
+  }
+}

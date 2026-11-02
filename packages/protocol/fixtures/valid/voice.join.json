@@ -1,0 +1,1 @@
+{ "type": "voice.join", "id": "20", "payload": { "muted": true } }

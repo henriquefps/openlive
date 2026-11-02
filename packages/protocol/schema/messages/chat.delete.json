@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/chat.delete.json",
+  "title": "ChatDeleteMessage",
+  "description": "Delete a chat message (since 1.11): your own, or as owner or admin someone else's (never the owner's, and an admin never another admin's).",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["chat.deleted", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "chat.delete"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/ChatDeletePayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "ChatDeletePayload": {
+      "title": "ChatDeletePayload",
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "$ref": "../common.json#/$defs/Id"
+        }
+      },
+      "required": ["messageId"],
+      "additionalProperties": false
+    }
+  }
+}

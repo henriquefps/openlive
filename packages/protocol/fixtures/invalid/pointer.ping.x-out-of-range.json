@@ -1,0 +1,4 @@
+{
+  "type": "pointer.ping",
+  "payload": { "streamId": "st_1", "x": 1.5, "y": 0.5, "style": { "color": "red", "shape": "dot" } }
+}

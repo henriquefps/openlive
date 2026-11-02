@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/room.expiring.json",
+  "title": "RoomExpiringMessage",
+  "description": "A quick room will expire at expiresAt (an expiry was scheduled or moved while someone is connected).",
+  "x-openlive": { "phase": 1, "channels": ["room"], "from": ["server"], "to": ["web", "helper"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "room.expiring" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/RoomExpiringPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "RoomExpiringPayload": {
+      "title": "RoomExpiringPayload",
+      "type": "object",
+      "properties": { "expiresAt": { "$ref": "../common.json#/$defs/UnixMs" } },
+      "required": ["expiresAt"],
+      "additionalProperties": false
+    }
+  }
+}

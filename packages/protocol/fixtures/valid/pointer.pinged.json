@@ -1,0 +1,11 @@
+{
+  "type": "pointer.pinged",
+  "payload": {
+    "streamId": "st_1",
+    "userId": "u_2",
+    "name": "Ana",
+    "x": 0,
+    "y": 1,
+    "style": { "color": "pink", "shape": "crosshair" }
+  }
+}

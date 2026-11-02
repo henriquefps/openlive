@@ -1,0 +1,21 @@
+{
+  "type": "hub.welcome",
+  "id": "1",
+  "payload": {
+    "protocol": { "major": 1, "minor": 0 },
+    "minProtocol": { "major": 1, "minor": 0 },
+    "serverTime": 1793142060000,
+    "userId": "u_ana",
+    "connectionId": "c_9",
+    "helpers": [
+      {
+        "deviceId": "d_pc",
+        "name": "Henrique's PC",
+        "os": "linux",
+        "arch": "amd64",
+        "helperVersion": "0.1.0",
+        "protocol": { "major": 1, "minor": 0 }
+      }
+    ]
+  }
+}

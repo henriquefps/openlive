@@ -1,0 +1,6 @@
+{
+  "code": "cXV4cXV1eGNvcmdlZ3JhdWx0Z2FycGx5Zm9vYmFyYmF",
+  "codeVerifier": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+  "client": "openlive-mobile",
+  "redirectUri": "openlive://auth"
+}

@@ -1,0 +1,12 @@
+{
+  "type": "member.joined",
+  "payload": {
+    "member": {
+      "userId": "u_bruno",
+      "displayName": "Bruno",
+      "avatarUrl": "https://cdn.discordapp.com/avatars/1/a.png",
+      "role": "guest",
+      "canStream": false
+    }
+  }
+}

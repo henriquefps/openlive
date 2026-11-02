@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/helper.sources.json",
+  "title": "HelperSourcesMessage",
+  "description": "Reply to helper.listSources.",
+  "x-openlive": { "phase": 3, "channels": ["hub"], "from": ["helper"], "to": ["web"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "helper.sources" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelperSourcesPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelperSourcesPayload": {
+      "title": "HelperSourcesPayload",
+      "type": "object",
+      "properties": {
+        "deviceId": { "$ref": "../common.json#/$defs/Id" },
+        "sources": {
+          "type": "array",
+          "items": { "$ref": "../common.json#/$defs/SourceDescriptor" }
+        }
+      },
+      "required": ["deviceId", "sources"],
+      "additionalProperties": false
+    }
+  }
+}

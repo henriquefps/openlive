@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/helper.stopStream.json",
+  "title": "HelperStopStreamMessage",
+  "description": "Stop the helper's current stream (also from another device, e.g. the phone).",
+  "x-openlive": {
+    "phase": 3,
+    "channels": ["hub"],
+    "from": ["web"],
+    "to": ["helper"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "helper.stopStream" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelperStopStreamPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelperStopStreamPayload": {
+      "title": "HelperStopStreamPayload",
+      "type": "object",
+      "properties": { "deviceId": { "$ref": "../common.json#/$defs/Id" } },
+      "required": ["deviceId"],
+      "additionalProperties": false
+    }
+  }
+}

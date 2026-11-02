@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  node:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      # packages/protocol's check:generated formats the generated Go code with gofmt.
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.x'
+          cache: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm format:check
+      - run: pnpm i18n:check
+      - run: pnpm spdx:check
+      - run: pnpm notices --check
+
+  go:
+    name: Go
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Find Go modules under packages/ and helper/
+        id: modules
+        run: |
+          modules=$(find packages helper -name go.mod -not -path '*/node_modules/*' -exec dirname {} \; 2>/dev/null | sort | tr '\n' ' ')
+          echo "dirs=${modules}" >> "$GITHUB_OUTPUT"
+          echo "Go modules: ${modules:-none}"
+      - uses: actions/setup-go@v7
+        if: steps.modules.outputs.dirs != ''
+        with:
+          go-version: '1.27.x'
+          cache-dependency-path: |
+            packages/**/go.sum
+            helper/go.sum
+      # helper/ links GStreamer through cgo (go-gst); the runners have no GStreamer, so it is
+      # built and tested with the nogst tag: the media backend becomes a stub, the GStreamer
+      # integration test is excluded, everything else runs (helper/README.md).
+      - name: gofmt, go vet, go test
+        if: steps.modules.outputs.dirs != ''
+        run: |
+          for dir in ${{ steps.modules.outputs.dirs }}; do
+            echo "::group::$dir"
+            if [ "$dir" = helper ]; then export GOFLAGS=-tags=nogst CGO_ENABLED=0; else unset GOFLAGS CGO_ENABLED; fi
+            unformatted=$(gofmt -l "$dir")
+            if [ -n "$unformatted" ]; then
+              echo "gofmt needed:"; echo "$unformatted"; exit 1
+            fi
+            (cd "$dir" && go vet ./... && go test ./...)
+            echo "::endgroup::"
+          done
+      - uses: golangci/golangci-lint-action@v9
+        if: steps.modules.outputs.dirs != ''
+        with:
+          version: v2.15.0
+          install-only: true
+      - name: golangci-lint
+        if: steps.modules.outputs.dirs != ''
+        run: |
+          for dir in ${{ steps.modules.outputs.dirs }}; do
+            if [ "$dir" = helper ]; then export GOFLAGS=-tags=nogst CGO_ENABLED=0; else unset GOFLAGS CGO_ENABLED; fi
+            (cd "$dir" && golangci-lint run ./...)
+          done
+      # The macOS backend is tested above against a fake sidecar (it builds on every unix);
+      # there is no macOS runner yet, so this keeps the darwin build compiling and lint-clean.
+      # The Swift sidecar (helper/macos-capture) is built and tested on a Mac only.
+      - name: helper for macOS (cross-compiled vet and lint)
+        if: contains(steps.modules.outputs.dirs, 'helper')
+        working-directory: helper
+        env:
+          GOOS: darwin
+          GOARCH: arm64
+          CGO_ENABLED: '0'
+        run: |
+          go vet ./...
+          golangci-lint run ./...

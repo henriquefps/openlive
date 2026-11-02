@@ -1,0 +1,11 @@
+{
+  "type": "helper.sourceThumbnail",
+  "payload": {
+    "deviceId": "d_pc",
+    "sourceId": "screen:0",
+    "mimeType": "image/webp",
+    "width": 320,
+    "height": 180,
+    "data": "UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA="
+  }
+}

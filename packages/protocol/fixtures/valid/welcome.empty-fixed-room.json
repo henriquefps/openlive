@@ -1,0 +1,30 @@
+{
+  "type": "welcome",
+  "id": "1",
+  "payload": {
+    "protocol": { "major": 1, "minor": 0 },
+    "minProtocol": { "major": 1, "minor": 0 },
+    "serverTime": 1793142060000,
+    "you": {
+      "userId": "u_ana",
+      "connectionId": "c_1",
+      "role": "member",
+      "permissions": { "canStream": true, "canModerate": false }
+    },
+    "room": {
+      "roomId": "r_games",
+      "spaceId": "s_friends",
+      "kind": "fixed",
+      "visibility": "restricted",
+      "name": "Jogatina"
+    },
+    "settings": {
+      "maxStreams": 5,
+      "maxViewersPerStream": 6,
+      "maxBitrateKbps": 12000,
+      "allowedPresets": []
+    },
+    "members": [],
+    "streams": []
+  }
+}

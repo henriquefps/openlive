@@ -1,0 +1,10 @@
+<!-- Openlive: a screen with broadcast waves above it; the outer wave fades (more viewers). -->
+<g fill="currentColor">
+  <circle cx="50" cy="35" r="6"/>
+</g>
+<g stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none">
+  <path d="M39.3 25.4 A14 14 0 0 1 60.7 25.4"/>
+  <path d="M30 14.6 A26 26 0 0 1 70 14.6" opacity="0.7"/>
+  <rect x="12" y="50" width="76" height="38" rx="9"/>
+  <path d="M36 98 H64"/>
+</g>

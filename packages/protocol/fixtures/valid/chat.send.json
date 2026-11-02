@@ -1,0 +1,5 @@
+{
+  "type": "chat.send",
+  "id": "30",
+  "payload": { "text": "hi @Ana, look https://example.com", "clientId": "k1" }
+}

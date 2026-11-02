@@ -1,0 +1,1 @@
+{ "type": "helper.setPreset", "id": "25", "payload": { "deviceId": "d_pc", "preset": "max120" } }

@@ -1,0 +1,27 @@
+{
+  "name": "@openlive/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8790 --local-upstream localhost:5179 --upstream-protocol http",
+    "cf-typegen": "wrangler types --strict-vars=false",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "build": "wrangler deploy --dry-run --env production",
+    "typecheck": "wrangler types --strict-vars=false --check && tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@openlive/protocol": "workspace:*",
+    "@openlive/usage": "workspace:*",
+    "hono": "4.13.14",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "1.4.7",
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5",
+    "wrangler": "4.152.0"
+  }
+}

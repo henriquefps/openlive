@@ -1,0 +1,5 @@
+{
+  "type": "error",
+  "id": "7",
+  "payload": { "code": "viewer_limit_reached", "streamId": "st_1", "limit": 6, "used": 6 }
+}

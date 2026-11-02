@@ -1,0 +1,8 @@
+{
+  "type": "helper.status",
+  "payload": {
+    "deviceId": "d_pc",
+    "state": "live",
+    "stream": { "roomId": "r_quick1", "streamId": "st_1", "sourceId": "screen:0", "preset": "game" }
+  }
+}

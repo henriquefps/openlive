@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/hub.welcome.json",
+  "title": "HubWelcomeMessage",
+  "description": "Reply to hello on the user hub: which helpers are online.",
+  "x-openlive": { "phase": 3, "channels": ["hub"], "from": ["server"], "to": ["web", "helper"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "hub.welcome" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HubWelcomePayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HubWelcomePayload": {
+      "title": "HubWelcomePayload",
+      "type": "object",
+      "properties": {
+        "protocol": { "$ref": "../common.json#/$defs/ProtocolVersion" },
+        "minProtocol": { "$ref": "../common.json#/$defs/ProtocolVersion" },
+        "serverTime": { "$ref": "../common.json#/$defs/UnixMs" },
+        "userId": { "$ref": "../common.json#/$defs/Id" },
+        "connectionId": { "$ref": "../common.json#/$defs/Id" },
+        "helpers": { "type": "array", "items": { "$ref": "../common.json#/$defs/HelperInfo" } }
+      },
+      "required": ["protocol", "minProtocol", "serverTime", "userId", "connectionId", "helpers"],
+      "additionalProperties": false
+    }
+  }
+}

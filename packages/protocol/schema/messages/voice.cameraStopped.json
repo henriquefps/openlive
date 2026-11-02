@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/voice.cameraStopped.json",
+  "title": "VoiceCameraStoppedMessage",
+  "description": "The room closed your camera (since 1.12): sent only to the tab in voice whose camera it was. Stop the camera's transceiver and the local track; everyone else sees VoiceParticipant.camera turn false.",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["server"],
+    "to": ["web"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "voice.cameraStopped"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/VoiceCameraStoppedPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "VoiceCameraStoppedPayload": {
+      "title": "VoiceCameraStoppedPayload",
+      "type": "object",
+      "properties": {
+        "reason": {
+          "$ref": "../codes.json#/$defs/CameraStopReason"
+        }
+      },
+      "required": ["reason"],
+      "additionalProperties": false
+    }
+  }
+}

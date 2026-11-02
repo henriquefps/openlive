@@ -1,0 +1,1 @@
+{ "type": "stream.stop", "payload": { "streamId": "st_1", "reason": "ended_by_moderator" } }

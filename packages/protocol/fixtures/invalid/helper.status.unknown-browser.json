@@ -1,0 +1,13 @@
+{
+  "type": "helper.status",
+  "payload": {
+    "deviceId": "d_pc",
+    "state": "live",
+    "stream": {
+      "roomId": "r_quick1",
+      "sourceId": "window:1",
+      "preset": "game",
+      "audioApp": { "name": "Netscape", "browser": "netscape" }
+    }
+  }
+}

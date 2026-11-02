@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/slot.release.json",
+  "title": "SlotReleaseMessage",
+  "description": "Give the slot back (viewer closed the player).",
+  "x-openlive": {
+    "phase": 1,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["slot.released"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "slot.release" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/SlotReleasePayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "SlotReleasePayload": {
+      "title": "SlotReleasePayload",
+      "type": "object",
+      "properties": { "slotId": { "$ref": "../common.json#/$defs/Id" } },
+      "required": ["slotId"],
+      "additionalProperties": false
+    }
+  }
+}

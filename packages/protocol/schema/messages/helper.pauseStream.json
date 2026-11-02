@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/helper.pauseStream.json",
+  "title": "HelperPauseStreamMessage",
+  "description": "Privacy curtain on or off from the web.",
+  "x-openlive": {
+    "phase": 3,
+    "channels": ["hub"],
+    "from": ["web"],
+    "to": ["helper"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "helper.pauseStream" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelperPauseStreamPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelperPauseStreamPayload": {
+      "title": "HelperPauseStreamPayload",
+      "type": "object",
+      "properties": {
+        "deviceId": { "$ref": "../common.json#/$defs/Id" },
+        "paused": { "type": "boolean" }
+      },
+      "required": ["deviceId", "paused"],
+      "additionalProperties": false
+    }
+  }
+}

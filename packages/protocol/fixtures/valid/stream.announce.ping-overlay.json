@@ -1,0 +1,12 @@
+{
+  "type": "stream.announce",
+  "id": "4",
+  "payload": {
+    "sfuSessionId": "5f2e1c0a9b8d",
+    "source": { "kind": "screen", "label": "DP-2" },
+    "preset": "native",
+    "tracks": [{ "name": "video", "kind": "video", "rids": ["f", "h", "q"] }],
+    "hasAudio": false,
+    "pingOverlay": true
+  }
+}

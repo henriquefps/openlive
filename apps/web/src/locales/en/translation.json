@@ -1,0 +1,2083 @@
+{
+  "app": {
+    "name": "Openlive",
+    "home": "Openlive home",
+    "skipToContent": "Skip to content",
+    "nav": {
+      "label": "Main",
+      "spaces": "Spaces",
+      "settings": "Settings",
+      "download": "Download"
+    },
+    "breadcrumb": {
+      "label": "Breadcrumb",
+      "back": "Back",
+      "backTo": "Back to {{name}}",
+      "settings": "Settings",
+      "setup": "Setup",
+      "users": "Users"
+    },
+    "sidebar": {
+      "title": "Navigation",
+      "toggle": "Toggle the sidebar",
+      "rooms": "Rooms in {{space}}",
+      "morePeople_one": "+{{count}} more",
+      "morePeople_other": "+{{count}} more"
+    }
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "pt-BR": "Português (Brasil)"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "common": {
+    "comingSoon": "Coming soon",
+    "loadFailed": "Could not load this",
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "done": "Done",
+    "save": "Save",
+    "close": "Close",
+    "back": "Back"
+  },
+  "home": {
+    "title": "Openlive",
+    "intro": "Share your screen in private rooms with your friends.",
+    "description": "Create a space for your group, open a room and go live. Everyone in the room sees who is streaming and can watch, with no install to watch.",
+    "signIn": {
+      "discord": "Continue with Discord",
+      "or": "or get a link by e-mail",
+      "note": "No account yet? Signing in creates one.",
+      "inviteOnly": "This instance is invite-only: to create an account, ask for an invite link. Existing accounts sign in as usual.",
+      "withInvite": "Sign in to accept your invite. A new account is created for you if you need one.",
+      "withCode": "Sign in to join the room. A new account is created for you if you need one."
+    },
+    "signedIn": "Signed in as {{name}}.",
+    "openSpaces": "Open your spaces",
+    "features": {
+      "label": "How it works",
+      "rooms": {
+        "title": "Private rooms",
+        "description": "Spaces and rooms are invite-only. Only members see who is live."
+      },
+      "helper": {
+        "title": "A small helper app",
+        "description": "The helper on your computer captures a screen or a single window, with the app's audio."
+      },
+      "watch": {
+        "title": "Watch in the browser",
+        "description": "Friends watch on desktop or phone, straight from the browser."
+      }
+    },
+    "health": {
+      "label": "Server",
+      "loading": "Checking the server…",
+      "ok": "Server version {{version}} ({{commit}})"
+    }
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "logout": "Log out",
+    "menu": "Account menu for {{name}}",
+    "email": {
+      "label": "E-mail",
+      "submit": "Send sign-in link",
+      "sending": "Sending…",
+      "sentTitle": "Check your inbox",
+      "sentTo": "We sent a sign-in link to {{email}}. It works once and expires in 15 minutes.",
+      "sent": "We sent a sign-in link to your e-mail. It works once and expires in 15 minutes.",
+      "another": "Use another e-mail",
+      "inviteOnly": "This instance is invite-only: new addresses get a link only when they come from an invite."
+    },
+    "link": {
+      "title": "You already have an account",
+      "description": "Your Discord e-mail already belongs to an Openlive account. To connect Discord to it, confirm with a sign-in link sent to that address.",
+      "send": "Send the link"
+    },
+    "verify": {
+      "title": "Finish signing in",
+      "description": "Confirm to sign in with the link from your e-mail. The link works once.",
+      "submit": "Sign in to Openlive",
+      "missing": "This sign-in link is incomplete. Request a new one from the home page."
+    }
+  },
+  "spaces": {
+    "title": "Spaces",
+    "intro": "Groups of friends that share rooms.",
+    "empty": {
+      "title": "No spaces yet",
+      "description": "Create a space for your group, or open an invite link a friend sent you."
+    },
+    "create": {
+      "action": "Create space",
+      "title": "Create a space",
+      "description": "A space is your group: its rooms, members and invites. You will be its owner.",
+      "name": "Name",
+      "slug": "Address",
+      "slugHint": "Lowercase letters, digits and hyphens: {{path}}",
+      "submit": "Create space",
+      "restricted": "On this instance only the platform admin creates spaces. Ask a friend for an invite to theirs."
+    }
+  },
+  "space": {
+    "intro": "Rooms, members and invites of this space.",
+    "loading": "Space",
+    "notFound": {
+      "title": "Space not found"
+    },
+    "tabs": {
+      "rooms": "Rooms",
+      "members": "Members",
+      "invites": "Invites",
+      "requests": "Requests",
+      "status": "Status",
+      "settings": "Settings"
+    },
+    "rooms": {
+      "fixed": "Rooms",
+      "quick": "Quick rooms",
+      "emptyFixed": {
+        "title": "No rooms yet",
+        "description": "Owners and admins create the space's permanent rooms. Anyone can open a quick room."
+      },
+      "emptyQuick": "No quick room is open. A quick room gets a short code and closes on its own.",
+      "restricted": "Restricted",
+      "quickCreated": "Quick room {{code}} is open.",
+      "quickAction": "Quick room",
+      "createAction": "Create room",
+      "create": {
+        "title": "Create a room",
+        "description": "A permanent room with its own address. It stays until an owner or admin archives it.",
+        "name": "Name",
+        "slug": "Address",
+        "visibility": "Who sees it",
+        "submit": "Create room"
+      },
+      "visibility": {
+        "space": "Everyone in the space",
+        "restricted": "Only people I add",
+        "spaceHint": "Every member and guest of the space sees this room.",
+        "restrictedHint": "Owners and admins see it; members and guests need to be added."
+      }
+    },
+    "members": {
+      "empty": {
+        "title": "No members",
+        "description": "People who join through an invite appear here."
+      },
+      "banned": "Banned",
+      "you": "(you)",
+      "bannedAt": "Banned {{date}}",
+      "joinedAt": "Joined {{date}}",
+      "actions": "Actions for {{name}}",
+      "role": "Role",
+      "transfer": "Make owner",
+      "remove": "Remove from space",
+      "ban": "Ban",
+      "unban": "Lift the ban",
+      "confirm": {
+        "ban": {
+          "title": "Ban {{name}}?",
+          "description": "{{name}} leaves every room now and cannot come back through an invite until the ban is lifted.",
+          "action": "Ban"
+        },
+        "remove": {
+          "title": "Remove {{name}}?",
+          "description": "{{name}} leaves the space and its rooms now. An invite can bring them back.",
+          "action": "Remove"
+        },
+        "transfer": {
+          "title": "Make {{name}} the owner?",
+          "description": "{{name}} becomes the owner of the space and you become an admin. Only the new owner can undo this.",
+          "action": "Transfer ownership"
+        }
+      }
+    },
+    "invites": {
+      "intro": "Active invites. The link is shown once, when you create it.",
+      "empty": {
+        "title": "No active invites",
+        "description": "Create an invite and send the link to the people you want in."
+      },
+      "toRoom": "Room {{room}}",
+      "toSpace": {
+        "member": "Space, as member",
+        "guest": "Space, as guest"
+      },
+      "canStream": "Can stream",
+      "approval": "Needs approval",
+      "meta": "Used {{uses}} of {{maxUses}} · until {{date}}",
+      "revoke": "Revoke",
+      "copied": "Invite link copied.",
+      "copyFailed": "Could not copy. Select the link and copy it.",
+      "copy": "Copy",
+      "create": {
+        "action": "Create invite",
+        "title": "Create an invite",
+        "description": "Choose what the invite gives. You get a link to send.",
+        "target": "Invite to",
+        "wholeSpace": "The whole space",
+        "roomHint": "A guest of this room only: they do not see the rest of the space.",
+        "spaceHint": "They join the space and see its rooms.",
+        "role": "Role",
+        "roleHint": {
+          "member": "Members watch, stream and open quick rooms.",
+          "guest": "Guests only watch until someone lets them stream."
+        },
+        "canStream": "Can stream",
+        "canStreamHint": "The guest may stream in this room.",
+        "approval": "Needs approval",
+        "approvalHint": "An owner or admin approves each person who opens the link.",
+        "maxUses": "Uses",
+        "expiry": "Valid for",
+        "expiryOption": {
+          "1": "1 hour",
+          "24": "1 day",
+          "168": "7 days",
+          "720": "30 days"
+        },
+        "submit": "Create invite"
+      },
+      "created": {
+        "title": "Invite created",
+        "description": "Send this link to the people you are inviting.",
+        "link": "Invite link",
+        "onceTitle": "Copy it now",
+        "once": "For your safety the link is shown only once. If you lose it, revoke the invite and create another."
+      }
+    },
+    "requests": {
+      "empty": {
+        "title": "No pending requests",
+        "description": "When an invite needs approval, the people who open it wait here."
+      },
+      "unknown": "Unknown user",
+      "toRoom": "Room {{room}} · {{date}}",
+      "toSpace": "The space · {{date}}",
+      "rejectLabel": "Reject {{name}}",
+      "reject": "Reject",
+      "approveLabel": "Approve {{name}}",
+      "approve": "Approve"
+    },
+    "settings": {
+      "readOnly": "Only owners and admins change these settings.",
+      "saved": "Settings saved.",
+      "title": "Space settings",
+      "description": "The name and the limits of this space's rooms.",
+      "name": "Name",
+      "limits": {
+        "maxStreams": "Streams per room",
+        "maxViewersPerStream": "Viewers per stream",
+        "maxBitrateKbps": "Bitrate (kbps)",
+        "quickRoomHours": "Quick rooms last (hours)",
+        "current": "Now: {{value}}",
+        "hint": "Leave a limit empty to use the platform's. Limits can only be lower than the platform's."
+      },
+      "membersCanInviteGuests": "Members can invite guests",
+      "membersCanInviteGuestsHint": "When off, only owners and admins create invites.",
+      "delete": {
+        "title": "Delete the space",
+        "description": "Closes every room and removes the space for everyone.",
+        "action": "Delete space",
+        "confirmTitle": "Delete {{name}}?",
+        "confirm": "Every room closes now and nobody can open the space again. This cannot be undone."
+      },
+      "leave": {
+        "title": "Leave the space",
+        "description": "You lose access to its rooms. An invite can bring you back.",
+        "action": "Leave space",
+        "confirmTitle": "Leave {{name}}?",
+        "confirm": "You leave every room of this space now."
+      },
+      "capabilities": {
+        "title": "Room features",
+        "description": "What rooms in this space may have. Each room chooses within this."
+      }
+    }
+  },
+  "room": {
+    "intro": "Live streams in this room.",
+    "streams": "Live streams",
+    "empty": {
+      "title": "No one is live",
+      "description": "Live streams in this room will appear here."
+    },
+    "loading": "Room",
+    "notFound": "Room not found",
+    "backToSpace": "Back to {{space}}",
+    "expiresIn": "Closes in {{time}}",
+    "expired": "Closed",
+    "quickIntro": "Quick room {{code}}. It closes on its own.",
+    "present": {
+      "title_one": "{{count}} here",
+      "title_other": "{{count}} here",
+      "titleNoCount": "Here now",
+      "empty": "Nobody is here.",
+      "canStream": "can stream"
+    },
+    "connection": {
+      "connecting": "Connecting to the room…",
+      "reconnecting": "Connection lost. Reconnecting…",
+      "reconnectingHint": "Who is here may be out of date until the connection is back.",
+      "quotaExceeded": "This instance hit a Cloudflare daily free limit. Cloudflare documents a reset at 00:00 UTC, but it can take up to 24 hours to clear.",
+      "quotaExceededHint": "The room will try again every 15 minutes. Nothing you do here can fix it sooner.",
+      "retryNow": "Retry now",
+      "replaced": "Opened in another tab",
+      "replacedHint": "This room is open in another tab or window of this browser.",
+      "useHere": "Use here",
+      "reload": "Please reload",
+      "reloadAction": "Reload",
+      "kicked": "You were removed from the room",
+      "closed": "This room is closed",
+      "noAccess": "You cannot see this room"
+    },
+    "kickReason": {
+      "removed": "Someone removed you from the space.",
+      "banned": "You were banned from the space.",
+      "access_revoked": "Your access to this room was taken away.",
+      "role_changed": "Your role changed and this room is no longer yours to see."
+    },
+    "closeReason": {
+      "expired": "The quick room reached its time limit.",
+      "ended_by_owner": "The quick room was ended.",
+      "archived": "The room was archived.",
+      "deleted": "The space was deleted.",
+      "quota_exhausted": "The space used up its bandwidth for the month.",
+      "suspended": "The space was suspended by the platform admin."
+    },
+    "end": {
+      "action": "End room",
+      "title": "End {{name}}?",
+      "description": "Everyone in the room is disconnected and the code stops working."
+    },
+    "archive": {
+      "action": "Archive",
+      "title": "Archive {{name}}?",
+      "description": "Everyone in the room is disconnected and the room leaves the space's list."
+    },
+    "access": {
+      "action": "Access",
+      "title": "Who sees {{name}}",
+      "description": "Owners and admins always see restricted rooms. Add members and guests here.",
+      "granted": "Has access",
+      "none": "Nobody has been added yet.",
+      "add": "Add",
+      "grantLabel": "Give {{name}} access",
+      "grant": "Add",
+      "roomGuest": "Guest of this room",
+      "canStream": "Can stream",
+      "revokeLabel": "Remove {{name}}'s access",
+      "revoke": "Remove"
+    },
+    "code": {
+      "label": "Room code",
+      "copy": "Copy code",
+      "copyLink": "Copy join link",
+      "copied": "Code copied.",
+      "linkCopied": "Join link copied.",
+      "copyFailed": "Could not copy. Select the code and copy it."
+    },
+    "features": {
+      "action": "Features",
+      "title": "Room features",
+      "description": "What this room has. Owners and admins change it at any time.",
+      "streamOff": "Turning stream off ends the streams that are live now, for everyone.",
+      "saved": "Room features saved."
+    },
+    "panels": {
+      "voice": {
+        "title": "Voice"
+      },
+      "text": {
+        "title": "Chat"
+      }
+    },
+    "layout": {
+      "voice": {
+        "title": "Voice channel",
+        "description": "Talk with everyone in the room. Join to speak and listen."
+      },
+      "text": {
+        "title": "Text channel",
+        "description": "Messages and links for everyone in the room."
+      },
+      "none": {
+        "title": "Nothing to use here",
+        "description": "This space or instance no longer allows what this room has. An owner or admin can change the room's features."
+      }
+    },
+    "live": {
+      "streaming": "{{name}} is streaming",
+      "watch": "Watch"
+    },
+    "stage": {
+      "label": "Streams and people in voice",
+      "emptyBoth": "Join voice to talk, or go live to share your screen.",
+      "emptyVoice": "Nobody is in voice",
+      "joinHint": "Join voice to talk with the room.",
+      "pip": "Your preview. Drag it to another corner."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "intro": "Language, appearance, voice, notifications, where you are signed in and your paired helpers. Profile comes later.",
+    "language": {
+      "description": "The language of the interface."
+    },
+    "theme": {
+      "description": "System follows your device's light or dark setting."
+    },
+    "sessions": {
+      "title": "Sessions",
+      "description": "Browsers and mobile apps signed in to your account. Revoke any you do not recognize.",
+      "device": "{{browser}} on {{os}}",
+      "app": "Openlive app · {{device}}",
+      "unknownDevice": "Unknown browser",
+      "current": "This browser",
+      "currentApp": "This app",
+      "signedInAt": "Signed in {{date}}",
+      "lastUsedAt": "Last used {{date}}",
+      "revoke": "Revoke",
+      "revokeLabel": "Revoke the session on {{name}}"
+    },
+    "mobileApp": {
+      "title": "Use the mobile app",
+      "description": "In the Openlive app, scan this code or enter this instance's address.",
+      "address": "Address:",
+      "qrLabel": "QR code of {{address}}"
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Your name and photo, as the people in your spaces see them.",
+      "name": {
+        "label": "Display name",
+        "description": "Up to {{max}} characters.",
+        "required": "Enter a name.",
+        "tooLong": "Use at most {{max}} characters.",
+        "saved": "Name saved."
+      },
+      "photo": {
+        "label": "Photo",
+        "description": "PNG, JPEG or WebP, up to 5 MB. It is cropped to a square around the centre.",
+        "upload": "Upload photo",
+        "change": "Change photo",
+        "remove": "Remove photo",
+        "discord": "Use my Discord photo",
+        "zoom": "Zoom",
+        "preview": "Preview of your new photo",
+        "save": "Save photo",
+        "saved": "Photo saved.",
+        "removed": "Photo removed.",
+        "discordSet": "Now using your Discord photo.",
+        "badType": "Choose a PNG, JPEG or WebP image.",
+        "tooBig": "This file is over 5 MB.",
+        "unreadable": "This image could not be read. Try another file."
+      }
+    },
+    "devices": {
+      "title": "Paired devices",
+      "description": "Computers running the Openlive helper. Revoke any you no longer use: it disconnects at once.",
+      "empty": "No helper is paired yet. Start the helper on your computer and follow its link.",
+      "system": "{{os}} ({{arch}}), helper {{version}}",
+      "lastSeen": "Last active {{date}}",
+      "pairedAt": "Paired {{date}}",
+      "revoke": "Revoke",
+      "revokeLabel": "Revoke {{name}}",
+      "online": "Online",
+      "offline": "Offline",
+      "liveIn": "Streaming now"
+    },
+    "tutorial": {
+      "title": "Tutorial",
+      "description": "Short tips the first time you open each screen.",
+      "off": "Tutorials are off. Replay turns them back on.",
+      "replay": "Replay tutorial",
+      "replayed": "The tutorial will show again on each screen.",
+      "failed": "Could not reset the tutorial."
+    }
+  },
+  "admin": {
+    "nav": {
+      "platform": "Platform",
+      "claim": "Claim this instance",
+      "users": "Users"
+    },
+    "banner": {
+      "title": {
+        "warn_70": "70% of this month's {{limit}} limit is used",
+        "warn_90": "90% of this month's {{limit}} limit is used",
+        "warn_100": "This month's {{limit}} limit is reached",
+        "freeTier": "This month's usage is past the free tier"
+      },
+      "nearingBlock": "When the limit is reached, new streams are blocked until the billing cycle turns over.",
+      "nearingAlerts": "When the limit is reached, streams continue and only these alerts are shown.",
+      "economy": "Economy mode is on: streams are capped at 1080p and 8 Mbps.",
+      "blocked": "New streams are blocked until the billing cycle turns over. Running streams end after a short grace period.",
+      "overLimit": "Streams continue past the limit: the admin chose alerts only.",
+      "freeTier": "Cloudflare bills every GB above the free 1,000 GB at US$ 0.05.",
+      "freeTierCost": "Cloudflare bills every GB above the free 1,000 GB at US$ 0.05: about {{usd}} so far this cycle.",
+      "details": "See usage"
+    },
+    "claim": {
+      "title": "Claim this instance",
+      "intro": "The first person to enter the install code becomes the platform admin.",
+      "description": "The install code was shown in the terminal when Openlive was deployed (pnpm run setup).",
+      "code": "Install code",
+      "submit": "Claim",
+      "submitting": "Claiming…",
+      "taken": "This instance already has a platform admin."
+    },
+    "overview": {
+      "title": "Platform",
+      "intro": "Bandwidth use across every space in this billing cycle. Stream content is never visible here.",
+      "summary": "This billing cycle",
+      "used": "Used",
+      "usedOf": "{{used}} of {{quota}}",
+      "usedNoLimit": "{{used}}, no limit",
+      "measured": "Estimate vs. Cloudflare",
+      "estimate": "{{value}} estimated",
+      "real": "{{value}} reported",
+      "realNone": "Not reported yet",
+      "daysLeft": "Days left",
+      "daysLeftValue_one": "{{count}} day",
+      "daysLeftValue_other": "{{count}} days",
+      "cycleEnds": "Turns over on {{date}}",
+      "cost": "Cost so far",
+      "costDetail": "{{value}} above the free tier",
+      "withinFree": "Within the free tier",
+      "projected": "Projected this cycle",
+      "projectedDetail": "{{value}} at the pace so far",
+      "projectedCapped": "{{value}}: new streams stop at the limit",
+      "strip": {
+        "soFar": "{{usd}} so far",
+        "projected": "projected {{usd}} this month"
+      },
+      "source": {
+        "estimate": "The brakes use the estimate, the larger number.",
+        "real": "The brakes use Cloudflare's number, the larger one."
+      },
+      "mode": {
+        "block": "At 100% of the limit new streams are blocked.",
+        "alerts_only": "At 100% of the limit only alerts are shown; usage above the free tier is billed.",
+        "unlimited": "No limit: new streams are never blocked; everything above the free tier is billed."
+      },
+      "settings": "Settings and calculator",
+      "spaces": {
+        "title": "Spaces",
+        "name": "Space",
+        "members": "Members",
+        "usage": "Estimated use",
+        "status": "Status",
+        "actions": "Actions",
+        "active": "Active",
+        "suspended": "Suspended",
+        "suspend": "Suspend",
+        "unsuspend": "Lift suspension",
+        "suspendLabel": "Suspend {{name}}",
+        "unsuspendLabel": "Lift the suspension of {{name}}",
+        "suspendHint": "Suspending closes the space's rooms and keeps its members out until you lift it.",
+        "empty": "No spaces yet.",
+        "rowActions": "Actions for {{name}}",
+        "membersMeta_one": "{{count}} member",
+        "membersMeta_other": "{{count}} members"
+      },
+      "unattached": {
+        "title": "Accounts in no space",
+        "hint": "People who signed in but belong to no space or room. Review them on the Users page, where you can ban or delete them.",
+        "review": "Review accounts in no space"
+      },
+      "noEconomy": "Economy mode is off."
+    },
+    "limits": {
+      "title": "Cloudflare limits",
+      "intro": "What this instance uses of the Cloudflare limits it can reach, from Cloudflare's own analytics. Normal use stays far inside the free tier.",
+      "limit": "Limit",
+      "todayUse": "Today (UTC)",
+      "last24hUse": "Last 24 hours",
+      "monthUse": "This month",
+      "overage": "Overage",
+      "freeToday": "Free tier today (compared)",
+      "resets": "Cloudflare documents the free limits as resetting at {{time}} (00:00 UTC); a block can last longer, until the last 24 hours' use falls below the limit (up to 24 h)",
+      "monthSoFar": "Since {{start}} (UTC), against what Workers Paid includes each month",
+      "updated": "Updated {{time}}; Cloudflare's analytics lag a few minutes",
+      "usedOf": "{{used}} of {{limit}} ({{share}})",
+      "overageTotal": "Estimated cost beyond the included amounts this month: {{usd}} (list prices, plus the $5 monthly minimum).",
+      "freeStops": "On Workers Free these are hard caps: at 100 % that part of Openlive stops until Cloudflare lifts the block. Cloudflare documents 00:00 UTC, but the limit has been seen to free up only as the last 24 hours' use drops, so allow up to 24 hours. Workers Logs are the exception (below).",
+      "notAvailable": "Not available: {{reason}}",
+      "cloudflareSaid": "Cloudflare: {{detail}}",
+      "empty": "No data from Cloudflare for this window yet (its analytics lag a few minutes).",
+      "state": {
+        "warning": "Above 70 %",
+        "critical": "Above 90 %",
+        "reached": "Limit reached"
+      },
+      "reason": {
+        "notConfigured": "set {{missing}} on the instance",
+        "permission": "the API token needs {{permission}}",
+        "notExposed": "Cloudflare's analytics do not report it for this account",
+        "failed": "Cloudflare's API refused the query or did not answer; it is tried again in 5 minutes"
+      },
+      "metric": {
+        "doRowsWritten": "Durable Object rows written",
+        "doRowsRead": "Durable Object rows read",
+        "doRequests": "Durable Object requests",
+        "doDuration": "Durable Object duration (GB-s)",
+        "d1RowsWritten": "D1 rows written",
+        "d1RowsRead": "D1 rows read",
+        "workerRequests": "Worker requests"
+      },
+      "plan": {
+        "free": "Workers Free",
+        "paid": "Workers Paid",
+        "unknown": "Plan unknown: choose your plan",
+        "chosen": "As chosen here",
+        "detected": "Detected from the account's subscriptions",
+        "notDetected": "Not detected ({{reason}}); choose it here",
+        "choose": "Cloudflare Workers plan",
+        "option": {
+          "detect": "Detect automatically",
+          "free": "Workers Free",
+          "paid": "Workers Paid"
+        }
+      },
+      "logs": {
+        "name": "Workers Logs events",
+        "estimated": "Estimated: Worker and Durable Object invocations × {{sampling}} sampling",
+        "noteFree": "Workers Logs: past 200,000 events a day Cloudflare keeps only 1 % of the logs until 00:00 UTC; Openlive keeps working. Lower the sampling with the setup's --log-sampling. From 1 December 2026 Cloudflare limits logs to 0.5 GB a day instead, and stops keeping them at the limit.",
+        "notePaid": "Workers Logs: 20 million events a month are included, then $0.60 a million. From 1 December 2026 Cloudflare bills logs by volume instead (50 GB a month included, then $0.25 a GB)."
+      },
+      "raw": {
+        "title_one": "Raw response from Cloudflare ({{count}} query)",
+        "title_other": "Raw responses from Cloudflare ({{count}} queries)",
+        "entry": "{{metric}} · {{window}} · HTTP {{status}}",
+        "window": {
+          "today": "today (UTC)",
+          "last24h": "last 24 hours",
+          "month": "this month"
+        }
+      }
+    },
+    "settings": {
+      "title": "Platform settings",
+      "intro": "Ceilings every space and room stays within, the monthly bandwidth limit, and who can join.",
+      "quality": "Quality and slots",
+      "maxResolution": "Maximum resolution",
+      "maxFps": "Maximum frame rate",
+      "fps": "{{fps}} fps",
+      "fps120Title": "120 fps presets",
+      "fps120Off": "Game 120 (1080p120, ~14 Mbps) and Max 120 (1440p120, ~20 Mbps) are off. Choose 120 fps to offer them; they cost about twice as much per viewer.",
+      "fps120Preset": "{{name}}: {{rate}} with its lower layers and sound, ~{{size}} an hour per viewer.",
+      "presetCapped": "{{name}}: the {{cap}} limit leaves its top layer about {{rate}} instead of {{full}}. Raise the maximum bitrate to {{need}} for the full quality.",
+      "raiseTo": "Raise to {{need}}",
+      "fps120Capped": "The {{cap}} limit leaves its top layer about {{rate}} instead of {{full}}. Raise the maximum bitrate to {{need}} for the full quality.",
+      "maxBitrate": "Maximum bitrate (Mbps)",
+      "maxViewers": "Viewers per stream",
+      "maxStreams": "Streams per room",
+      "range": "From {{min}} to {{max}}.",
+      "budget": {
+        "title": "Monthly limit",
+        "intro": "How much Realtime bandwidth the instance may use each billing cycle. Cloudflare's first 1,000 GB are free; every GB above them costs US$ 0.05.",
+        "choice": {
+          "free": "Free tier",
+          "custom": "Custom",
+          "unlimited": "Unlimited"
+        },
+        "noCost": "{{usd}} a month, free",
+        "maxCost": "Up to {{usd}} a month",
+        "noCap": "No cap on the cost",
+        "hours": "About {{hours}} of full streams",
+        "hoursUnlimited": "No limit on full streams",
+        "customGB": "Limit (GB)",
+        "customUsd": "Or a monthly amount (US$)",
+        "customDescription": "From {{min}} to {{max}}. The amount buys GB above the free {{free}} at US$ 0.05 each.",
+        "unlimitedNote": "Streams are never blocked for usage. Everyone still sees a notice when usage passes the free tier, and you see the cost so far."
+      },
+      "quotaMode": "When the limit is reached",
+      "block": "Block new streams",
+      "alertsOnly": "Alerts only",
+      "blockDescription": "Recommended. New streams are blocked at 95% of the estimated limit; running streams get a warning and end after a 10-minute grace period.",
+      "alertsDescription": "Streams continue past the limit, and Cloudflare bills every GB above the free tier at US$ 0.05.",
+      "autoEconomy": "Economy mode near the limit",
+      "autoEconomyDescription": "Above 90% of the limit, streams are capped at 1080p and 8 Mbps. Turn it off to keep full quality until the limit.",
+      "cycleDay": "Billing cycle reset day",
+      "cycleDayDescription": "The day of the month your Cloudflare billing cycle turns over (1 to 31).",
+      "overheads": "Include measured overheads",
+      "overheadsDescription": "Count about 1.5× the bitrate plus about 15 MB per viewer join, as measured in Phase 0. Turn it off for the plain formula.",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Settings saved.",
+      "access": "Who can join",
+      "inviteOnly": "Invite-only sign-up",
+      "inviteOnlyOn": "Recommended. New accounts need an invite link or a room code; existing accounts always sign in.",
+      "inviteOnlyOff": "Anyone with a Discord account or an e-mail address can create an account.",
+      "adminSpaces": "Only the platform admin creates spaces",
+      "adminSpacesOn": "Recommended. Every space streams on your bandwidth quota, so you decide which ones exist.",
+      "adminSpacesOff": "Anyone signed in can create a space and invite their own group.",
+      "backgroundPause": "Pause hidden tabs",
+      "backgroundPauseDescription": "A viewer whose tab stays in the background for 60 seconds stops receiving video until they come back. Their viewer slot is kept. Picture-in-picture and full screen count as watching.",
+      "idleCheck": "Ask \"Still watching?\"",
+      "idleCheckDescription": "After 2 hours without any interaction, viewers are asked whether they are still watching. With no answer in 60 seconds, they stop watching and free their slot.",
+      "capabilities": "Room features",
+      "capabilitiesDescription": "What spaces and rooms on this instance may have. Turning cameras off saves bandwidth.",
+      "maxCameras": "Cameras per room",
+      "maxCamerasCost": "Each camera is received by everyone else in voice: 6 cameras on the small strip cost about {{strip}} an hour, about {{large}} if everyone enlarges them. 0 turns cameras off.",
+      "av1": {
+        "allow": "Allow AV1",
+        "description": "Streams also send their top layer in AV1 to viewers whose browser decodes it, at about 65 % of the H.264 bitrate to save data or at the same bitrate for a sharper picture, as chosen per preset; everyone else, and every lower layer, stays on H.264. The streamer needs an NVIDIA RTX 40 or newer (or a VA-API GPU that encodes AV1) and uploads the AV1 copy on top. Off until it is measured on real content.",
+        "preset": "{{name}}: codec",
+        "codec": {
+          "av1Save": "AV1: save data",
+          "av1Quality": "AV1: quality",
+          "h264": "H.264 only"
+        },
+        "hint": {
+          "av1Save": "Save data: ~35 % less bandwidth, similar picture.",
+          "av1Quality": "Quality: same bandwidth as H.264, sharper motion.",
+          "h264": "Every viewer gets H.264."
+        },
+        "cost": "~{{h264}} an hour per viewer on H.264, ~{{av1Save}} on AV1 save data, ~{{av1Quality}} on AV1 quality."
+      },
+      "unsaved": "Unsaved changes",
+      "discard": "Discard",
+      "workersPlan": {
+        "description": "The estimate checks Durable Object use against this plan's limits.",
+        "detected": "Detected: {{plan}}. The estimate uses it.",
+        "notDetected": "Not detected yet; choose Workers Free or Workers Paid for the estimate to check Durable Objects."
+      },
+      "sections": {
+        "label": "Settings sections",
+        "streams": {
+          "title": "Streams and quality",
+          "description": "The highest resolution, frame rate and bitrate a stream may use, and how many people a room holds."
+        },
+        "av1": {
+          "title": "AV1",
+          "description": "A second video track for viewers whose browser decodes AV1, per quality preset."
+        },
+        "voice": {
+          "title": "Voice, camera and chat",
+          "description": "What rooms may have, and how many cameras can be on at once."
+        },
+        "budget": {
+          "title": "Limits and budget",
+          "description": "The monthly limit, what happens near and at it, and the brakes that save bandwidth."
+        },
+        "access": {
+          "title": "Access",
+          "description": "Who may create an account and who may create a space."
+        },
+        "cloudflare": {
+          "title": "Cloudflare plan",
+          "description": "Your Workers plan, for the Durable Objects limits."
+        }
+      }
+    },
+    "calculator": {
+      "title": "Cost calculator",
+      "intro": "The same formula as the usage meter, so this estimate and the month's meter agree.",
+      "fullHour": "One hour of a full stream",
+      "fullHourDetail": "{{slots}} viewers × {{bitrate}}",
+      "hoursFit": "Full stream hours a month",
+      "hoursFitDetail": "{{quota}} free each month",
+      "hoursFitLimit": "Within your {{quota}} limit",
+      "scenario": "Typical month",
+      "scenarioIntro": "Edit the scenario to see the month's total and the cost above the free tier.",
+      "streamsPerDay": "Streams per day",
+      "hoursPerStream": "Hours per stream",
+      "viewersPerStream": "Viewers per stream",
+      "days": "Days a month",
+      "total": "Month total",
+      "aboveFree": "Above the free tier",
+      "cost": "Estimated cost",
+      "profiles": "Reference profiles",
+      "profile": {
+        "economy": "Economy",
+        "max": "Maximum",
+        "max120": "Maximum 120 fps"
+      },
+      "profileSpec": "{{resolution}}{{fps}}, {{bitrate}}, {{slots}} slots",
+      "perHour": "{{value}} per full hour",
+      "hoursPerMonth": "{{value}} a month",
+      "overLimit": "This month would go past your {{limit}} limit.",
+      "cameras": "Cameras on",
+      "camerasHint": "Cameras in voice during each stream, seen on the small strip (180p, ~150 kbps).",
+      "cameraHour": "One hour of {{cameras}} cameras among {{people}} people",
+      "cameraHourDetail": "{{strip}} on the strip, {{large}} if everyone enlarges"
+    },
+    "setup": {
+      "title": "Set up Openlive",
+      "intro": "Six short steps before you invite anyone. You can change everything later in the platform settings.",
+      "progress": "Setup progress",
+      "stepOf": "Step {{step}} of {{total}}",
+      "done": "done",
+      "skip": "Skip for now",
+      "back": "Back",
+      "next": "Next",
+      "finish": "Finish setup",
+      "steps": {
+        "account": {
+          "short": "Account",
+          "title": "Admin account",
+          "intro": "The platform admin sets the limits and sees usage across spaces, never stream content."
+        },
+        "checks": {
+          "short": "Checks",
+          "title": "Checks",
+          "intro": "Whether each secret is set and each service answers. Nothing is created or sent."
+        },
+        "quality": {
+          "short": "Quality and slots",
+          "title": "Quality and slots",
+          "intro": "The ceilings every space and room stays within. The calculator shows what they cost."
+        },
+        "calculator": {
+          "short": "Calculator",
+          "title": "What it costs",
+          "intro": "How the ceilings and a typical month use the free bandwidth quota."
+        },
+        "quota": {
+          "short": "Monthly limit",
+          "title": "Monthly limit",
+          "intro": "How much bandwidth the instance may use each month, what happens at the limit, and when the month turns over."
+        },
+        "access": {
+          "short": "Access",
+          "title": "Who can join",
+          "intro": "Whether new accounts need an invite, and who may create spaces. Both use your quota."
+        },
+        "space": {
+          "short": "First space",
+          "title": "First space and invite",
+          "intro": "Create the group's space and its first invite link."
+        }
+      },
+      "account": {
+        "done": "You are the platform admin",
+        "doneDetail": "{{name}} claimed this instance with the install code.",
+        "todo": "This instance has no platform admin yet",
+        "claim": "Claim it with the install code"
+      },
+      "checks": {
+        "guide": "Self-host guide",
+        "rerun": "Run again",
+        "items": {
+          "discord": "Discord login",
+          "email": "E-mail login (Resend)",
+          "sfu": "Realtime SFU",
+          "turn": "Realtime TURN",
+          "d1": "Database (D1)",
+          "r2": "Thumbnail storage (R2)"
+        },
+        "status": {
+          "ok": "OK",
+          "missing": "Missing",
+          "error": "Error"
+        },
+        "codes": {
+          "configured": "Configured.",
+          "secret_missing": "Not set:",
+          "auth_failed": "Cloudflare refused the credentials. Check the id and its token.",
+          "unreachable": "The service did not answer. Try again in a moment.",
+          "unexpected_response": "The service gave an unexpected answer.",
+          "binding_failed": "The binding did not respond. Check wrangler.jsonc."
+        }
+      },
+      "costWarning": {
+        "title": "Usage above the free quota is billed",
+        "body": "Cloudflare charges US$ 0.05 per GB above 1,000 GB a month and never blocks on its own. Openlive warns everyone at 70%, 90% and 100%."
+      },
+      "space": {
+        "createTitle": "Create the first space",
+        "createIntro": "A space is your group: its rooms, members and invites.",
+        "ready": "{{name}} is ready",
+        "inviteIntro": "Create an invite link to send to your friends. The link is shown only once.",
+        "open": "Open the space"
+      },
+      "reminder": {
+        "title": "Setup is not finished",
+        "body": "You stopped at step {{step}} of {{total}}. Pick up where you left off.",
+        "resume": "Resume setup",
+        "dismiss": "Dismiss"
+      }
+    },
+    "users": {
+      "title": "Users",
+      "intro": "Every account on this instance and the spaces it belongs to. You see account details, never what anyone streams.",
+      "search": "Search users",
+      "searchPlaceholder": "Name, e-mail or id",
+      "filter": "Show",
+      "filters": {
+        "all": "All",
+        "no_space": "In no space",
+        "banned": "Banned",
+        "admins": "Platform admins"
+      },
+      "empty": {
+        "all": "No accounts yet.",
+        "no_space": "Every account belongs to a space or a room.",
+        "banned": "Nobody is banned.",
+        "admins": "No platform admins."
+      },
+      "noMatch": "No account matches the search.",
+      "more": "Show more",
+      "columns": {
+        "name": "Name",
+        "spaces": "Spaces",
+        "lastSeen": "Last seen",
+        "status": "Status"
+      },
+      "noSpace": "In no space",
+      "spaceBanned": "banned",
+      "never": "Never",
+      "status": {
+        "active": "Active",
+        "banned": "Banned",
+        "admin": "Platform admin"
+      },
+      "providers": {
+        "discord": "Discord",
+        "email": "E-mail"
+      },
+      "actions": {
+        "ban": "Ban",
+        "unban": "Unban",
+        "sessions": "Sign out everywhere",
+        "devices": "Unpair helpers",
+        "delete": "Delete account"
+      },
+      "detail": {
+        "loading": "Account",
+        "id": "Id",
+        "providers": "Signs in with",
+        "created": "Created",
+        "bannedAt": "Banned on {{date}}",
+        "self": "This is your account: you cannot ban or delete it.",
+        "spaces": "Spaces",
+        "streams": "Live now",
+        "noStreams": "Not streaming.",
+        "streamIn": "{{room}} in {{space}}",
+        "streamMeta_one": "{{preset}} since {{since}}, {{count}} viewer",
+        "streamMeta_other": "{{preset}} since {{since}}, {{count}} viewers",
+        "sessions": "Signed-in browsers",
+        "noSessions": "Not signed in anywhere.",
+        "sessionMeta": "Signed in {{created}}, last active {{seen}}",
+        "devices": "Paired helpers",
+        "noDevices": "No paired helpers.",
+        "seen": "seen {{date}}",
+        "activity": "Recent activity",
+        "noActivity": "Nothing recorded yet.",
+        "by": "by {{name}}",
+        "byThem": "by this account"
+      },
+      "confirm": {
+        "banTitle": "Ban {{name}} from the instance?",
+        "banBody": "They are signed out everywhere, their helpers are unpaired, their streams end and they leave every room now. They cannot sign in again, and their Discord account and e-mail cannot create a new account.",
+        "reason": "Reason (optional)",
+        "reasonHint": "Only platform admins see it.",
+        "unbanTitle": "Unban {{name}}?",
+        "unbanBody": "They can sign in again. They sign in and pair their helpers anew.",
+        "sessionsTitle": "Sign {{name}} out everywhere?",
+        "sessionsBody": "Every browser of this account is signed out. They can sign in again.",
+        "devicesTitle": "Unpair the helpers of {{name}}?",
+        "devicesBody": "Every paired helper stops working and its streams end. They can pair again.",
+        "deleteTitle": "Delete {{name}}?",
+        "deleteBody": "The account and its personal data are deleted: memberships, room access, sessions, helpers, login identities and tutorial progress. Audit entries stay, without the person. This cannot be undone.",
+        "alsoBan": "Also ban",
+        "alsoBanHint": "Their Discord account and e-mail cannot sign up again.",
+        "ownerTitle": "This account owns spaces",
+        "ownerBody": "Transfer or delete these spaces first:",
+        "messages": "Their chat messages",
+        "messagesChoice": {
+          "delete": "Delete them",
+          "anonymize": "Keep them as “account removed”"
+        },
+        "messagesHint": "In every room they wrote in. You never see the messages themselves."
+      },
+      "done": {
+        "sessions_one": "Signed out of {{count}} browser.",
+        "sessions_other": "Signed out of {{count}} browsers.",
+        "devices_one": "Unpaired {{count}} helper.",
+        "devices_other": "Unpaired {{count}} helpers."
+      },
+      "audit": {
+        "invite_accept": "Accepted an invite",
+        "invite_create": "Created an invite",
+        "invite_revoke": "Revoked an invite",
+        "join_request_create": "Asked to join",
+        "join_request_approve": "Join request approved",
+        "join_request_reject": "Join request rejected",
+        "member_role_change": "Role changed",
+        "member_ban": "Banned from a space",
+        "member_unban": "Unbanned in a space",
+        "member_leave": "Left a space",
+        "member_remove": "Removed from a space",
+        "platform_access_update": "Changed who can join",
+        "platform_admin_claim": "Claimed the instance",
+        "platform_settings_update": "Changed the platform settings",
+        "platform_space_suspend": "Suspended a space",
+        "platform_space_unsuspend": "Lifted a space suspension",
+        "platform_user_remove": "Removed an account",
+        "platform_user_ban": "Banned from the instance",
+        "platform_user_unban": "Unbanned on the instance",
+        "platform_user_sessions_revoke": "Signed out everywhere by the admin",
+        "platform_user_devices_revoke": "Helpers unpaired by the admin",
+        "platform_user_delete": "Account deleted",
+        "room_access_grant": "Room access granted",
+        "room_access_revoke": "Room access revoked",
+        "room_archive": "Archived a room",
+        "room_create": "Created a room",
+        "room_join_code": "Joined a room by code",
+        "room_update": "Changed a room",
+        "space_create": "Created a space",
+        "space_delete": "Deleted a space",
+        "space_transfer": "Space ownership transferred",
+        "space_update": "Changed a space"
+      },
+      "spaceCount_one": "{{count}} space",
+      "spaceCount_other": "{{count}} spaces",
+      "lastSeenMeta": "Seen {{when}}"
+    },
+    "estimate": {
+      "title": "Monthly estimate",
+      "intro": "From the settings on this page, unsaved changes included, and the scenario below.",
+      "open": "Details",
+      "month": "GB a month",
+      "perMonth": "{{value}} a month",
+      "cost": "Cost",
+      "costDetail": "Above the {{free}} free each month, at {{price}} per GB.",
+      "fits": "Fits your {{limit}} limit",
+      "over": "Over your {{limit}} limit",
+      "overShort": "Over the limit",
+      "unlimited": "No monthly limit",
+      "hoursFit": "Up to {{hours}} a day of this scenario fit the limit.",
+      "hoursFitFree": "Up to {{hours}} a day of this scenario fit the free tier.",
+      "economy": "Economy mode starts at {{at}}; the month would end near {{total}}.",
+      "breakdown": "By source",
+      "source": {
+        "streamsH264GB": "Streams, H.264",
+        "streamsAv1GB": "Streams, AV1",
+        "voiceGB": "Voice",
+        "camerasGB": "Cameras"
+      },
+      "clamped": {
+        "viewers": "Your settings allow {{viewers}} viewers per stream.",
+        "streamers": "Your settings allow {{streamers}} streams per room.",
+        "cameras": "{{cameras}} cameras: your camera limit, or the people in voice.",
+        "voice": "Voice is off for rooms.",
+        "stream": "Streaming is off for rooms.",
+        "preset": "{{preset}} is the highest preset your settings allow."
+      },
+      "workers": {
+        "free": "Workers Free: about {{rows}} Durable Object rows written and {{requests}} requests a day, {{share}} of a daily cap.",
+        "paid": "Workers Paid: {{share}} of the Durable Objects included each month, about {{usd}} beyond them."
+      },
+      "scenario": "Scenario",
+      "resetScenario": "Reset",
+      "input": {
+        "viewers": "Friends watching",
+        "streamers": "Streamers",
+        "hoursPerDay": "Hours a day",
+        "daysPerMonth": "Days a month",
+        "voicePeople": "People in voice",
+        "cameras": "Cameras on",
+        "preset": "Preset",
+        "av1Share": "Viewers that decode AV1"
+      }
+    }
+  },
+  "download": {
+    "title": "Download",
+    "intro": "The Openlive helper captures your screen and streams it. Watching needs only the browser.",
+    "yourSystem": "Your system",
+    "action": "Download",
+    "comingLater": "Coming later. For now the helper runs on Linux and macOS.",
+    "sha256": "SHA-256",
+    "copied": "Copied",
+    "copyFailed": "Could not copy. Select the text and copy it by hand.",
+    "copySha": "Copy the SHA-256 of {{name}}",
+    "copyCommands": "Copy the {{name}} commands",
+    "os": {
+      "windows": "Windows",
+      "macos": "macOS",
+      "linux": "Linux"
+    },
+    "linux": {
+      "intro": "x86-64 (amd64). Download one of the two, install it, then pair it with this instance.",
+      "version": "Version {{version}}, published {{date}}",
+      "releaseNotes": "Release notes",
+      "install": "Install and pair",
+      "tarball": {
+        "title": "Tarball",
+        "recommended": "Recommended for NVIDIA",
+        "description": "Uses your system's GStreamer and graphics driver, so NVENC works with the driver you have. Installs into ~/.local, no root."
+      },
+      "flatpak": {
+        "title": "Flatpak",
+        "description": "Sandboxed, with GStreamer from the Flatpak runtime. On NVIDIA, NVENC needs Flathub's extension for your exact driver version; without it the helper encodes on the CPU."
+      },
+      "doctor": "Run openlive-helper doctor to see which encoders work on your machine.",
+      "encoderNotes": "Encoder notes",
+      "signedOut": "Sign in to download the helper.",
+      "noSpace": "The helper is for members of a space on this instance. Join a space with an invite, then come back.",
+      "unpublished": "No helper published yet",
+      "adminHint": "Build and upload one from the repository with:",
+      "unpublishedMember": "The helper is not available on this instance yet. Ask whoever runs it."
+    },
+    "macos": {
+      "intro": "macOS 13 or later, on Apple silicon or Intel. Signed and notarized by Apple.",
+      "dmg": {
+        "title": "Disk image",
+        "description": "One app with the helper inside. It lives in the menu bar and starts when you log in."
+      },
+      "steps": {
+        "open": "Open {{name}} and drag Openlive Helper onto Applications.",
+        "launch": "Open Openlive Helper from Applications. The first time, macOS asks whether to open an app downloaded from the internet: Open.",
+        "pair": "When it asks for the address, enter this one, then confirm the code in the browser:",
+        "screen": "When macOS asks, allow Screen Recording (System Settings > Privacy & Security > Screen & System Audio Recording).",
+        "goLive": "Use Go live in a room: the helper streams from the menu bar."
+      },
+      "unpublished": "No macOS helper published yet",
+      "adminHint": "Build and notarize the disk image on a Mac with packaging/macos/build-app.sh, then publish it with:",
+      "unpublishedMember": "The macOS helper is not available on this instance yet. Ask whoever runs it."
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "intro": "This page does not exist.",
+    "back": "Go to the home page"
+  },
+  "stream": {
+    "resolution": "{{height}}p{{fps}}",
+    "meta": "{{resolution}} · {{bitrate}}",
+    "slots": "{{used}}/{{limit}}",
+    "slotsLabel": "{{used}} of {{limit}} viewer slots taken",
+    "noPreview": "No preview",
+    "status": {
+      "live": "Live",
+      "paused": "Paused",
+      "full": "Full",
+      "failed": "Failed"
+    },
+    "watch": "Watch {{name}}'s stream",
+    "economy": "Economy"
+  },
+  "status": {
+    "ok": "OK",
+    "live": "Live",
+    "warning": "Attention",
+    "failed": "Failed",
+    "idle": "Stopped"
+  },
+  "dev": {
+    "title": "Components",
+    "intro": "Fixtures for reviewing the design system. This page exists only in development builds.",
+    "streamCards": "Stream cards",
+    "statusBadges": "Status badges",
+    "emptyGrid": "Empty stream grid",
+    "player": "Player",
+    "playerIntro": "A room with fake streams (canvas clock and tone). Force any state from the panel; no backend needed."
+  },
+  "presets": {
+    "text": "Text and code",
+    "game": "Game",
+    "max": "Max",
+    "native": "Native",
+    "game120": "Game 120",
+    "max120": "Max 120"
+  },
+  "errors": {
+    "unknown": "Something went wrong. Please try again.",
+    "unauthenticated": "You need to sign in.",
+    "session_expired": "Your session expired. Please sign in again.",
+    "forbidden": "You are not allowed to do that.",
+    "hello_required": "The connection was not set up correctly. Please reload the page.",
+    "protocol_unsupported": "This version of the app is no longer supported. Please update it.",
+    "invalid_message": "The server rejected an invalid request.",
+    "unknown_message_type": "The server does not understand this request. Please update the app.",
+    "rate_limited": "Too many requests. Try again in {{retryAfter}}.",
+    "internal_error": "The server had a problem. Please try again.",
+    "room_not_found": "This room does not exist.",
+    "room_closed": "This room is closed.",
+    "stream_not_found": "This stream has ended or does not exist.",
+    "stream_permission_required": "You do not have permission to stream in this room.",
+    "stream_limit_reached": "This room already has the maximum of {{limit}} streams.",
+    "stream_paused": "This stream is paused.",
+    "pings_disabled": "The streamer has not allowed pointer pings.",
+    "preset_not_allowed": "The {{preset}} quality is not allowed in this room.",
+    "viewer_limit_reached": "Stream full ({{used}}/{{limit}}).",
+    "viewer_limit_too_high": "The viewer limit can be at most {{limit}}.",
+    "slot_not_found": "Your viewer slot expired. Please try again.",
+    "offer_not_found": "The slot offer expired or was taken.",
+    "quota_exhausted": "This space has used up its bandwidth for the month.",
+    "helper_offline": "Your helper is offline. Open it on your computer.",
+    "helper_busy": "Your helper is already streaming.",
+    "source_not_found": "That window or screen is no longer available.",
+    "not_found": "This page or resource does not exist.",
+    "space_not_found": "This space does not exist or you are not a member.",
+    "member_not_found": "This person is not a member of the space.",
+    "user_not_found": "This user does not exist.",
+    "slug_taken": "The address \"{{slug}}\" is already in use.",
+    "already_member": "You already have this access.",
+    "banned": "You are banned from this space.",
+    "owner_must_transfer": "Transfer the ownership of the space before leaving it.",
+    "setting_above_ceiling": "This value can be at most {{limit}}.",
+    "invite_not_found": "This invite does not exist.",
+    "invite_expired": "This invite has expired.",
+    "invite_revoked": "This invite was revoked.",
+    "invite_exhausted": "This invite has already been used up.",
+    "join_request_not_found": "This join request does not exist.",
+    "join_request_decided": "This join request was already decided.",
+    "origin_not_allowed": "This request did not come from the Openlive app. Reload the page and try again.",
+    "auth_not_configured": "This sign-in method is not set up on this server yet.",
+    "oauth_state_invalid": "The sign-in took too long or was started in another tab. Please try again.",
+    "oauth_failed": "Discord sign-in was cancelled or did not work. Please try again.",
+    "magic_link_invalid": "This sign-in link has expired or was already used. Request a new one.",
+    "email_send_failed": "We could not send the e-mail. Please try again later.",
+    "session_not_found": "This session no longer exists.",
+    "admin_claim_unavailable": "This server has no install code, so the admin role cannot be claimed.",
+    "admin_already_claimed": "This server already has an admin.",
+    "install_code_invalid": "The install code is not correct.",
+    "space_suspended": "This space is suspended by the platform admin.",
+    "room_code_invalid": "No open quick room has this code. Check it and try again.",
+    "authorization_pending": "Waiting for the pairing to be approved.",
+    "slow_down": "Checking too often; waiting {{intervalMs}} ms between checks.",
+    "expired_token": "This pairing expired. Start the pairing again in the helper.",
+    "device_code_invalid": "This pairing code is wrong or expired. Check the code in the helper.",
+    "device_not_found": "This device is not paired with your account.",
+    "app_code_invalid": "This sign-in code is wrong, used or expired. Sign in again from the app.",
+    "rtc_not_configured": "Streaming is not set up on this instance yet.",
+    "sfu_error": "The media server refused the request. Please try again.",
+    "sfu_session_not_found": "The media connection was lost. Reconnecting may help.",
+    "bitrate_not_allowed": "The bitrate is above this room's limit ({{limit}} kbps).",
+    "signup_invite_required": "This instance is invite-only. To create an account, open the invite link or room link you were sent, then sign in.",
+    "space_creation_restricted": "On this instance only the platform admin creates spaces.",
+    "user_not_removable": "This account belongs to a space or a room now, so it was not removed.",
+    "account_banned": "This account is banned from this instance.",
+    "cannot_target_self": "You cannot do this to your own account.",
+    "last_platform_admin": "The instance needs at least one platform admin.",
+    "capability_disabled": "This room does not have this feature.",
+    "voice_full": "The voice channel is full ({{limit}} people).",
+    "voice_speak_not_allowed": "You cannot speak in this voice channel.",
+    "voice_not_joined": "Not in the voice channel.",
+    "voice_track_not_found": "That person is no longer speaking in the voice channel.",
+    "camera_not_allowed": "You cannot turn a camera on in this room.",
+    "camera_limit_reached": "This room already has {{limit}} cameras on.",
+    "chat_message_too_long": "The message is too long (at most {{limit}} characters).",
+    "chat_write_not_allowed": "Guests cannot write in this chat.",
+    "chat_message_not_found": "That message no longer exists.",
+    "do_quota_exceeded": "This instance hit a Cloudflare daily free limit. Cloudflare documents a reset at 00:00 UTC, but it can take up to 24 hours to clear."
+  },
+  "roles": {
+    "owner": "Owner",
+    "admin": "Admin",
+    "member": "Member",
+    "guest": "Guest"
+  },
+  "invite": {
+    "title": "Invite",
+    "intro": "Someone invited you to Openlive.",
+    "unusable": "This invite can no longer be used",
+    "notFound": "Invite not found",
+    "toSpaces": "Go to your spaces",
+    "room": "{{room}} in {{space}}",
+    "pending": {
+      "title": "Waiting for approval",
+      "description": "Your request to join {{place}} was sent. An owner or admin will approve it; you will see the space in your list once they do."
+    },
+    "joining": "Join {{place}}",
+    "asRoomGuest": "You join this room only, as a guest: you can watch.",
+    "as": {
+      "member": "You join as a member: you can watch, stream and open quick rooms.",
+      "guest": "You join as a guest: you can watch."
+    },
+    "canStream": "You may also stream in this room.",
+    "needsApproval": "An owner or admin approves your request first.",
+    "expires": "Valid until {{date}}",
+    "request": "Ask to join",
+    "accept": "Accept invite",
+    "decline": "Not now"
+  },
+  "openInApp": {
+    "title": "Have the Openlive app?",
+    "description": "Open this invite in the app, or continue below in the browser.",
+    "open": "Open in app",
+    "get": {
+      "ios": "Get the app for iPhone",
+      "android": "Get the app for Android"
+    }
+  },
+  "join": {
+    "title": "Join with code",
+    "intro": "Enter the code of a quick room to join it.",
+    "label": "Room code",
+    "submit": "Join",
+    "hint": "Ask whoever opened the quick room for its code, like OL-4821-0937.",
+    "joining": "Joining {{code}}…",
+    "failed": "Could not join the room"
+  },
+  "tutorial": {
+    "next": "Next",
+    "back": "Back",
+    "done": "Done",
+    "skip": "Skip tutorial",
+    "disable": "Don't show tutorials again",
+    "progress": "Step {{current}} of {{total}}",
+    "spaces": {
+      "what": {
+        "title": "Spaces",
+        "body": "A space is a private group with its own rooms and members. Only people you invite can see it."
+      },
+      "create": {
+        "title": "Create a space",
+        "body": "Start one for your group, then invite friends to it."
+      }
+    },
+    "space": {
+      "rooms": {
+        "title": "Rooms",
+        "body": "Fixed rooms stay until someone archives them. Quick rooms expire on their own."
+      },
+      "quick": {
+        "title": "Quick rooms",
+        "body": "Open a room for tonight in one click; it closes by itself."
+      },
+      "invites": {
+        "title": "Invites",
+        "body": "Create links for members or guests, to the whole space or one room."
+      },
+      "members": {
+        "title": "Members and roles",
+        "body": "Owners and admins manage the space. Guests only watch unless someone lets them stream."
+      },
+      "create": {
+        "title": "Create a room",
+        "body": "Pick a template: watch together, stream only, a voice or a text channel."
+      }
+    },
+    "room": {
+      "presence": {
+        "title": "Who is here",
+        "body": "Everyone in the room right now, live."
+      },
+      "streams": {
+        "title": "The stage",
+        "body": "Live streams and everyone in voice show here as tiles. Watch a stream to see it big."
+      },
+      "golive": {
+        "title": "Go live",
+        "body": "Stream your screen to this room with the helper on your computer."
+      },
+      "features": {
+        "title": "Room features",
+        "body": "Choose what the room has: stream, voice, text."
+      },
+      "voice": {
+        "title": "Voice",
+        "body": "Join the room's voice channel to talk while you watch."
+      },
+      "chat": {
+        "title": "Chat",
+        "body": "Messages and links for everyone in the room. Type @ to mention someone."
+      },
+      "chatButton": {
+        "title": "Chat",
+        "body": "Open the room's messages here. The badge counts what you have not read."
+      }
+    },
+    "topbar": {
+      "preferences": {
+        "title": "Language and theme",
+        "body": "Switch the language and light or dark mode here."
+      },
+      "user": {
+        "title": "Your menu",
+        "body": "Settings, where you can replay this tutorial, and signing out."
+      }
+    },
+    "golive-helper": {
+      "helpers": {
+        "title": "Your helpers",
+        "body": "Each computer with the helper running shows here. Pick the one to stream from."
+      }
+    },
+    "golive-source": {
+      "sources": {
+        "title": "What to share",
+        "body": "Your screens and windows, with previews only you can see. Nothing is shared until you start."
+      }
+    },
+    "golive-options": {
+      "preset": {
+        "title": "Quality",
+        "body": "Higher quality needs more upload. The room may set a limit."
+      },
+      "audio": {
+        "title": "Sound",
+        "body": "Send one app's sound, never your whole computer's, so your voice chat is not heard twice."
+      },
+      "start": {
+        "title": "Start",
+        "body": "Your helper starts streaming and everyone in the room can watch."
+      }
+    },
+    "golive-live": {
+      "controls": {
+        "title": "While live",
+        "body": "Pause hides your screen at once. You can change the quality or stop from any device."
+      }
+    },
+    "admin-users": {
+      "search": {
+        "title": "Find anyone",
+        "body": "Search by name, e-mail or id. Every account on the instance is here."
+      },
+      "filter": {
+        "title": "Filters",
+        "body": "Show the accounts in no space, the banned ones or the platform admins."
+      },
+      "list": {
+        "title": "Open an account",
+        "body": "Its spaces, sessions, helpers and activity, plus ban, sign-out and delete."
+      }
+    },
+    "admin-settings": {
+      "budget": {
+        "title": "Monthly limit",
+        "body": "Pick the free tier, a larger limit, your own, or none. Each shows its maximum cost and how many full streams fit."
+      }
+    },
+    "voice": {
+      "mute": {
+        "title": "Mute",
+        "body": "Stop sending your microphone. Everyone sees the muted icon."
+      },
+      "deafen": {
+        "title": "Deafen",
+        "body": "Hear nobody and mute yourself. Lifting it gives your mute back."
+      },
+      "devices": {
+        "title": "Devices",
+        "body": "Pick the microphone and the speakers, and turn on push-to-talk."
+      },
+      "panel": {
+        "title": "Voice connected",
+        "body": "Your voice stays on while you browse. Go back to the room or disconnect from here."
+      },
+      "camera": {
+        "title": "Camera",
+        "body": "Show your camera to the others in voice. It stays off until you turn it on."
+      }
+    }
+  },
+  "link": {
+    "title": "Pair a helper",
+    "intro": "Connect the Openlive helper on a computer to your account, so it can stream for you.",
+    "codeLabel": "Pairing code",
+    "codeHint": "The helper shows a code like K7F-2QM.",
+    "next": "Continue",
+    "checking": "Checking {{code}}…",
+    "tryAnother": "Enter another code",
+    "confirmTitle": "Pair this helper?",
+    "confirmDescription": "A helper on {{os}} ({{arch}}, version {{version}}) asked to pair with code {{code}}. Only approve it if it is your computer.",
+    "nameLabel": "Device name",
+    "nameHint": "Shown in Settings and when the helper is online.",
+    "defaultName": "{{os}} computer",
+    "approve": "Pair",
+    "pairedTitle": "Helper paired",
+    "pairedDescription": "You can go back to the helper: it connects by itself in a few seconds.",
+    "toDevices": "See paired devices"
+  },
+  "appAuthorize": {
+    "title": "Sign in to the app",
+    "question": "Allow “Openlive” on {{device}} to use your account on {{instance}}?",
+    "description": "Signed in as {{name}}. The app will be able to do what you do here, except administer the instance.",
+    "warning": "Only allow it if you just started signing in from the Openlive app on that device. You can revoke it any time in Settings → Sessions.",
+    "allow": "Allow",
+    "deny": "Deny",
+    "allowed": "Allowed",
+    "denied": "Denied",
+    "backToApp": "Go back to the Openlive app. You can close this page.",
+    "invalid": {
+      "title": "This sign-in request is not valid",
+      "description": "Start signing in again from the Openlive app. Nothing was shared."
+    }
+  },
+  "player": {
+    "label": "{{name}}'s stream",
+    "someone": "Someone",
+    "backToRoom": "Back to the room",
+    "close": "Close",
+    "retryNow": "Retry now",
+    "mute": "Mute (M)",
+    "unmute": "Unmute (M)",
+    "muted": "Muted",
+    "volume": "Volume",
+    "volumeAt": "Volume {{percent}}%",
+    "noAudio": "No audio",
+    "noAudioHint": "The streamer did not turn on app audio, so there is no sound to play.",
+    "tapToUnmute": "Tap to unmute",
+    "unstable": "Unstable network · lower quality",
+    "theater": "Theater mode (T)",
+    "theaterExit": "Default view (T)",
+    "fullscreen": "Fullscreen (F)",
+    "fullscreenExit": "Exit fullscreen (F)",
+    "pip": "Picture in picture",
+    "multiview": "Multi-view",
+    "quality": {
+      "label": "Quality",
+      "auto": "Automatic",
+      "autoAt": "Automatic ({{layer}})"
+    },
+    "stats": {
+      "toggle": "Stats for nerds (I)",
+      "title": "Stats for nerds",
+      "close": "Close stats",
+      "waiting": "Waiting for the first numbers…",
+      "resolution": "Resolution",
+      "fps": "Frame rate",
+      "fpsReceived": "Frame rate received",
+      "screen": "Screen",
+      "screenValue": "{{hz}} Hz · {{shown}} fps shown",
+      "bitrate": "Bitrate",
+      "loss": "Packet loss",
+      "jitterBuffer": "Jitter buffer",
+      "rtt": "Round trip",
+      "codec": "Codec",
+      "layer": "Layer",
+      "decode": "Decode time",
+      "ttff": "Time to first frame",
+      "frames": "Frames",
+      "dropped": "Dropped frames",
+      "droppedValue": "{{value}} a second",
+      "screenLimit": "Your screen is {{hz}} Hz: you are seeing {{hz}} fps of a {{fps}} fps stream.",
+      "framesValue": "{{decoded}} decoded · {{freezes}} freezes · {{lost}} packets lost",
+      "ms": "{{value}} ms"
+    },
+    "queue": {
+      "slots": "{{used}}/{{limit}} slots taken",
+      "join": "Join the queue",
+      "joinHint": "When a slot frees up, you get 30 seconds to take it.",
+      "joining": "Joining the queue…",
+      "position": "You are number {{position}} of {{length}} in line",
+      "leave": "Leave the queue",
+      "offer": "A slot is free for you",
+      "offerLeft": "{{seconds}} s left",
+      "accept": "Watch now",
+      "decline": "Not now",
+      "waiting_one": "{{count}} waiting",
+      "waiting_other": "{{count}} waiting"
+    },
+    "screen": {
+      "connecting": {
+        "title": "Connecting…",
+        "description": "Getting {{name}}'s stream ready."
+      },
+      "paused": {
+        "title": "Paused",
+        "description": "{{name}} paused the stream. It picks up here when they resume.",
+        "sourceHidden": "The window {{name}} is sharing is minimized or hidden. The stream picks up when it is back."
+      },
+      "curtain": {
+        "title": "Privacy curtain",
+        "description": "{{name}} hid their screen for a moment."
+      },
+      "reconnecting": {
+        "title": "Reconnecting…",
+        "description": "The video stopped arriving. Trying again."
+      },
+      "ended": {
+        "title": "The stream ended",
+        "description": "{{name}} is no longer streaming."
+      },
+      "noPermission": {
+        "title": "You can't watch this stream",
+        "description": "Ask an owner or admin of the space for access."
+      },
+      "roomExpired": {
+        "title": "This room expired",
+        "description": "Quick rooms close on their own when their time is up."
+      },
+      "helperOffline": {
+        "title": "{{name}}'s helper went offline",
+        "description": "The stream stopped when the helper lost its connection. It may come back in a moment."
+      },
+      "helperOutdated": {
+        "title": "{{name}}'s helper needs an update",
+        "description": "This stream comes from a helper version this app can't play. Ask them to update it."
+      },
+      "full": {
+        "title": "This stream is full",
+        "description": "Every viewer slot is taken."
+      }
+    },
+    "endReason": {
+      "ended_by_streamer": "{{name}} stopped streaming.",
+      "ended_by_moderator": "A moderator ended this stream.",
+      "helper_disconnected": "{{name}}'s helper lost its connection.",
+      "permission_revoked": "{{name}} can no longer stream in this room.",
+      "room_closed": "The room closed.",
+      "quota_exhausted": "The space used up its bandwidth for the month."
+    },
+    "stillWatching": {
+      "title": "Still watching?",
+      "description": "You haven’t interacted for a while. Watching stops in {{seconds}} s to free your slot for someone else.",
+      "continue": "Keep watching",
+      "stop": "Stop watching"
+    }
+  },
+  "golive": {
+    "action": "Go live",
+    "title": "Go live",
+    "description": "Your helper streams to this room. You control it from here.",
+    "connecting": "Looking for your helpers…",
+    "hubEnded": "Lost the connection to your helpers. Reload the page.",
+    "noPermission": {
+      "title": "You cannot stream here yet",
+      "body": "Ask a moderator of this room for the permission to stream."
+    },
+    "offline": {
+      "title": "Your helper is offline",
+      "body": "Open the Openlive helper on your computer and keep it running. It connects by itself.",
+      "download": "Get the helper",
+      "devices": "Paired devices"
+    },
+    "helper": {
+      "title": "Stream from"
+    },
+    "fit": {
+      "outdated": "Update available",
+      "unsupported": "Update required",
+      "busy": "Streaming elsewhere",
+      "live_here": "Live here"
+    },
+    "source": {
+      "title": "What to share",
+      "loading": "Asking your helper for its screens and windows…",
+      "empty": "Your helper found nothing to share.",
+      "portalScreen": "Choose a screen in the system dialog",
+      "portalWindow": "Choose a window in the system dialog",
+      "portalHint": "Your system shows its own dialog on the computer: pick what to share there.",
+      "last": "Last: {{label}}",
+      "lastHint": "Shares this again without the system dialog. To share something else, go back and choose a screen or window."
+    },
+    "options": {
+      "title": "Options",
+      "preset": "Quality",
+      "resolutionLabel": "Resolution",
+      "resolutionP": "{{height}}p",
+      "resolution4k": "4K (native)",
+      "fpsLabel": "Frame rate (FPS)",
+      "upload": "Needs about {{rate}} of upload.",
+      "roomCap": "This room limits streams to {{rate}}.",
+      "roomCapTop": "The top layer gets about {{rate}} instead of {{full}}.",
+      "audio": "Sound",
+      "start": "Start streaming",
+      "starting": "Starting…"
+    },
+    "audio": {
+      "none": "No sound",
+      "source": "This app's sound",
+      "app": "Sound from {{app}}"
+    },
+    "failure": {
+      "quota": "Streaming is blocked for now",
+      "no_permission": "You cannot stream here",
+      "busy": "Your helper is busy",
+      "offline": "Your helper went offline",
+      "other": "Could not start the stream"
+    },
+    "state": {
+      "idle": "Not streaming",
+      "starting": "Starting your stream…",
+      "live": "You are live",
+      "paused": "Paused",
+      "stopping": "Stopping…",
+      "error": "The stream stopped"
+    },
+    "live": {
+      "on": "Streaming from {{name}}",
+      "curtainHint": "viewers see a paused screen",
+      "pause": "Pause (privacy curtain)",
+      "resume": "Resume",
+      "stop": "Stop streaming"
+    },
+    "stats": {
+      "video": "Video",
+      "videoValue": "{{width}}×{{height}} at {{fps}} fps",
+      "bitrate": "Bitrate",
+      "bitrateValue": "{{sent}} (target {{target}})",
+      "loss": "Packet loss",
+      "lossValue": "{{value}}%",
+      "encoder": "Encoder",
+      "layers": "Layers",
+      "layer": "{{rid}} {{height}}p{{fps}} {{rate}}"
+    }
+  },
+  "metrics": {
+    "spaceTitle": "Status",
+    "spaceIntro": "How streams in this space played: first frame, freezes, drops, the helpers and the most frequent errors.",
+    "adminTitle": "Status",
+    "adminIntro": "How streams played across the instance, and per space.",
+    "range": {
+      "label": "Period",
+      "24h": "Last 24 hours",
+      "7d": "Last 7 days"
+    },
+    "empty": "No streams or viewers in this period yet.",
+    "none": "—",
+    "ms": "{{value}} ms",
+    "kilobytes": "{{value}} KB",
+    "percentOfCore": "{{value}}% of a core",
+    "ttff": "Median first frame",
+    "ttffDetail_one": "90th percentile {{p90}} · {{count}} watch",
+    "ttffDetail_other": "90th percentile {{p90}} · {{count}} watches",
+    "ttffByStart": "Pre-pulled {{prepull}} · on click {{click}}",
+    "freezes": "Freezes per hour",
+    "reconnects_one": "{{count}} reconnect",
+    "reconnects_other": "{{count}} reconnects",
+    "viewerMinutes": "Viewer minutes",
+    "drops": "Dropped streams",
+    "dropsDetail_one": "{{dropped}} of {{count}} ended stream",
+    "dropsDetail_other": "{{dropped}} of {{count}} ended streams",
+    "helper": {
+      "title": "Helpers",
+      "none": "No helper reports in this period.",
+      "minutes": "Stream minutes",
+      "fps": "Frame rate",
+      "fpsValue": "{{sent}} sent · {{captured}} captured",
+      "bitrate": "Mean bitrate",
+      "cpu": "Helper CPU",
+      "keyframes": "Keyframe requests per hour",
+      "idr": "Largest keyframe"
+    },
+    "errors": {
+      "title": "Top errors",
+      "none": "No errors in this period.",
+      "decode_one": "{{count}} playback error in the players",
+      "decode_other": "{{count}} playback errors in the players"
+    },
+    "table": {
+      "space": "Space",
+      "topError": "Top error",
+      "deleted": "Deleted space"
+    },
+    "unavailable": {
+      "notConfigured": "Status needs a Cloudflare API token",
+      "notConfiguredHint": "Set {{missing}} on the Worker (the usage meter uses the same token). Metrics are being recorded in the meantime.",
+      "permission": "The Cloudflare API token cannot read the metrics",
+      "permissionHint": "Give the token the {{permission}} permission. Metrics are being recorded in the meantime.",
+      "failed": "Status is unavailable right now",
+      "failedHint": "Cloudflare's analytics did not answer. Try again in a minute."
+    }
+  },
+  "capabilities": {
+    "stream": {
+      "label": "Stream",
+      "description": "The stream grid and the player."
+    },
+    "voice": {
+      "label": "Voice",
+      "description": "A voice channel to talk while you watch."
+    },
+    "camera": {
+      "label": "Camera",
+      "description": "Cameras in the voice channel. Needs voice."
+    },
+    "text": {
+      "label": "Text",
+      "description": "A text chat for messages and links."
+    },
+    "notAllowed": "Not allowed in this space.",
+    "notAllowedPlatform": "Not allowed on this instance.",
+    "atLeastOne": "Turn on at least one of stream, voice and text.",
+    "templates": {
+      "label": "What the room has",
+      "watchTogether": {
+        "label": "Watch together",
+        "description": "Stream, voice and text."
+      },
+      "streamOnly": {
+        "label": "Stream only",
+        "description": "Streams, like rooms have been so far."
+      },
+      "voice": {
+        "label": "Voice channel",
+        "description": "Talk without a screen. Cameras optional."
+      },
+      "text": {
+        "label": "Text channel",
+        "description": "Messages and links."
+      },
+      "custom": {
+        "label": "Custom",
+        "description": "Choose each one."
+      }
+    }
+  },
+  "voice": {
+    "title": "Voice",
+    "join": "Join voice",
+    "joining": "Joining voice…",
+    "leave": "Leave",
+    "controls": "Voice controls",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "deafen": "Deafen",
+    "undeafen": "Undeafen",
+    "holdToTalk": "Hold to talk ({{key}})",
+    "devices": "Audio devices and push-to-talk",
+    "input": "Microphone",
+    "output": "Speakers",
+    "systemDefault": "System default",
+    "outputUnsupported": "This browser plays voice on the system's speakers.",
+    "pushToTalk": "Push to talk",
+    "pushToTalkKey": "Push-to-talk key: {{key}} (change)",
+    "pressAKey": "Press a key for push-to-talk (Esc cancels).",
+    "status": {
+      "sending": "Your microphone is on: the others hear you.",
+      "muted": "You are muted.",
+      "deafened": "Deafened: you hear nobody and are muted.",
+      "serverMuted": "A moderator muted you.",
+      "pushToTalk": "Push to talk: hold {{key}} while this tab is focused.",
+      "listening": "Listening only.",
+      "connecting": "Connecting the microphone…"
+    },
+    "inVoice": "In voice ({{count}})",
+    "nobody": "Nobody is in voice yet.",
+    "state": {
+      "muted": "Muted",
+      "deafened": "Deafened",
+      "serverMuted": "Muted by a moderator",
+      "speaking": "speaking",
+      "camera": "Camera on"
+    },
+    "personMenu": "Voice options for {{name}}",
+    "volume": "Volume of {{name}}",
+    "percent": "{{value}} %",
+    "serverMute": "Mute for everyone",
+    "serverUnmute": "Unmute for everyone",
+    "kick": "Remove from voice",
+    "listenOnly": "You are in voice, listening only.",
+    "micError": {
+      "denied": "The browser blocked the microphone. Allow it in the site settings to speak.",
+      "no_device": "No microphone found.",
+      "device_lost": "The microphone was disconnected.",
+      "unsupported": "This browser cannot use the microphone on this page.",
+      "failed": "The microphone could not start."
+    },
+    "removed": {
+      "kicked": "A moderator removed you from voice.",
+      "removed": "You no longer have access to this room.",
+      "moved": "Your voice moved to another tab.",
+      "capability_disabled": "Voice was turned off in this room."
+    },
+    "headphones": {
+      "tip": "Tip: headphones sound better. Echo cancellation is on.",
+      "dismiss": "Don't show again"
+    },
+    "settings": {
+      "title": "Voice",
+      "description": "Your microphone, speakers and push-to-talk for voice channels, on this browser.",
+      "key": "Push-to-talk key",
+      "changeKey": "Change",
+      "hint": "Device names show once you have allowed the microphone."
+    },
+    "camera": {
+      "turnOn": "Turn camera on",
+      "turnOff": "Turn camera off",
+      "starting": "Starting camera…",
+      "onAir": "You're on camera",
+      "notAllowed": "Cameras are off for you in this room.",
+      "strip": "Cameras",
+      "enlarge": "Enlarge {{name}}'s camera",
+      "shrink": "Close the enlarged camera",
+      "you": "You",
+      "devices": "Camera",
+      "flip": "Switch camera",
+      "front": "Front camera",
+      "back": "Back camera",
+      "paused": "Cameras paused: the connection is weak, so voice comes first.",
+      "lowQuality": "Cameras in low quality: the connection is unstable.",
+      "dismiss": "Dismiss",
+      "error": {
+        "denied": "Camera access was denied. Allow it in the browser to turn the camera on.",
+        "no_device": "No camera found.",
+        "device_lost": "The camera was disconnected.",
+        "unsupported": "This browser cannot use a camera here.",
+        "failed": "The camera could not start."
+      },
+      "stopped": {
+        "moderator": "A moderator turned your camera off.",
+        "quota_exhausted": "Your camera was turned off: this month's bandwidth is used up. Voice keeps working.",
+        "capability_disabled": "Cameras were turned off in this room.",
+        "not_allowed": "You can no longer use a camera in this room.",
+        "limit": "Your camera was turned off: the room now allows fewer cameras."
+      }
+    },
+    "cameraOff": "Turn camera off",
+    "session": {
+      "label": "Voice connected in {{room}}",
+      "connected": "Voice connected",
+      "connecting": "Connecting to voice…",
+      "goTo": "Go to {{room}}",
+      "disconnect": "Disconnect",
+      "switchTitle": "Switch to {{room}}?",
+      "switchBody": "You will leave the voice in {{room}}.",
+      "switch": "Switch"
+    },
+    "echo": {
+      "title": "People in voice will hear themselves in your stream",
+      "body": "The stream captures this browser's audio. Use another browser for the window you share, or share without audio."
+    },
+    "ducking": {
+      "label": "Lower the stream while someone speaks",
+      "hint": "The stream you watch gets quieter while someone in your voice talks, and comes back after.",
+      "amount": "How much lower",
+      "amounts": {
+        "6": "A little (−6 dB)",
+        "12": "Some (−12 dB)",
+        "18": "A lot (−18 dB)"
+      }
+    },
+    "boostWarning": "Above 100 % without headphones, echo cancellation may not cover this voice.",
+    "tips": {
+      "dismiss": "Got it",
+      "ios": "On iPhone and iPad, keep this tab open with the screen on: the browser cuts the microphone in the background."
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "unread_one": "{{count}} unread message",
+    "unread_other": "{{count}} unread messages",
+    "empty": "No messages yet. Say hi!",
+    "loadingOlder": "Loading older messages",
+    "readOnly": "Guests can read this chat but not write in it.",
+    "offline": "Reconnecting to the room…",
+    "placeholder": "Message the room (@ to mention)",
+    "inputLabel": "Message",
+    "send": "Send",
+    "counter": "{{count}} of {{max}} characters",
+    "mentionSuggestions": "People to mention",
+    "edited": "(edited)",
+    "edit": "Edit",
+    "editLabel": "Edit message",
+    "editHint": "Enter to save, Esc to cancel.",
+    "actions": "Message actions ({{name}})",
+    "accountRemoved": "Account removed",
+    "failed": "Not sent.",
+    "retry": "Retry",
+    "discard": "Discard",
+    "delete": {
+      "title": "Delete this message?",
+      "own": "It is deleted for everyone. This cannot be undone.",
+      "other": "As a moderator you delete it for everyone. This cannot be undone.",
+      "action": "Delete",
+      "moderate": "Delete (moderator)"
+    },
+    "mentionToast": "{{name}} mentioned you in the chat",
+    "mentionElsewhere": "You were mentioned in a room's chat",
+    "retention": {
+      "none": "No history: messages go when the room empties",
+      "days_one": "Messages kept {{count}} day",
+      "days_other": "Messages kept {{count}} days",
+      "quick": "Messages go when the room ends"
+    },
+    "settings": {
+      "retention": "Chat history",
+      "noHistory": "No history",
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days",
+      "retentionHint": "Older messages are deleted automatically. Longer options may be limited by the space.",
+      "noHistoryHint": "Messages are deleted as soon as everyone leaves the room.",
+      "guestsCanWrite": "Guests can write",
+      "guestsCanWriteHint": "Guests can always read the chat."
+    },
+    "close": "Close the chat"
+  },
+  "notices": {
+    "streamStarted": "{{name}} started streaming",
+    "queueSlot": "A slot opened to watch {{name}}",
+    "queueSlotHint": "Accept within 30 seconds.",
+    "viewerJoined": "{{name}} started watching your stream",
+    "streamDropped": "Your stream dropped",
+    "streamDroppedHint": "The helper lost its connection or stopped with an error.",
+    "streamUnstable": "Your network is unstable",
+    "streamUnstableHint": "Viewers may see a lower quality until it recovers.",
+    "voiceJoin": "{{name}} joined voice",
+    "voiceLeave": "{{name}} left voice",
+    "voiceJoinSelf": "You joined voice",
+    "voiceLeaveSelf": "You left voice",
+    "settings": {
+      "title": "Notifications",
+      "description": "Short sounds in the app, each with a message on screen. They play while this tab is open, also in the background, once you have clicked on the page.",
+      "muteAll": "Mute all sounds",
+      "muteAllHint": "The messages on screen stay.",
+      "volume": "Volume",
+      "preview": "Play the sound for: {{name}}",
+      "previewShort": "Play the sound",
+      "kinds": {
+        "streamStarted": "Someone starts streaming",
+        "queueSlot": "A slot opens in the queue",
+        "viewerJoined": "Someone starts watching your stream",
+        "streamProblem": "Your stream drops or your network is unstable",
+        "mention": "Someone mentions you in a chat",
+        "voiceSelf": "You join or leave voice",
+        "voiceOthers": "Someone joins or leaves your voice"
+      },
+      "hints": {
+        "streamStarted": "In a room you have open.",
+        "queueSlot": "You have 30 seconds to take it.",
+        "viewerJoined": "Off unless you turn it on.",
+        "streamProblem": "An alert, from your helper.",
+        "mention": "In a room whose chat is not open.",
+        "voiceSelf": "A sound only: the button already shows it.",
+        "voiceOthers": "In the voice you are in."
+      }
+    }
+  },
+  "pointer": {
+    "allow": "Allow visual clicks",
+    "allowHint": "Viewers can click your stream to show a pulsing marker with their name on your screen. Nothing is clicked on your computer.",
+    "allowGoLiveHint": "Viewers can point at your screen with a pulsing marker and their name. Nothing is clicked on your computer. Works when your helper can draw the clicks.",
+    "unsupported": "Visual clicks need a helper that can draw them on your screen.",
+    "enter": "Click on the screen (P)",
+    "leave": "Stop clicking (P)",
+    "banner": "Your clicks show on {{name}}'s screen",
+    "keyHint": "Arrow keys move, Enter clicks, Esc leaves",
+    "layer": "{{name}}'s screen: click to point",
+    "you": "You",
+    "rateLimited": "Too many clicks. Wait a moment.",
+    "settings": {
+      "title": "Pointer",
+      "description": "How your visual clicks look on someone's screen, when they allow them. For this browser.",
+      "color": "Color",
+      "shape": "Shape",
+      "shapeHint": "Your name shows under it.",
+      "preview": "Preview: {{color}} {{shape}}"
+    },
+    "colors": {
+      "olive": "Olive",
+      "red": "Red",
+      "orange": "Orange",
+      "yellow": "Yellow",
+      "green": "Green",
+      "cyan": "Cyan",
+      "blue": "Blue",
+      "purple": "Purple",
+      "pink": "Pink",
+      "white": "White"
+    },
+    "shapes": {
+      "ring": "Ring",
+      "dot": "Dot",
+      "crosshair": "Crosshair",
+      "star": "Star"
+    }
+  }
+}

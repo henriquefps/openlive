@@ -1,0 +1,6 @@
+{
+  "type": "voice.updated",
+  "payload": {
+    "participant": { "userId": "u_ana", "muted": false, "deafened": false, "joinedAt": 1 }
+  }
+}

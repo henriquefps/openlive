@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/helper.setVoiceOutput.json",
+  "title": "HelperSetVoiceOutputMessage",
+  "description": "Since 1.16: the speakers the voice sink plays on, as the browser labels them (the output picked in Settings > Voice). No label: the system's default output.",
+  "x-openlive": {
+    "phase": 3,
+    "channels": ["hub"],
+    "from": ["web"],
+    "to": ["helper"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "helper.setVoiceOutput" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelperSetVoiceOutputPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelperSetVoiceOutputPayload": {
+      "title": "HelperSetVoiceOutputPayload",
+      "type": "object",
+      "properties": {
+        "deviceId": { "$ref": "../common.json#/$defs/Id" },
+        "label": { "$ref": "../common.json#/$defs/Label" }
+      },
+      "required": ["deviceId"],
+      "additionalProperties": false
+    }
+  }
+}

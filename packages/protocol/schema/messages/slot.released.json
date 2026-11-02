@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/slot.released.json",
+  "title": "SlotReleasedMessage",
+  "description": "The slot is gone: released by the viewer, lease expired, stream ended or access revoked. The client must close its SFU subscription.",
+  "x-openlive": { "phase": 1, "channels": ["room"], "from": ["server"], "to": ["web"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "slot.released" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/SlotReleasedPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "SlotReleasedPayload": {
+      "title": "SlotReleasedPayload",
+      "type": "object",
+      "properties": {
+        "slotId": { "$ref": "../common.json#/$defs/Id" },
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "reason": { "$ref": "../codes.json#/$defs/SlotReleaseReason" }
+      },
+      "required": ["slotId", "streamId", "reason"],
+      "additionalProperties": false
+    }
+  }
+}

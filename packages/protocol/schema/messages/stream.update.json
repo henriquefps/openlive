@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/stream.update.json",
+  "title": "StreamUpdateMessage",
+  "description": "Paused or resumed (source hidden, privacy curtain) or new preset. Only the fields that changed.",
+  "x-openlive": {
+    "phase": 2,
+    "channels": ["room"],
+    "from": ["helper"],
+    "to": ["server"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "stream.update" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/StreamUpdatePayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "StreamUpdatePayload": {
+      "title": "StreamUpdatePayload",
+      "type": "object",
+      "properties": {
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "paused": { "type": "boolean" },
+        "pauseReason": { "$ref": "../common.json#/$defs/PauseReason" },
+        "preset": { "$ref": "../common.json#/$defs/Preset" },
+        "layers": {
+          "$ref": "../common.json#/$defs/VideoLayers",
+          "description": "The layers as encoded (since 1.19); on stream.update, sent with a new preset."
+        }
+      },
+      "required": ["streamId"],
+      "additionalProperties": false
+    }
+  }
+}

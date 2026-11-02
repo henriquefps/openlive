@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/voice.serverMute.json",
+  "title": "VoiceServerMuteMessage",
+  "description": "Mute (or unmute) someone in the voice channel for everyone (since 1.10): owners and admins (canModerate), never the owner, never another admin for an admin, never yourself. The room closes their microphone track and refuses a new one until unmuted.",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "voice.serverMute"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/VoiceServerMutePayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "VoiceServerMutePayload": {
+      "title": "VoiceServerMutePayload",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "$ref": "../common.json#/$defs/Id"
+        },
+        "muted": {
+          "type": "boolean"
+        }
+      },
+      "required": ["userId", "muted"],
+      "additionalProperties": false
+    }
+  }
+}

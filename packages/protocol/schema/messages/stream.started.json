@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/stream.started.json",
+  "title": "StreamStartedMessage",
+  "description": "A stream went live. Also the reply to stream.announce.",
+  "x-openlive": { "phase": 2, "channels": ["room"], "from": ["server"], "to": ["web", "helper"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "stream.started" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/StreamStartedPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "StreamStartedPayload": {
+      "title": "StreamStartedPayload",
+      "type": "object",
+      "properties": { "stream": { "$ref": "../common.json#/$defs/StreamInfo" } },
+      "required": ["stream"],
+      "additionalProperties": false
+    }
+  }
+}

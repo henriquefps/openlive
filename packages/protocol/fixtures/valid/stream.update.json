@@ -1,0 +1,5 @@
+{
+  "type": "stream.update",
+  "id": "4",
+  "payload": { "streamId": "st_1", "paused": true, "pauseReason": "source_hidden" }
+}

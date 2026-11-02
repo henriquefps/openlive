@@ -1,0 +1,10 @@
+{
+  "sfuSessionId": "9c2821cbf73ecde97affc0b99ec3b1e72fb7dd3103978c85703c2255acc7426f",
+  "sessionDescription": {
+    "type": "answer",
+    "sdp": "v=0\r\no=- 3 4 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\n"
+  },
+  "tracks": [{ "mid": "0", "trackName": "video" }],
+  "announceWithinMs": 60000,
+  "qualityCap": { "maxHeight": 1080, "maxBitrateKbps": 8000 }
+}

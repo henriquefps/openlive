@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/queue.accept.json",
+  "title": "QueueAcceptMessage",
+  "description": "Take the offered slot.",
+  "x-openlive": {
+    "phase": 1,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["slot.granted", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "queue.accept" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/QueueAcceptPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "QueueAcceptPayload": {
+      "title": "QueueAcceptPayload",
+      "type": "object",
+      "properties": { "offerId": { "$ref": "../common.json#/$defs/Id" } },
+      "required": ["offerId"],
+      "additionalProperties": false
+    }
+  }
+}

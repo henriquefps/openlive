@@ -1,0 +1,26 @@
+# Copy to .dev.vars for local development. Names only; never commit values.
+DISCORD_CLIENT_ID=
+DISCORD_CLIENT_SECRET=
+# HMAC key for login cookies and IP hashes, e.g. `openssl rand -base64 32`.
+SESSION_SECRET=
+# Magic-link e-mail (Resend, sending access). An unverified Resend domain only sends to the
+# account owner, from onboarding@resend.dev.
+RESEND_API_KEY=
+# Overrides of the wrangler.jsonc vars: the sender of the magic link, and the app origin(s) login
+# links and cookies are built for (comma-separated). Loopback origins such as
+# http://localhost:5179 always work for requests from this machine.
+EMAIL_FROM=
+APP_ORIGIN=
+# Install code that lets the first user claim the platform admin role (POST /api/admin/claim).
+INSTALL_CODE=
+REALTIME_APP_ID=
+REALTIME_APP_TOKEN=
+TURN_KEY_ID=
+TURN_KEY_TOKEN=
+HELPER_UPDATE_SIGNING_PUBKEY=
+# Real usage cron: an API token with Account > Account Analytics > Read, and the account id.
+CLOUDFLARE_API_TOKEN=
+CLOUDFLARE_ACCOUNT_ID=
+# Development identity (not a secret): set to 1 so the X-Openlive-Dev-User header names the caller
+# (src/room/identity.ts); honoured only for requests from localhost. Never set it for a deploy.
+DEV_AUTH=

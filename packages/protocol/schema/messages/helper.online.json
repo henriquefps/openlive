@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/helper.online.json",
+  "title": "HelperOnlineMessage",
+  "description": "One of the user's helpers connected.",
+  "x-openlive": { "phase": 3, "channels": ["hub"], "from": ["server"], "to": ["web"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "helper.online" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelperOnlinePayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelperOnlinePayload": {
+      "title": "HelperOnlinePayload",
+      "type": "object",
+      "properties": { "helper": { "$ref": "../common.json#/$defs/HelperInfo" } },
+      "required": ["helper"],
+      "additionalProperties": false
+    }
+  }
+}

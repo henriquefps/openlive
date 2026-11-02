@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/voice.state.json",
+  "title": "VoiceStateMessage",
+  "description": "Your own mute and deafen state (since 1.10). Deafened implies muted; muted false is refused with voice_speak_not_allowed when you may not speak.",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "voice.state"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/VoiceStatePayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "VoiceStatePayload": {
+      "title": "VoiceStatePayload",
+      "type": "object",
+      "properties": {
+        "muted": {
+          "type": "boolean"
+        },
+        "deafened": {
+          "type": "boolean"
+        }
+      },
+      "required": ["muted", "deafened"],
+      "additionalProperties": false
+    }
+  }
+}

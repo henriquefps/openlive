@@ -1,0 +1,25 @@
+{
+  "name": "openlive.example.com",
+  "iconUrl": "https://openlive.example.com/icon-512.png",
+  "version": "0.1.0",
+  "commit": "fb648ac",
+  "protocol": {
+    "min": {
+      "major": 1,
+      "minor": 0
+    },
+    "max": {
+      "major": 1,
+      "minor": 18
+    }
+  },
+  "features": [
+    "app_login",
+    "ws_ticket",
+    "invite_deep_link",
+    "capability:stream",
+    "capability:voice",
+    "capability:camera",
+    "capability:text"
+  ]
+}

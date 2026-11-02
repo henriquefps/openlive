@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/voice.updated.json",
+  "title": "VoiceUpdatedMessage",
+  "description": "A voice participant's state changed (mute, deafen, server mute, or the voice moved to another tab), sent to everyone in the room (since 1.10).",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["server"],
+    "to": ["web"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "voice.updated"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/VoiceUpdatedPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "VoiceUpdatedPayload": {
+      "title": "VoiceUpdatedPayload",
+      "type": "object",
+      "properties": {
+        "participant": {
+          "$ref": "../common.json#/$defs/VoiceParticipant"
+        }
+      },
+      "required": ["participant"],
+      "additionalProperties": false
+    }
+  }
+}

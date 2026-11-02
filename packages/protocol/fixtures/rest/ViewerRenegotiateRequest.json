@@ -1,0 +1,7 @@
+{
+  "sessionId": "75298c03e420629e45de9f7a3ed24b64a1b3e59d326b85f76e092b3beae932cd",
+  "sessionDescription": {
+    "type": "answer",
+    "sdp": "v=0\r\no=- 3 4 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\n"
+  }
+}

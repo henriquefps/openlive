@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/notice.json",
+  "title": "NoticeMessage",
+  "description": "A user notice; the web plays a sound and shows a toast.",
+  "x-openlive": { "phase": 5, "channels": ["hub"], "from": ["server"], "to": ["web"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "notice" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/NoticePayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "NoticePayload": {
+      "title": "NoticePayload",
+      "type": "object",
+      "properties": {
+        "event": { "$ref": "../codes.json#/$defs/EventCode" },
+        "roomId": { "$ref": "../common.json#/$defs/Id" },
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "userId": { "$ref": "../common.json#/$defs/Id" }
+      },
+      "required": ["event"],
+      "additionalProperties": false
+    }
+  }
+}

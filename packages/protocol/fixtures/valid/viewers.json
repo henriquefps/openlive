@@ -1,0 +1,10 @@
+{
+  "type": "viewers",
+  "payload": {
+    "streamId": "st_1",
+    "viewerUserIds": ["u_bruno", "u_carla"],
+    "used": 2,
+    "limit": 6,
+    "queueLength": 0
+  }
+}

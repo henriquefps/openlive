@@ -1,0 +1,5 @@
+{
+  "type": "queue.position",
+  "id": "11",
+  "payload": { "streamId": "st_1", "position": 2, "length": 3 }
+}

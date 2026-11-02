@@ -1,0 +1,5 @@
+{
+  "type": "error",
+  "id": "9",
+  "payload": { "code": "invalid_message", "path": "/payload/streamId" }
+}

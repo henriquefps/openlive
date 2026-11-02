@@ -1,0 +1,12 @@
+{
+  "type": "voice.updated",
+  "payload": {
+    "participant": {
+      "userId": "u_ana",
+      "muted": true,
+      "deafened": false,
+      "serverMuted": true,
+      "joinedAt": 1767225600000
+    }
+  }
+}

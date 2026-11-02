@@ -1,0 +1,12 @@
+{
+  "type": "room.updated",
+  "payload": {
+    "settings": {
+      "maxStreams": 5,
+      "maxViewersPerStream": 6,
+      "maxBitrateKbps": 13000,
+      "allowedPresets": ["text"],
+      "capabilities": { "stream": true, "voice": true, "camera": "yes", "text": false }
+    }
+  }
+}

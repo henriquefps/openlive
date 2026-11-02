@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/space.presence.json",
+  "title": "SpacePresenceMessage",
+  "description": "Reply to hello on a space connection, and sent again after the caller's access changed: every non-empty room summary of the space the caller may see (since 1.13).",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["space"],
+    "from": ["server"],
+    "to": ["web"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "space.presence"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/SpacePresencePayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "SpacePresencePayload": {
+      "title": "SpacePresencePayload",
+      "type": "object",
+      "properties": {
+        "spaceId": {
+          "$ref": "../common.json#/$defs/Id"
+        },
+        "protocol": {
+          "$ref": "../common.json#/$defs/ProtocolVersion"
+        },
+        "minProtocol": {
+          "$ref": "../common.json#/$defs/ProtocolVersion"
+        },
+        "serverTime": {
+          "$ref": "../common.json#/$defs/UnixMs"
+        },
+        "rooms": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "../common.json#/$defs/RoomPresence"
+          }
+        }
+      },
+      "required": ["spaceId", "protocol", "minProtocol", "serverTime", "rooms"],
+      "additionalProperties": false
+    }
+  }
+}

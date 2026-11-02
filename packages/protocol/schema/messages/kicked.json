@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/kicked.json",
+  "title": "KickedMessage",
+  "description": "Sent right before the server closes the connection with code 4004.",
+  "x-openlive": { "phase": 1, "channels": ["room"], "from": ["server"], "to": ["web", "helper"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "kicked" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/KickedPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "KickedPayload": {
+      "title": "KickedPayload",
+      "type": "object",
+      "properties": { "reason": { "$ref": "../codes.json#/$defs/KickReason" } },
+      "required": ["reason"],
+      "additionalProperties": false
+    }
+  }
+}

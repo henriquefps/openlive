@@ -1,0 +1,26 @@
+{
+  "type": "helper.sources",
+  "id": "20",
+  "payload": {
+    "deviceId": "d_pc",
+    "sources": [
+      {
+        "sourceId": "screen:0",
+        "kind": "screen",
+        "label": "DP-1",
+        "width": 2560,
+        "height": 1440,
+        "hasAudio": false
+      },
+      {
+        "sourceId": "window:0x3a00007",
+        "kind": "window",
+        "label": "Hollow Knight",
+        "appName": "Hollow Knight",
+        "width": 1920,
+        "height": 1080,
+        "hasAudio": true
+      }
+    ]
+  }
+}

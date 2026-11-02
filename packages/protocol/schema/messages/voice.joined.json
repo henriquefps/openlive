@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/voice.joined.json",
+  "title": "VoiceJoinedMessage",
+  "description": "Someone joined the voice channel: the reply to voice.join (with its id) and an event to everyone else in the room (since 1.10).",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["server"],
+    "to": ["web"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "voice.joined"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/VoiceJoinedPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "VoiceJoinedPayload": {
+      "title": "VoiceJoinedPayload",
+      "type": "object",
+      "properties": {
+        "participant": {
+          "$ref": "../common.json#/$defs/VoiceParticipant"
+        }
+      },
+      "required": ["participant"],
+      "additionalProperties": false
+    }
+  }
+}

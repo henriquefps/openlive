@@ -1,0 +1,16 @@
+{
+  "name": "@openlive/screenshots",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "shoot": "node src/main.ts",
+    "typecheck": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "playwright-core": "1.64.0",
+    "sharp": "0.35.5",
+    "typescript": "6.0.3"
+  }
+}

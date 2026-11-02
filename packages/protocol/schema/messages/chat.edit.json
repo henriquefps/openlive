@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/chat.edit.json",
+  "title": "ChatEditMessage",
+  "description": "Edit one of your own chat messages (since 1.11). Same limits as chat.send; needs canWriteChat.",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["chat.edited", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "chat.edit"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/ChatEditPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "ChatEditPayload": {
+      "title": "ChatEditPayload",
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "$ref": "../common.json#/$defs/Id"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "description": "Plain text. Trimmed by the room; above 2,000 characters (code points) it answers chat_message_too_long."
+        }
+      },
+      "required": ["messageId", "text"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/voice.kick.json",
+  "title": "VoiceKickMessage",
+  "description": "Take someone out of the voice channel (since 1.10), same rule as voice.serverMute. They get voice.left with reason kicked and may join again; to keep them out, remove them from the room.",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "voice.kick"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/VoiceKickPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "VoiceKickPayload": {
+      "title": "VoiceKickPayload",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "$ref": "../common.json#/$defs/Id"
+        }
+      },
+      "required": ["userId"],
+      "additionalProperties": false
+    }
+  }
+}

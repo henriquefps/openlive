@@ -1,0 +1,17 @@
+{
+  "type": "chat.page",
+  "id": "33",
+  "payload": {
+    "messages": [
+      {
+        "id": "m_10",
+        "userId": "u_ana",
+        "authorName": "Ana",
+        "text": "first",
+        "createdAt": 1767225500000,
+        "mentions": []
+      }
+    ],
+    "hasMore": false
+  }
+}

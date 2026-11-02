@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/room.closed.json",
+  "title": "RoomClosedMessage",
+  "description": "Sent right before the server closes every connection with code 4005.",
+  "x-openlive": { "phase": 1, "channels": ["room"], "from": ["server"], "to": ["web", "helper"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "room.closed" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/RoomClosedPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "RoomClosedPayload": {
+      "title": "RoomClosedPayload",
+      "type": "object",
+      "properties": { "reason": { "$ref": "../codes.json#/$defs/RoomCloseReason" } },
+      "required": ["reason"],
+      "additionalProperties": false
+    }
+  }
+}

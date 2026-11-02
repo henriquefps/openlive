@@ -1,0 +1,21 @@
+{
+  "devices": [
+    {
+      "deviceId": "d_6f1c",
+      "name": "Henrique's PC",
+      "os": "linux",
+      "arch": "amd64",
+      "helperVersion": "0.1.0",
+      "createdAt": 1793000000000,
+      "lastSeenAt": 1793000300000
+    },
+    {
+      "deviceId": "d_9a2b",
+      "name": "Laptop",
+      "os": "windows",
+      "arch": "arm64",
+      "helperVersion": "0.1.0-beta.1",
+      "createdAt": 1793000000000
+    }
+  ]
+}

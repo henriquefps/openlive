@@ -1,0 +1,1 @@
+{ "type": "chat.send", "payload": { "text": "", "clientId": "k1" } }

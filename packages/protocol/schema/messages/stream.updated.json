@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/stream.updated.json",
+  "title": "StreamUpdatedMessage",
+  "description": "Paused, resumed, preset or viewer limit changed. Carries the full stream.",
+  "x-openlive": { "phase": 2, "channels": ["room"], "from": ["server"], "to": ["web", "helper"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "stream.updated" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/StreamUpdatedPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "StreamUpdatedPayload": {
+      "title": "StreamUpdatedPayload",
+      "type": "object",
+      "properties": { "stream": { "$ref": "../common.json#/$defs/StreamInfo" } },
+      "required": ["stream"],
+      "additionalProperties": false
+    }
+  }
+}

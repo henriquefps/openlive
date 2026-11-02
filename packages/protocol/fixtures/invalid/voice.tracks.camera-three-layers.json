@@ -1,0 +1,7 @@
+{
+  "type": "voice.tracks",
+  "payload": {
+    "tracks": [],
+    "cameras": [{ "trackId": "ct_1", "userId": "u_bia", "rids": ["f", "h", "l"] }]
+  }
+}

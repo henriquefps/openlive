@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/chat.read.json",
+  "title": "ChatReadMessage",
+  "description": "Mark the chat as read up to a message (since 1.11). The room keeps the latest per user, for welcome.chat and the unread counts of the space's room list.",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "chat.read"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/ChatReadPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "ChatReadPayload": {
+      "title": "ChatReadPayload",
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "$ref": "../common.json#/$defs/Id"
+        }
+      },
+      "required": ["messageId"],
+      "additionalProperties": false
+    }
+  }
+}

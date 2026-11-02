@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/chat.message.json",
+  "title": "ChatMessageMessage",
+  "description": "A new chat message: the reply to chat.send (with its id and clientId) and an event to every other web connection in the room (since 1.11).",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["server"],
+    "to": ["web"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "chat.message"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/ChatMessagePayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "ChatMessagePayload": {
+      "title": "ChatMessagePayload",
+      "type": "object",
+      "properties": {
+        "message": {
+          "$ref": "../common.json#/$defs/ChatMessage"
+        },
+        "clientId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "Only in the reply to the sender: the chat.send clientId."
+        }
+      },
+      "required": ["message"],
+      "additionalProperties": false
+    }
+  }
+}

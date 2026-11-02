@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/stream.stop.json",
+  "title": "StreamStopMessage",
+  "description": "The room ends this helper's stream (moderator, revoked permission, room closing, quota). The helper stops publishing and closes its SFU session.",
+  "x-openlive": { "phase": 2, "channels": ["room"], "from": ["server"], "to": ["helper"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "stream.stop" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/StreamStopPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "StreamStopPayload": {
+      "title": "StreamStopPayload",
+      "type": "object",
+      "properties": {
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "reason": { "$ref": "../codes.json#/$defs/StreamEndReason" }
+      },
+      "required": ["streamId", "reason"],
+      "additionalProperties": false
+    }
+  }
+}

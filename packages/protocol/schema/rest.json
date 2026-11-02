@@ -1,0 +1,1222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/rest.json",
+  "title": "Rest",
+  "description": "Request and response bodies of the REST routes the helper and the web player share (docs/PROTOCOL.md section 11): device pairing and the SFU proxy. Each $defs entry becomes a named type in TypeScript and Go. Since 1.1.",
+  "$defs": {
+    "DeviceOs": {
+      "title": "DeviceOs",
+      "type": "string",
+      "enum": ["linux", "windows", "macos"]
+    },
+    "DeviceArch": {
+      "title": "DeviceArch",
+      "type": "string",
+      "enum": ["amd64", "arm64"]
+    },
+    "HelperVersion": {
+      "title": "HelperVersion",
+      "description": "Semantic version of the helper build.",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-+][0-9A-Za-z.-]+)?$",
+      "maxLength": 64
+    },
+    "UserCode": {
+      "title": "UserCode",
+      "description": "Pairing code the person types on /link: 6 characters from an alphabet without look-alikes, shown as XXX-XXX. Accepted in any case, with or without the hyphen.",
+      "type": "string",
+      "pattern": "^[0-9A-Za-z]{3}-?[0-9A-Za-z]{3}$"
+    },
+    "DeviceCodeRequest": {
+      "title": "DeviceCodeRequest",
+      "description": "POST /api/devices/code (helper, no credentials). What the helper knows about itself; shown to the person who approves.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "common.json#/$defs/Label",
+          "description": "Suggested device name, e.g. the host name."
+        },
+        "os": {
+          "$ref": "#/$defs/DeviceOs"
+        },
+        "arch": {
+          "$ref": "#/$defs/DeviceArch"
+        },
+        "helperVersion": {
+          "$ref": "#/$defs/HelperVersion"
+        }
+      },
+      "required": ["os", "arch", "helperVersion"],
+      "additionalProperties": false
+    },
+    "DeviceCodeResponse": {
+      "title": "DeviceCodeResponse",
+      "description": "The pairing codes (RFC 8628 section 3.2, in milliseconds and camelCase). deviceCode is secret to the helper; userCode is shown to the person.",
+      "type": "object",
+      "properties": {
+        "deviceCode": {
+          "type": "string",
+          "minLength": 43,
+          "maxLength": 43
+        },
+        "userCode": {
+          "$ref": "#/$defs/UserCode"
+        },
+        "verificationUri": {
+          "type": "string",
+          "maxLength": 2048,
+          "description": "The /link page of this instance."
+        },
+        "verificationUriComplete": {
+          "type": "string",
+          "maxLength": 2048,
+          "description": "The /link page with the code filled in (/link?code=K7F-2QM): what the helper opens in the browser."
+        },
+        "expiresInMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "intervalMs": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Wait at least this long between two polls of POST /api/devices/token."
+        }
+      },
+      "required": [
+        "deviceCode",
+        "userCode",
+        "verificationUri",
+        "verificationUriComplete",
+        "expiresInMs",
+        "intervalMs"
+      ],
+      "additionalProperties": false
+    },
+    "DeviceTokenRequest": {
+      "title": "DeviceTokenRequest",
+      "description": "POST /api/devices/token (helper polls).",
+      "type": "object",
+      "properties": {
+        "deviceCode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": ["deviceCode"],
+      "additionalProperties": false
+    },
+    "DeviceTokenResponse": {
+      "title": "DeviceTokenResponse",
+      "description": "The device token, returned once. The helper keeps it in the OS keychain and sends it as Authorization: Bearer <deviceToken>.",
+      "type": "object",
+      "properties": {
+        "deviceId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "userId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "deviceToken": {
+          "type": "string",
+          "minLength": 43,
+          "maxLength": 43
+        }
+      },
+      "required": ["deviceId", "userId", "deviceToken"],
+      "additionalProperties": false
+    },
+    "DeviceCodeInfo": {
+      "title": "DeviceCodeInfo",
+      "description": "GET /api/devices/code/:userCode (signed-in web user): what the helper sent, for the confirmation screen.",
+      "type": "object",
+      "properties": {
+        "userCode": {
+          "$ref": "#/$defs/UserCode"
+        },
+        "name": {
+          "$ref": "common.json#/$defs/Label"
+        },
+        "os": {
+          "$ref": "#/$defs/DeviceOs"
+        },
+        "arch": {
+          "$ref": "#/$defs/DeviceArch"
+        },
+        "helperVersion": {
+          "$ref": "#/$defs/HelperVersion"
+        },
+        "expiresAt": {
+          "$ref": "common.json#/$defs/UnixMs"
+        }
+      },
+      "required": ["userCode", "os", "arch", "helperVersion", "expiresAt"],
+      "additionalProperties": false
+    },
+    "DeviceApproveRequest": {
+      "title": "DeviceApproveRequest",
+      "description": "POST /api/devices/approve (signed-in web user). os, arch and helperVersion default to what the helper sent with the code.",
+      "type": "object",
+      "properties": {
+        "userCode": {
+          "$ref": "#/$defs/UserCode"
+        },
+        "name": {
+          "$ref": "common.json#/$defs/Label"
+        },
+        "os": {
+          "$ref": "#/$defs/DeviceOs"
+        },
+        "arch": {
+          "$ref": "#/$defs/DeviceArch"
+        },
+        "helperVersion": {
+          "$ref": "#/$defs/HelperVersion"
+        }
+      },
+      "required": ["userCode", "name"],
+      "additionalProperties": false
+    },
+    "Device": {
+      "title": "Device",
+      "description": "A paired helper as Settings > Devices lists it.",
+      "type": "object",
+      "properties": {
+        "deviceId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "name": {
+          "$ref": "common.json#/$defs/Label"
+        },
+        "os": {
+          "$ref": "#/$defs/DeviceOs"
+        },
+        "arch": {
+          "$ref": "#/$defs/DeviceArch"
+        },
+        "helperVersion": {
+          "$ref": "#/$defs/HelperVersion"
+        },
+        "createdAt": {
+          "$ref": "common.json#/$defs/UnixMs"
+        },
+        "lastSeenAt": {
+          "$ref": "common.json#/$defs/UnixMs",
+          "description": "Last request made with the device token (updated at most every 5 minutes). Absent until first use."
+        }
+      },
+      "required": ["deviceId", "name", "os", "arch", "helperVersion", "createdAt"],
+      "additionalProperties": false
+    },
+    "DeviceApproveResponse": {
+      "title": "DeviceApproveResponse",
+      "type": "object",
+      "properties": {
+        "userCode": {
+          "$ref": "#/$defs/UserCode"
+        }
+      },
+      "required": ["userCode"],
+      "additionalProperties": false
+    },
+    "DeviceList": {
+      "title": "DeviceList",
+      "description": "GET /api/me/devices.",
+      "type": "object",
+      "properties": {
+        "devices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Device"
+          }
+        }
+      },
+      "required": ["devices"],
+      "additionalProperties": false
+    },
+    "AppAuthorizeRequest": {
+      "title": "AppAuthorizeRequest",
+      "description": "POST /api/app/authorize (signed-in browser session only): the person allowed the mobile app on the /app/authorize page. The fields are the page's query parameters (client, redirect_uri, code_challenge, code_challenge_method, state, device_name).",
+      "type": "object",
+      "properties": {
+        "client": {
+          "type": "string",
+          "const": "openlive-mobile"
+        },
+        "redirectUri": {
+          "type": "string",
+          "const": "openlive://auth"
+        },
+        "codeChallenge": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{43}$",
+          "description": "BASE64URL(SHA-256(code_verifier)), RFC 7636."
+        },
+        "codeChallengeMethod": {
+          "type": "string",
+          "const": "S256"
+        },
+        "state": {
+          "type": "string",
+          "pattern": "^[\\x21-\\x7e]{1,128}$",
+          "description": "Opaque to the instance; returned unchanged in the redirect."
+        },
+        "deviceName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "client",
+        "redirectUri",
+        "codeChallenge",
+        "codeChallengeMethod",
+        "state",
+        "deviceName"
+      ],
+      "additionalProperties": false
+    },
+    "AppAuthorizeResponse": {
+      "title": "AppAuthorizeResponse",
+      "description": "Where the page sends the browser: openlive://auth?code=…&state=…. The code is single use and expires in 2 minutes.",
+      "type": "object",
+      "properties": {
+        "redirectTo": {
+          "type": "string",
+          "pattern": "^openlive://auth\\?",
+          "maxLength": 512
+        }
+      },
+      "required": ["redirectTo"],
+      "additionalProperties": false
+    },
+    "AppTokenRequest": {
+      "title": "AppTokenRequest",
+      "description": "POST /api/app/token (the app, no credentials): exchanges the code for an app token. client and redirectUri must be the ones the code was issued for.",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "codeVerifier": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._~-]{43,128}$"
+        },
+        "client": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "redirectUri": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      },
+      "required": ["code", "codeVerifier", "client", "redirectUri"],
+      "additionalProperties": false
+    },
+    "AppUser": {
+      "title": "AppUser",
+      "description": "Who the app token signs in as.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "avatarUrl": {
+          "type": "string",
+          "maxLength": 2048
+        }
+      },
+      "required": ["userId", "displayName"],
+      "additionalProperties": false
+    },
+    "AppTokenResponse": {
+      "title": "AppTokenResponse",
+      "description": "The app token, returned once. The app keeps it in the Keychain or Keystore and sends it as Authorization: Bearer <token>. It works until revoked (Settings > Sessions, DELETE /api/app/token) or unused for 90 days.",
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "pattern": "^ola_[A-Za-z0-9_-]{43}$"
+        },
+        "tokenId": {
+          "$ref": "common.json#/$defs/Id",
+          "description": "The token's id, as Settings > Sessions lists it."
+        },
+        "user": {
+          "$ref": "#/$defs/AppUser"
+        }
+      },
+      "required": ["token", "tokenId", "user"],
+      "additionalProperties": false
+    },
+    "AppWsTicketResponse": {
+      "title": "AppWsTicketResponse",
+      "description": "POST /api/app/ws-ticket (app token): a single-use ticket for one WebSocket upgrade, sent as ?ticket=<ticket> on /ws/hub, /ws/spaces/:spaceId or /ws/rooms/:roomId.",
+      "type": "object",
+      "properties": {
+        "ticket": {
+          "type": "string",
+          "pattern": "^olt_[A-Za-z0-9_-]{43}$"
+        },
+        "expiresAt": {
+          "$ref": "common.json#/$defs/UnixMs"
+        }
+      },
+      "required": ["ticket", "expiresAt"],
+      "additionalProperties": false
+    },
+    "ProtocolRange": {
+      "title": "ProtocolRange",
+      "type": "object",
+      "description": "The protocol versions the instance accepts: any minor of a major between min and max (docs/PROTOCOL.md 1).",
+      "properties": {
+        "min": {
+          "$ref": "common.json#/$defs/ProtocolVersion"
+        },
+        "max": {
+          "$ref": "common.json#/$defs/ProtocolVersion"
+        }
+      },
+      "required": ["min", "max"],
+      "additionalProperties": false
+    },
+    "InstanceInfo": {
+      "title": "InstanceInfo",
+      "description": "GET /.well-known/openlive.json (public, cacheable, no personal data): what the mobile app checks before connecting to an instance.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 253,
+          "description": "The instance's name: its host name until instances can be named."
+        },
+        "iconUrl": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "commit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "protocol": {
+          "$ref": "#/$defs/ProtocolRange"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_:]{1,64}$"
+          },
+          "maxItems": 64,
+          "description": "What the instance offers: app_login (this login), ws_ticket, invite_deep_link, and capability:<stream|voice|camera|text> for each room capability the platform allows. Clients ignore names they do not know."
+        }
+      },
+      "required": ["name", "version", "commit", "protocol", "features"],
+      "additionalProperties": false
+    },
+    "SdpType": {
+      "title": "SdpType",
+      "type": "string",
+      "enum": ["offer", "answer"]
+    },
+    "SessionDescription": {
+      "title": "SessionDescription",
+      "description": "An SDP offer or answer, as RTCSessionDescriptionInit.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/SdpType"
+        },
+        "sdp": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        }
+      },
+      "required": ["type", "sdp"],
+      "additionalProperties": false
+    },
+    "IceServer": {
+      "title": "IceServer",
+      "description": "As RTCIceServer. TURN URLs on port 53 are already removed (browsers block that port).",
+      "type": "object",
+      "properties": {
+        "urls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "minItems": 1
+        },
+        "username": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "credential": {
+          "type": "string",
+          "maxLength": 512
+        }
+      },
+      "required": ["urls"],
+      "additionalProperties": false
+    },
+    "IceServersResponse": {
+      "title": "IceServersResponse",
+      "description": "POST /api/rtc/rooms/:roomId/ice: short-lived STUN and TURN servers for this room.",
+      "type": "object",
+      "properties": {
+        "iceServers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IceServer"
+          }
+        }
+      },
+      "required": ["iceServers"],
+      "additionalProperties": false
+    },
+    "PublishTrack": {
+      "title": "PublishTrack",
+      "description": "A local track in the helper's offer. A simulcast video track is one track with its rids.",
+      "type": "object",
+      "properties": {
+        "mid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "trackName": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,64}$"
+        },
+        "kind": {
+          "$ref": "common.json#/$defs/TrackKind"
+        },
+        "rids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9]{1,16}$"
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "description": "Simulcast encodings, highest first (f, h, q)."
+        },
+        "codec": {
+          "$ref": "common.json#/$defs/VideoCodec",
+          "description": "A video track's codec (since 1.14); absent means h264. The AV1 track is the top layer alone (no rids)."
+        }
+      },
+      "required": ["mid", "trackName", "kind"],
+      "additionalProperties": false
+    },
+    "PublishRequest": {
+      "title": "PublishRequest",
+      "description": "POST /api/rtc/rooms/:roomId/publish (helper, device token).",
+      "type": "object",
+      "properties": {
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        },
+        "tracks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PublishTrack"
+          },
+          "minItems": 1,
+          "maxItems": 4
+        },
+        "preset": {
+          "$ref": "common.json#/$defs/Preset"
+        },
+        "maxBitrateKbps": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Highest bitrate the helper will send (all encodings and audio together). Refused above the room's maxBitrateKbps; also the meter's bitrate for the top layer. With an AV1 track (since 1.14) this is the H.264 track with the audio; the AV1 track sends about 65 % of its top layer on top, or as much in the quality mode (since 1.17, RoomSettings.av1QualityPresets; its viewers pull one of the two)."
+        }
+      },
+      "required": ["sessionDescription", "tracks", "preset", "maxBitrateKbps"],
+      "additionalProperties": false
+    },
+    "PublishedTrack": {
+      "title": "PublishedTrack",
+      "type": "object",
+      "properties": {
+        "mid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "trackName": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,64}$"
+        }
+      },
+      "required": ["mid", "trackName"],
+      "additionalProperties": false
+    },
+    "PublishResponse": {
+      "title": "PublishResponse",
+      "description": "The SFU's answer to the helper's offer. Send stream.announce with sfuSessionId within announceWithinMs, or the publication is closed.",
+      "type": "object",
+      "properties": {
+        "sfuSessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        },
+        "tracks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PublishedTrack"
+          }
+        },
+        "announceWithinMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "qualityCap": {
+          "$ref": "common.json#/$defs/QualityCap",
+          "description": "Present when economy mode is on: fit the stream under it before announcing."
+        }
+      },
+      "required": ["sfuSessionId", "sessionDescription", "tracks", "announceWithinMs"],
+      "additionalProperties": false
+    },
+    "PublishRenegotiateRequest": {
+      "title": "PublishRenegotiateRequest",
+      "description": "PUT /api/rtc/rooms/:roomId/publish/renegotiate (helper).",
+      "type": "object",
+      "properties": {
+        "sfuSessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        }
+      },
+      "required": ["sfuSessionId", "sessionDescription"],
+      "additionalProperties": false
+    },
+    "UnpublishRequest": {
+      "title": "UnpublishRequest",
+      "description": "POST /api/rtc/rooms/:roomId/unpublish (helper). Closes every track of the publication and ends its stream (ended_by_streamer).",
+      "type": "object",
+      "properties": {
+        "sfuSessionId": {
+          "$ref": "common.json#/$defs/Id"
+        }
+      },
+      "required": ["sfuSessionId"],
+      "additionalProperties": false
+    },
+    "RenegotiateResponse": {
+      "title": "RenegotiateResponse",
+      "description": "The SFU's reply to a renegotiation: an answer when an offer was sent, nothing when an answer was sent.",
+      "type": "object",
+      "properties": {
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ViewerSessionRequest": {
+      "title": "ViewerSessionRequest",
+      "description": "POST /api/rtc/rooms/:roomId/session (web). The viewer's one SFU session in this room, opened before any click. With an offer (a data channel is enough), the SFU answers it and DTLS connects with no media.",
+      "type": "object",
+      "properties": {
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ViewerSessionResponse": {
+      "title": "ViewerSessionResponse",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "iceServers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IceServer"
+          }
+        },
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription",
+          "description": "The SFU's answer, when the request carried an offer."
+        }
+      },
+      "required": ["sessionId", "iceServers"],
+      "additionalProperties": false
+    },
+    "SubscribeRequest": {
+      "title": "SubscribeRequest",
+      "description": "POST /api/rtc/rooms/:roomId/subscribe (web). Needs a slot held by the caller for that stream (slot.granted).",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "slotId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "streamId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "rid": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9]{1,16}$",
+          "description": "Simulcast layer to start on; the highest when absent."
+        },
+        "codec": {
+          "$ref": "common.json#/$defs/VideoCodec",
+          "description": "The video codec to pull (since 1.14): av1 when the viewer's browser decodes AV1. The stream's AV1 track (its top layer) is pulled only when it has one, the room allows AV1 for its preset and the pull starts on the top layer; otherwise, and when absent, the H.264 track. The response says which one. A viewer on AV1 that wants a lower layer pulls again (H.264); PUT .../layer only switches within the H.264 track."
+        }
+      },
+      "required": ["sessionId", "slotId", "streamId"],
+      "additionalProperties": false
+    },
+    "SubscribedTrack": {
+      "title": "SubscribedTrack",
+      "type": "object",
+      "properties": {
+        "mid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "kind": {
+          "$ref": "common.json#/$defs/TrackKind"
+        }
+      },
+      "required": ["mid", "kind"],
+      "additionalProperties": false
+    },
+    "SubscribeResponse": {
+      "title": "SubscribeResponse",
+      "description": "The pulled tracks on the viewer's session. With requiresImmediateRenegotiation, apply the SFU's offer and send the answer to PUT /api/rtc/rooms/:roomId/renegotiate.",
+      "type": "object",
+      "properties": {
+        "streamId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "requiresImmediateRenegotiation": {
+          "type": "boolean"
+        },
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        },
+        "tracks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SubscribedTrack"
+          }
+        },
+        "rid": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9]{1,16}$",
+          "description": "The simulcast layer requested; absent when the stream is not simulcast."
+        },
+        "codec": {
+          "$ref": "common.json#/$defs/VideoCodec",
+          "description": "The codec of the pulled video track (since 1.14; absent from older servers: h264)."
+        }
+      },
+      "required": ["streamId", "requiresImmediateRenegotiation", "tracks"],
+      "additionalProperties": false
+    },
+    "ViewerRenegotiateRequest": {
+      "title": "ViewerRenegotiateRequest",
+      "description": "PUT /api/rtc/rooms/:roomId/renegotiate (web).",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        }
+      },
+      "required": ["sessionId", "sessionDescription"],
+      "additionalProperties": false
+    },
+    "LayerRequest": {
+      "title": "LayerRequest",
+      "description": "PUT /api/rtc/rooms/:roomId/layer (web): switch the simulcast layer with tracks/update, no renegotiation.",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "streamId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "rid": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9]{1,16}$"
+        }
+      },
+      "required": ["sessionId", "streamId", "rid"],
+      "additionalProperties": false
+    },
+    "UnsubscribeRequest": {
+      "title": "UnsubscribeRequest",
+      "description": "POST /api/rtc/rooms/:roomId/unsubscribe (web): closes the stream's pulled tracks on the viewer's session. The slot stays until slot.release.",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "streamId": {
+          "$ref": "common.json#/$defs/Id"
+        }
+      },
+      "required": ["sessionId", "streamId"],
+      "additionalProperties": false
+    },
+    "LeaveRequest": {
+      "title": "LeaveRequest",
+      "description": "POST /api/rtc/leave (web, sendBeacon on pagehide): closes every pulled track of the viewer's session and forgets it.",
+      "type": "object",
+      "properties": {
+        "roomId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        }
+      },
+      "required": ["roomId", "sessionId"],
+      "additionalProperties": false
+    },
+    "ViewerMetricsRequest": {
+      "title": "ViewerMetricsRequest",
+      "description": "POST /api/metrics/viewer (web, since 1.7): one stream's playback numbers over the last window (about 30 s), aggregated from getStats() in the page. Ids only, no personal data.",
+      "type": "object",
+      "properties": {
+        "roomId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "streamId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "windowMs": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 300000
+        },
+        "watchMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 300000,
+          "description": "Time in the window with frames being presented."
+        },
+        "ttffMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 120000,
+          "description": "Click → first presented frame, sent once, in the window it happened."
+        },
+        "start": {
+          "type": "string",
+          "enum": ["click", "prepull"],
+          "description": "How this watch began: pulled on the click, or taken over from a hover pre-pull."
+        },
+        "layer": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9]{1,16}$",
+          "description": "The simulcast layer at the end of the window."
+        },
+        "freezes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "fps": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Mean decoded frames per second."
+        },
+        "bitrateKbps": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Mean received bitrate."
+        },
+        "lossPct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "framesDropped": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000000
+        },
+        "decodeErrors": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000,
+          "description": "Media element errors and failed decodes."
+        },
+        "reconnects": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "rttMs": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Mean round-trip time to the SFU."
+        },
+        "jitterBufferMs": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Mean jitter buffer delay."
+        }
+      },
+      "required": [
+        "roomId",
+        "streamId",
+        "windowMs",
+        "watchMs",
+        "start",
+        "freezes",
+        "fps",
+        "bitrateKbps",
+        "lossPct",
+        "framesDropped",
+        "decodeErrors",
+        "reconnects"
+      ],
+      "additionalProperties": false
+    },
+    "VoicePublishRequest": {
+      "title": "VoicePublishRequest",
+      "description": "POST /api/rtc/rooms/:roomId/voice/publish (web, since 1.10): publish your microphone on your viewer session (POST .../session). The offer has every m-section of the session plus the new sendonly audio one; mid names it. Audio only: a mid that is not an audio m-section is refused.",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        },
+        "mid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        }
+      },
+      "required": ["sessionId", "sessionDescription", "mid"],
+      "additionalProperties": false
+    },
+    "VoicePublishResponse": {
+      "title": "VoicePublishResponse",
+      "description": "The SFU's answer to the offer, and the published track's id as the others see it in voice.tracks.",
+      "type": "object",
+      "properties": {
+        "trackId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "mid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        }
+      },
+      "required": ["trackId", "mid", "sessionDescription"],
+      "additionalProperties": false
+    },
+    "VoiceUnpublishRequest": {
+      "title": "VoiceUnpublishRequest",
+      "description": "POST /api/rtc/rooms/:roomId/voice/unpublish (web, since 1.10): close your microphone track. Idempotent.",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        }
+      },
+      "required": ["sessionId"],
+      "additionalProperties": false
+    },
+    "VoiceSubscribeRequest": {
+      "title": "VoiceSubscribeRequest",
+      "description": "POST /api/rtc/rooms/:roomId/voice/subscribe (web, since 1.10): pull 1 to 4 voice tracks (from voice.tracks) onto your viewer session. A track already pulled on the session is closed first and pulled again.",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "trackIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.json#/$defs/Id"
+          },
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true
+        }
+      },
+      "required": ["sessionId", "trackIds"],
+      "additionalProperties": false
+    },
+    "VoiceSubscribedTrack": {
+      "title": "VoiceSubscribedTrack",
+      "type": "object",
+      "properties": {
+        "trackId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "userId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "mid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        }
+      },
+      "required": ["trackId", "userId", "mid"],
+      "additionalProperties": false
+    },
+    "VoiceSubscribeResponse": {
+      "title": "VoiceSubscribeResponse",
+      "description": "The pulled voice tracks. With requiresImmediateRenegotiation, apply the SFU's offer and send the answer to PUT /api/rtc/rooms/:roomId/renegotiate.",
+      "type": "object",
+      "properties": {
+        "requiresImmediateRenegotiation": {
+          "type": "boolean"
+        },
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        },
+        "tracks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VoiceSubscribedTrack"
+          }
+        }
+      },
+      "required": ["requiresImmediateRenegotiation", "tracks"],
+      "additionalProperties": false
+    },
+    "VoiceUnsubscribeRequest": {
+      "title": "VoiceUnsubscribeRequest",
+      "description": "POST /api/rtc/rooms/:roomId/voice/unsubscribe (web, since 1.10): close voice pulls on your session; every voice pull when trackIds is absent. Idempotent.",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "trackIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.json#/$defs/Id"
+          },
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true
+        }
+      },
+      "required": ["sessionId"],
+      "additionalProperties": false
+    },
+    "CameraPublishRequest": {
+      "title": "CameraPublishRequest",
+      "description": "POST /api/rtc/rooms/:roomId/camera/publish (web, since 1.12): publish your camera on your viewer session. The offer has every m-section of the session plus the new sendonly video one, simulcast with at most two layers (a=rid h and l, highest first); mid names it. Video only: a mid that is not a video m-section is refused, and the microphone goes through voice/publish.",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        },
+        "mid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        }
+      },
+      "required": ["sessionId", "sessionDescription", "mid"],
+      "additionalProperties": false
+    },
+    "CameraPublishResponse": {
+      "title": "CameraPublishResponse",
+      "description": "The SFU's answer to the offer, the published track's id as the others see it in voice.tracks (cameras), and the layers the room read from the offer, highest first.",
+      "type": "object",
+      "properties": {
+        "trackId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "mid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "rids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9]{1,16}$"
+          },
+          "maxItems": 2
+        },
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        }
+      },
+      "required": ["trackId", "mid", "rids", "sessionDescription"],
+      "additionalProperties": false
+    },
+    "CameraUnpublishRequest": {
+      "title": "CameraUnpublishRequest",
+      "description": "POST /api/rtc/rooms/:roomId/camera/unpublish (web, since 1.12): turn your camera off (close its track). Idempotent.",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        }
+      },
+      "required": ["sessionId"],
+      "additionalProperties": false
+    },
+    "CameraSubscribeRequest": {
+      "title": "CameraSubscribeRequest",
+      "description": "POST /api/rtc/rooms/:roomId/camera/subscribe (web, since 1.12): pull 1 to 4 cameras (from voice.tracks cameras) onto your viewer session, on the layer rid (default: the lowest, for the strip). A camera already pulled on the session is closed first and pulled again.",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "trackIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.json#/$defs/Id"
+          },
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true
+        },
+        "rid": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9]{1,16}$"
+        }
+      },
+      "required": ["sessionId", "trackIds"],
+      "additionalProperties": false
+    },
+    "CameraSubscribedTrack": {
+      "title": "CameraSubscribedTrack",
+      "type": "object",
+      "properties": {
+        "trackId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "userId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "mid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "rid": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9]{1,16}$",
+          "description": "The layer the SFU sends; absent when the camera is not simulcast."
+        }
+      },
+      "required": ["trackId", "userId", "mid"],
+      "additionalProperties": false
+    },
+    "CameraSubscribeResponse": {
+      "title": "CameraSubscribeResponse",
+      "description": "The pulled cameras. With requiresImmediateRenegotiation, apply the SFU's offer and send the answer to PUT /api/rtc/rooms/:roomId/renegotiate.",
+      "type": "object",
+      "properties": {
+        "requiresImmediateRenegotiation": {
+          "type": "boolean"
+        },
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        },
+        "tracks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CameraSubscribedTrack"
+          }
+        }
+      },
+      "required": ["requiresImmediateRenegotiation", "tracks"],
+      "additionalProperties": false
+    },
+    "CameraUnsubscribeRequest": {
+      "title": "CameraUnsubscribeRequest",
+      "description": "POST /api/rtc/rooms/:roomId/camera/unsubscribe (web, since 1.12): close camera pulls on your session; every camera pull when trackIds is absent. Idempotent.",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "trackIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.json#/$defs/Id"
+          },
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true
+        }
+      },
+      "required": ["sessionId"],
+      "additionalProperties": false
+    },
+    "CameraLayerRequest": {
+      "title": "CameraLayerRequest",
+      "description": "PUT /api/rtc/rooms/:roomId/camera/layer (web, since 1.12): switch a pulled camera's simulcast layer with tracks/update on the same mid, no renegotiation (the strip uses the low layer, the enlarged camera the high one).",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "trackId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "rid": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9]{1,16}$"
+        }
+      },
+      "required": ["sessionId", "trackId", "rid"],
+      "additionalProperties": false
+    }
+  }
+}

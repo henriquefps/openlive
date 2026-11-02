@@ -1,0 +1,270 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/codes.json",
+  "title": "Codes",
+  "description": "Error codes, event codes, reasons and WebSocket close codes. The server never sends user-facing text: clients translate these codes.",
+  "$defs": {
+    "ErrorCode": {
+      "title": "ErrorCode",
+      "description": "Machine-readable error. The same codes are used in REST error bodies.",
+      "type": "string",
+      "enum": [
+        "unauthenticated",
+        "session_expired",
+        "forbidden",
+        "hello_required",
+        "protocol_unsupported",
+        "invalid_message",
+        "unknown_message_type",
+        "rate_limited",
+        "internal_error",
+        "room_not_found",
+        "room_closed",
+        "stream_not_found",
+        "stream_permission_required",
+        "stream_limit_reached",
+        "stream_paused",
+        "pings_disabled",
+        "preset_not_allowed",
+        "viewer_limit_reached",
+        "viewer_limit_too_high",
+        "slot_not_found",
+        "offer_not_found",
+        "quota_exhausted",
+        "helper_offline",
+        "helper_busy",
+        "source_not_found",
+        "not_found",
+        "space_not_found",
+        "member_not_found",
+        "user_not_found",
+        "slug_taken",
+        "already_member",
+        "banned",
+        "owner_must_transfer",
+        "setting_above_ceiling",
+        "invite_not_found",
+        "invite_expired",
+        "invite_revoked",
+        "invite_exhausted",
+        "join_request_not_found",
+        "join_request_decided",
+        "origin_not_allowed",
+        "auth_not_configured",
+        "oauth_state_invalid",
+        "oauth_failed",
+        "magic_link_invalid",
+        "email_send_failed",
+        "session_not_found",
+        "admin_claim_unavailable",
+        "admin_already_claimed",
+        "install_code_invalid",
+        "space_suspended",
+        "room_code_invalid",
+        "authorization_pending",
+        "slow_down",
+        "expired_token",
+        "device_code_invalid",
+        "device_not_found",
+        "app_code_invalid",
+        "rtc_not_configured",
+        "sfu_error",
+        "sfu_session_not_found",
+        "bitrate_not_allowed",
+        "signup_invite_required",
+        "space_creation_restricted",
+        "user_not_removable",
+        "account_banned",
+        "cannot_target_self",
+        "last_platform_admin",
+        "capability_disabled",
+        "voice_full",
+        "voice_speak_not_allowed",
+        "voice_not_joined",
+        "voice_track_not_found",
+        "camera_not_allowed",
+        "camera_limit_reached",
+        "chat_message_too_long",
+        "chat_write_not_allowed",
+        "chat_message_not_found",
+        "do_quota_exceeded"
+      ]
+    },
+    "ErrorPayload": {
+      "title": "ErrorPayload",
+      "description": "An error code plus the parameters the client needs to render it, flat: { \"code\": \"viewer_limit_reached\", \"limit\": 6 }. Which parameters each code carries is listed in docs/PROTOCOL.md.",
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "used": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retryAfterMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "intervalMs": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "slow_down: the new polling interval."
+        },
+        "minProtocol": {
+          "$ref": "common.json#/$defs/ProtocolVersion"
+        },
+        "maxProtocol": {
+          "$ref": "common.json#/$defs/ProtocolVersion"
+        },
+        "messageType": {
+          "$ref": "envelope.json#/$defs/MessageTypeName"
+        },
+        "path": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "JSON Pointer to the offending field (invalid_message)."
+        },
+        "roomId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "spaceId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "spaceIds": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "common.json#/$defs/Id"
+          },
+          "description": "owner_must_transfer from DELETE /api/admin/users/:userId: the spaces the account owns."
+        },
+        "userId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "inviteId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "joinRequestId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "slug": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "streamId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "slotId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "offerId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "sessionId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "deviceId": {
+          "$ref": "common.json#/$defs/Id"
+        },
+        "sourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "preset": {
+          "$ref": "common.json#/$defs/Preset"
+        },
+        "capability": {
+          "$ref": "common.json#/$defs/Capability"
+        },
+        "trackId": {
+          "$ref": "common.json#/$defs/Id",
+          "description": "voice_track_not_found: the voice or camera track that is gone (since 1.10; cameras since 1.12)."
+        },
+        "messageId": {
+          "$ref": "common.json#/$defs/Id",
+          "description": "chat_message_not_found: the chat message (since 1.11)."
+        }
+      },
+      "required": ["code"],
+      "additionalProperties": false
+    },
+    "CloseCode": {
+      "title": "CloseCode",
+      "description": "WebSocket close codes sent by the server.",
+      "type": "integer",
+      "enum": [1000, 4001, 4002, 4003, 4004, 4005, 4006],
+      "x-enumNames": [
+        "Normal",
+        "Unauthenticated",
+        "Replaced",
+        "Forbidden",
+        "Kicked",
+        "RoomClosed",
+        "ProtocolUnsupported"
+      ]
+    },
+    "StreamEndReason": {
+      "title": "StreamEndReason",
+      "type": "string",
+      "enum": [
+        "ended_by_streamer",
+        "ended_by_moderator",
+        "helper_disconnected",
+        "permission_revoked",
+        "room_closed",
+        "quota_exhausted"
+      ]
+    },
+    "SlotReleaseReason": {
+      "title": "SlotReleaseReason",
+      "type": "string",
+      "enum": ["released", "lease_expired", "stream_ended", "access_revoked"]
+    },
+    "QueueLeftReason": {
+      "title": "QueueLeftReason",
+      "type": "string",
+      "enum": ["left", "offer_expired", "stream_ended", "access_revoked"]
+    },
+    "KickReason": {
+      "title": "KickReason",
+      "type": "string",
+      "enum": ["removed", "banned", "access_revoked", "role_changed"]
+    },
+    "VoiceLeftReason": {
+      "title": "VoiceLeftReason",
+      "description": "Why someone left the voice channel (since 1.10). left: they left; disconnected: their voice tab closed; moved: they joined from another tab (sent to the old tab only); kicked: a moderator took them out (voice.kick); removed: they lost the room (removal, ban, access); capability_disabled: the room's voice was turned off.",
+      "type": "string",
+      "enum": ["left", "disconnected", "moved", "kicked", "removed", "capability_disabled"]
+    },
+    "CameraStopReason": {
+      "title": "CameraStopReason",
+      "description": "Why the room turned your camera off (since 1.12). moderator: an owner or admin did (voice.cameraOff); quota_exhausted: the quota brake; capability_disabled: the room's camera was turned off; not_allowed: you may no longer use a camera (role, guestsCanUseCamera); limit: the room's maxCameras went below the cameras on.",
+      "type": "string",
+      "enum": ["moderator", "quota_exhausted", "capability_disabled", "not_allowed", "limit"]
+    },
+    "RoomCloseReason": {
+      "title": "RoomCloseReason",
+      "type": "string",
+      "enum": ["expired", "ended_by_owner", "archived", "deleted", "quota_exhausted", "suspended"]
+    },
+    "EventCode": {
+      "title": "EventCode",
+      "description": "User notices delivered by the UserHubDO; the web turns them into a sound and a toast.",
+      "type": "string",
+      "enum": [
+        "stream_started_in_room",
+        "viewer_joined_your_stream",
+        "your_stream_dropped",
+        "your_network_unstable",
+        "chat_mention"
+      ]
+    }
+  }
+}

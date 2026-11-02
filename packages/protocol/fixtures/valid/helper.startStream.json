@@ -1,0 +1,12 @@
+{
+  "type": "helper.startStream",
+  "id": "21",
+  "payload": {
+    "deviceId": "d_pc",
+    "roomId": "r_quick1",
+    "sourceId": "screen:0",
+    "preset": "game",
+    "audio": true,
+    "audioSourceId": "window:0x3a00007"
+  }
+}

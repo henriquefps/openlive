@@ -1,0 +1,81 @@
+# Flatpak of the helper. Build from the
+# repository root (packaging/linux/README.md):
+#
+#   flatpak run org.flatpak.Builder --user --force-clean --repo=dist/flatpak-repo \
+#     build/flatpak packaging/linux/dev.hfps.OpenliveHelper.yml
+#   flatpak build-bundle dist/flatpak-repo dist/openlive-helper.flatpak dev.hfps.OpenliveHelper
+#
+# The runtime ships GStreamer 1.28 with gst-plugins-bad's nvcodec (nvh264enc, cudaupload)
+# and va (vah264enc, vapostproc) plugins, x264enc, pipewiresrc, the GL elements and the
+# PipeWire tools the app-audio path runs. NVENC needs the NVIDIA GL extension matching the
+# host driver (org.freedesktop.Platform.GL.nvidia-<version>), which flatpak installs with
+# the driver's userspace libraries (libcuda, libnvidia-encode); VA-API needs Mesa's
+# drivers from org.freedesktop.Platform.GL.default (or intel-media-driver).
+id: dev.hfps.OpenliveHelper
+runtime: org.freedesktop.Platform
+runtime-version: '26.08'
+sdk: org.freedesktop.Sdk
+command: openlive-helper
+finish-args:
+  # GL (and EGL) for the GPU path; X11 for the GST_GL_WINDOW=x11 workaround (README).
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+  # GPU: /dev/dri (GL, VA-API) and, through flatpak's dri set, the NVIDIA device nodes.
+  - --device=dri
+  # The instance (HTTPS, WebSocket) and WebRTC.
+  - --share=network
+  # PipeWire: the ScreenCast portal's stream and the app-audio tools.
+  - --filesystem=xdg-run/pipewire-0
+  # Device tokens in the Secret Service keyring.
+  - --talk-name=org.freedesktop.secrets
+  # Desktop notifications and the tray: the StatusNotifierItem registers with the watcher
+  # under org.kde.StatusNotifierItem-<pid>-1 (flatpak only takes a ".*" suffix). The
+  # GlobalShortcuts, ScreenCast and OpenURI portals need no permission.
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --own-name=org.kde.*
+  # KWin queries: output names, the shared window's state (minimized pause).
+  - --talk-name=org.kde.KWin
+  # No --filesystem=host: the screen comes through the portal, the configuration lives in
+  # the sandbox's own XDG_CONFIG_HOME (~/.var/app/dev.hfps.OpenliveHelper/config).
+modules:
+  - name: openlive-helper
+    buildsystem: simple
+    build-options:
+      # Go module downloads during the build. Fine for our own bundle; a Flathub build
+      # would vendor the modules instead (packaging/linux/README.md).
+      build-args:
+        - --share=network
+      env:
+        GOTOOLCHAIN: local
+        GOFLAGS: -trimpath -modcacherw
+        GOPATH: /run/build/openlive-helper/gopath
+        CGO_ENABLED: '1'
+    build-commands:
+      - |
+        version=$(cat packaging/linux/.version 2>/dev/null || echo 0.1.0-dev)
+        cd helper && ../go/bin/go build -ldflags "-s -w -X main.version=$version" \
+          -o /app/bin/openlive-helper ./cmd/openlive-helper
+      - install -Dm644 packaging/linux/dev.hfps.OpenliveHelper.desktop /app/share/applications/dev.hfps.OpenliveHelper.desktop
+      - install -Dm644 packaging/linux/dev.hfps.OpenliveHelper.metainfo.xml /app/share/metainfo/dev.hfps.OpenliveHelper.metainfo.xml
+      - install -Dm644 packaging/linux/icons/dev.hfps.OpenliveHelper.svg /app/share/icons/hicolor/scalable/apps/dev.hfps.OpenliveHelper.svg
+      - |
+        PATH=$PWD/go/bin:$PATH packaging/linux/gen-third-party-notices.sh /app/bin/openlive-helper \
+          > THIRD_PARTY_NOTICES
+        install -Dm644 THIRD_PARTY_NOTICES /app/share/doc/openlive-helper/THIRD_PARTY_NOTICES
+    sources:
+      - type: dir
+        path: ../..
+        skip:
+          - .git
+          - node_modules
+          - apps
+          - experiments
+          - dist
+          - build
+          - .flatpak-builder
+      - type: archive
+        url: https://go.dev/dl/go1.27.3.linux-amd64.tar.gz
+        sha256: 65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40
+        dest: go

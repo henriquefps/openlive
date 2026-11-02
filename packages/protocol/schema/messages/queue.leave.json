@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/queue.leave.json",
+  "title": "QueueLeaveMessage",
+  "description": "Stop waiting. Idempotent.",
+  "x-openlive": {
+    "phase": 1,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["ack"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "queue.leave" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/QueueLeavePayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "QueueLeavePayload": {
+      "title": "QueueLeavePayload",
+      "type": "object",
+      "properties": { "streamId": { "$ref": "../common.json#/$defs/Id" } },
+      "required": ["streamId"],
+      "additionalProperties": false
+    }
+  }
+}

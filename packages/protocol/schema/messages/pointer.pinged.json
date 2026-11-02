@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/pointer.pinged.json",
+  "title": "PointerPingedMessage",
+  "description": "The room forwards a viewer's ping to the publishing helper of the stream, and only to it (since 1.20).",
+  "x-openlive": { "phase": 2, "channels": ["room"], "from": ["server"], "to": ["helper"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "pointer.pinged" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/PointerPingedPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "PointerPingedPayload": {
+      "title": "PointerPingedPayload",
+      "type": "object",
+      "properties": {
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "userId": { "$ref": "../common.json#/$defs/Id" },
+        "name": { "$ref": "../common.json#/$defs/Label" },
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Left to right over the video frame, 0..1."
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Top to bottom over the video frame, 0..1."
+        },
+        "style": { "$ref": "../common.json#/$defs/PointerStyle" }
+      },
+      "required": ["streamId", "userId", "name", "x", "y", "style"],
+      "additionalProperties": false
+    }
+  }
+}

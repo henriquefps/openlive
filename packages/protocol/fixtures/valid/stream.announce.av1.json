@@ -1,0 +1,15 @@
+{
+  "type": "stream.announce",
+  "id": "4",
+  "payload": {
+    "sfuSessionId": "5f2e1c0a9b8d",
+    "source": { "kind": "screen", "label": "DP-1" },
+    "preset": "game",
+    "tracks": [
+      { "name": "helper-1-video", "kind": "video", "rids": ["f", "h", "q"] },
+      { "name": "helper-1-video-av1", "kind": "video", "codec": "av1" },
+      { "name": "helper-1-audio", "kind": "audio" }
+    ],
+    "hasAudio": true
+  }
+}

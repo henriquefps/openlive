@@ -1,0 +1,4 @@
+{
+  "type": "hello",
+  "payload": { "protocol": { "major": 1, "minor": 0 }, "client": "cli", "clientVersion": "0.1.0" }
+}

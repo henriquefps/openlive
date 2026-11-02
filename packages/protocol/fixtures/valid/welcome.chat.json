@@ -1,0 +1,91 @@
+{
+  "type": "welcome",
+  "id": "1",
+  "payload": {
+    "protocol": {
+      "major": 1,
+      "minor": 10
+    },
+    "minProtocol": {
+      "major": 1,
+      "minor": 0
+    },
+    "serverTime": 1793142060000,
+    "you": {
+      "userId": "u_ana",
+      "connectionId": "c_1",
+      "role": "member",
+      "permissions": {
+        "canStream": true,
+        "canModerate": false,
+        "canJoinVoice": true,
+        "canSpeak": true,
+        "canReadChat": true,
+        "canWriteChat": true
+      }
+    },
+    "room": {
+      "roomId": "r_quick1",
+      "spaceId": "s_friends",
+      "kind": "quick",
+      "visibility": "space",
+      "name": "OL-4821",
+      "expiresAt": 1793145600000
+    },
+    "settings": {
+      "maxStreams": 5,
+      "maxViewersPerStream": 6,
+      "maxBitrateKbps": 12000,
+      "allowedPresets": ["text", "game", "max"],
+      "capabilities": {
+        "stream": true,
+        "voice": true,
+        "camera": false,
+        "text": true
+      },
+      "maxVoiceParticipants": 12,
+      "guestsCanSpeak": false,
+      "chatRetentionDays": 30,
+      "guestsCanWrite": true
+    },
+    "members": [
+      {
+        "userId": "u_bruno",
+        "displayName": "Bruno",
+        "avatarUrl": "https://cdn.discordapp.com/avatars/1/a.png",
+        "role": "guest",
+        "canStream": false
+      }
+    ],
+    "streams": [
+      {
+        "streamId": "st_1",
+        "userId": "u_ana",
+        "deviceId": "d_pc",
+        "source": {
+          "kind": "window",
+          "label": "Hollow Knight"
+        },
+        "preset": "game",
+        "hasAudio": true,
+        "paused": false,
+        "startedAt": 1793142000000,
+        "viewerLimit": 6,
+        "viewerCount": 2
+      }
+    ],
+    "voice": [
+      {
+        "userId": "u_bruno",
+        "muted": true,
+        "deafened": false,
+        "serverMuted": false,
+        "joinedAt": 1793142000000
+      }
+    ],
+    "chat": {
+      "unread": 3,
+      "lastReadId": "m_9"
+    }
+  }
+}

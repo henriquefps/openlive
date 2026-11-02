@@ -1,0 +1,15 @@
+{
+  "type": "stream.announce",
+  "id": "3",
+  "payload": {
+    "sfuSessionId": "5f2e1c0a9b8d",
+    "source": { "kind": "screen", "label": "DP-1" },
+    "preset": "max",
+    "tracks": [
+      { "name": "video", "kind": "video", "rids": ["h", "m", "q"] },
+      { "name": "audio", "kind": "audio" }
+    ],
+    "hasAudio": true,
+    "viewerLimit": 2
+  }
+}

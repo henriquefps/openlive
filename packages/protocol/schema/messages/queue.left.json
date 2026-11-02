@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/queue.left.json",
+  "title": "QueueLeftMessage",
+  "description": "You are no longer in the queue for a reason other than your own queue.leave.",
+  "x-openlive": { "phase": 1, "channels": ["room"], "from": ["server"], "to": ["web"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "queue.left" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/QueueLeftPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "QueueLeftPayload": {
+      "title": "QueueLeftPayload",
+      "type": "object",
+      "properties": {
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "reason": { "$ref": "../codes.json#/$defs/QueueLeftReason" }
+      },
+      "required": ["streamId", "reason"],
+      "additionalProperties": false
+    }
+  }
+}

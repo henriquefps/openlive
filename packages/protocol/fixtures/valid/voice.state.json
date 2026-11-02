@@ -1,0 +1,1 @@
+{ "type": "voice.state", "id": "22", "payload": { "muted": true, "deafened": true } }

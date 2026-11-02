@@ -1,0 +1,19 @@
+{
+  "type": "stream.updated",
+  "payload": {
+    "stream": {
+      "streamId": "st_1",
+      "userId": "u_ana",
+      "deviceId": "d_pc",
+      "source": { "kind": "screen", "label": "Monitor 1" },
+      "preset": "max",
+      "hasAudio": false,
+      "paused": false,
+      "startedAt": 1793142000000,
+      "viewerLimit": 6,
+      "viewerCount": 1,
+      "thumbnailAt": 1793142010000,
+      "qualityCap": { "maxHeight": 1080, "maxBitrateKbps": 8000 }
+    }
+  }
+}

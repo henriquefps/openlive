@@ -1,0 +1,24 @@
+{
+  "type": "welcome",
+  "payload": {
+    "protocol": { "major": 1, "minor": 0 },
+    "minProtocol": { "major": 1, "minor": 0 },
+    "serverTime": 1,
+    "room": {
+      "roomId": "r_quick1",
+      "spaceId": "s_friends",
+      "kind": "quick",
+      "visibility": "space",
+      "name": "OL-4821",
+      "expiresAt": 1793145600000
+    },
+    "settings": {
+      "maxStreams": 5,
+      "maxViewersPerStream": 6,
+      "maxBitrateKbps": 12000,
+      "allowedPresets": ["text", "game", "max"]
+    },
+    "members": [],
+    "streams": []
+  }
+}

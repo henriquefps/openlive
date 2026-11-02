@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/space.presence.updated.json",
+  "title": "SpacePresenceUpdatedMessage",
+  "description": "A room's summary changed; both lists empty means the room is quiet now (since 1.13).",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["space"],
+    "from": ["server"],
+    "to": ["web"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "space.presence.updated"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/SpacePresenceUpdatedPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "SpacePresenceUpdatedPayload": {
+      "title": "SpacePresenceUpdatedPayload",
+      "type": "object",
+      "properties": {
+        "room": {
+          "$ref": "../common.json#/$defs/RoomPresence"
+        }
+      },
+      "required": ["room"],
+      "additionalProperties": false
+    }
+  }
+}

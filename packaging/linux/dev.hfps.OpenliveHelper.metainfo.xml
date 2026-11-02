@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>dev.hfps.OpenliveHelper</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>AGPL-3.0-only</project_license>
+  <name>Openlive helper</name>
+  <summary>Stream your screen or a window to an Openlive room</summary>
+  <developer id="dev.hfps">
+    <name>Henrique</name>
+  </developer>
+  <description>
+    <p>
+      The native helper of Openlive, a self-hosted place for groups to watch each other's screens.
+      It captures a monitor or a window through the desktop's screen-sharing portal, encodes it
+      on the GPU (NVENC or VA-API, x264 as the fallback) and publishes it with WebRTC. The web
+      app starts, pauses and stops streams; no port is opened on this machine.
+    </p>
+    <p>Pair it once with your instance with "openlive-helper pair --instance URL".</p>
+  </description>
+  <launchable type="desktop-id">dev.hfps.OpenliveHelper.desktop</launchable>
+  <url type="homepage">https://github.com/henriquefps/openlive</url>
+  <url type="bugtracker">https://github.com/henriquefps/openlive/issues</url>
+  <content_rating type="oars-1.1"/>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+  <releases>
+    <release version="0.1.0" date="2026-10-27" type="development">
+      <description>
+        <p>First packaged build: Linux capture through the portal, NVENC, VA-API and x264.</p>
+      </description>
+    </release>
+  </releases>
+</component>

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/helper.stats.json",
+  "title": "HelperStatsMessage",
+  "description": "Encoder and network numbers for the streamer's 'stats for nerds', about once per second while live.",
+  "x-openlive": { "phase": 3, "channels": ["hub"], "from": ["helper"], "to": ["web"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "helper.stats" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelperStatsPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelperStatsPayload": {
+      "title": "HelperStatsPayload",
+      "type": "object",
+      "properties": {
+        "deviceId": { "$ref": "../common.json#/$defs/Id" },
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "targetBitrateKbps": { "type": "integer", "minimum": 0 },
+        "sentBitrateKbps": { "type": "integer", "minimum": 0 },
+        "fps": { "type": "number", "minimum": 0 },
+        "width": { "type": "integer", "minimum": 0 },
+        "height": { "type": "integer", "minimum": 0 },
+        "packetLossPct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "rttMs": { "type": "integer", "minimum": 0 },
+        "encoder": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "Since 1.2. The video encoder in use, e.g. nvh264 or x264."
+        },
+        "layers": {
+          "type": "array",
+          "maxItems": 4,
+          "description": "Since 1.2. Per simulcast layer, highest first.",
+          "items": { "$ref": "#/$defs/HelperLayerStats" }
+        },
+        "capturedFps": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Since 1.7. Frames per second out of the capture, before encoding (absent when the backend cannot tell)."
+        },
+        "cpuPct": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Since 1.7. The helper process's CPU use since the previous report, in percent of one core (an x264 encode shows here; a GPU encode mostly does not)."
+        },
+        "keyframeRequests": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Since 1.7. PLIs and FIRs received since the previous report, all layers."
+        },
+        "idrBytes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Since 1.7. The size of the largest keyframe sent since the previous report, all layers; 0 when none."
+        }
+      },
+      "required": [
+        "deviceId",
+        "streamId",
+        "targetBitrateKbps",
+        "sentBitrateKbps",
+        "fps",
+        "width",
+        "height",
+        "packetLossPct",
+        "rttMs"
+      ],
+      "additionalProperties": false
+    },
+    "HelperLayerStats": {
+      "title": "HelperLayerStats",
+      "type": "object",
+      "properties": {
+        "rid": { "type": "string", "pattern": "^[A-Za-z0-9]{1,16}$" },
+        "width": { "type": "integer", "minimum": 0 },
+        "height": { "type": "integer", "minimum": 0 },
+        "fps": { "type": "number", "minimum": 0 },
+        "targetBitrateKbps": { "type": "integer", "minimum": 0 },
+        "sentBitrateKbps": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["rid", "width", "height", "fps", "targetBitrateKbps", "sentBitrateKbps"],
+      "additionalProperties": false
+    }
+  }
+}

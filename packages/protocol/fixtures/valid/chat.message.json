@@ -1,0 +1,15 @@
+{
+  "type": "chat.message",
+  "id": "30",
+  "payload": {
+    "message": {
+      "id": "m_12",
+      "userId": "u_bia",
+      "authorName": "Bia",
+      "text": "hi @Ana, look https://example.com",
+      "createdAt": 1767225600000,
+      "mentions": ["u_ana"]
+    },
+    "clientId": "k1"
+  }
+}

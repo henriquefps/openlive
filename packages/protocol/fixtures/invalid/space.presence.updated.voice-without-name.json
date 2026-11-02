@@ -1,0 +1,10 @@
+{
+  "type": "space.presence.updated",
+  "payload": {
+    "room": {
+      "roomId": "r_games",
+      "voice": [{ "userId": "u_ana", "muted": false, "deafened": false }],
+      "live": []
+    }
+  }
+}

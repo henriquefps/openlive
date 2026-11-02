@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/stream.ended.json",
+  "title": "StreamEndedMessage",
+  "description": "A stream ended. Viewers drop their subscriptions; their slots are released without a separate slot.released.",
+  "x-openlive": { "phase": 2, "channels": ["room"], "from": ["server"], "to": ["web", "helper"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "stream.ended" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/StreamEndedPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "StreamEndedPayload": {
+      "title": "StreamEndedPayload",
+      "type": "object",
+      "properties": {
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "reason": { "$ref": "../codes.json#/$defs/StreamEndReason" }
+      },
+      "required": ["streamId", "reason"],
+      "additionalProperties": false
+    }
+  }
+}

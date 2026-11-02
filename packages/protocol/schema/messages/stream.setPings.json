@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/stream.setPings.json",
+  "title": "StreamSetPingsMessage",
+  "description": "The streamer allows or forbids visual pointer pings on their own stream (since 1.20). Everyone gets stream.updated. Enabling needs a helper that announced pingOverlay.",
+  "x-openlive": {
+    "phase": 2,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "stream.setPings" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/StreamSetPingsPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "StreamSetPingsPayload": {
+      "title": "StreamSetPingsPayload",
+      "type": "object",
+      "properties": {
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "enabled": { "type": "boolean" }
+      },
+      "required": ["streamId", "enabled"],
+      "additionalProperties": false
+    }
+  }
+}

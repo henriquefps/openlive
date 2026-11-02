@@ -1,0 +1,8 @@
+{
+  "client": "openlive-mobile",
+  "redirectUri": "openlive://auth",
+  "codeChallenge": "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+  "codeChallengeMethod": "S256",
+  "state": "n7Qx2bVf",
+  "deviceName": "Pixel 9"
+}

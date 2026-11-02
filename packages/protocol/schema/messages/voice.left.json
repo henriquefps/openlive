@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/voice.left.json",
+  "title": "VoiceLeftMessage",
+  "description": "Someone left the voice channel: the reply to voice.leave (with its id) and an event to everyone in the room (since 1.10). With reason moved, only the tab that lost the voice gets it.",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["server"],
+    "to": ["web"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "voice.left"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/VoiceLeftPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "VoiceLeftPayload": {
+      "title": "VoiceLeftPayload",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "$ref": "../common.json#/$defs/Id"
+        },
+        "reason": {
+          "$ref": "../codes.json#/$defs/VoiceLeftReason"
+        }
+      },
+      "required": ["userId", "reason"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "type": "queue.offer",
+  "payload": { "streamId": "st_1", "offerId": "of_1", "expiresAt": 1793142130000 }
+}

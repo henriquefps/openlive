@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/helper.startStream.json",
+  "title": "HelperStartStreamMessage",
+  "description": "Start streaming a source into a room. The helper publishes, then announces in the room; progress arrives as helper.status.",
+  "x-openlive": {
+    "phase": 3,
+    "channels": ["hub"],
+    "from": ["web"],
+    "to": ["helper"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "helper.startStream" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelperStartStreamPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelperStartStreamPayload": {
+      "title": "HelperStartStreamPayload",
+      "type": "object",
+      "properties": {
+        "deviceId": { "$ref": "../common.json#/$defs/Id" },
+        "roomId": { "$ref": "../common.json#/$defs/Id" },
+        "sourceId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "preset": { "$ref": "../common.json#/$defs/Preset" },
+        "audio": { "type": "boolean" },
+        "audioSourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "Which app's audio to send when the source is a whole screen."
+        }
+      },
+      "required": ["deviceId", "roomId", "sourceId", "preset", "audio"],
+      "additionalProperties": false
+    }
+  }
+}

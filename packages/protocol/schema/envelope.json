@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/envelope.json",
+  "title": "Envelope",
+  "description": "Every WebSocket frame is one UTF-8 JSON text message with this shape. Receivers validate the envelope first, then the payload for the given type.",
+  "x-openlive": {
+    "protocolVersion": {
+      "major": 1,
+      "minor": 20
+    }
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "$ref": "#/$defs/MessageTypeName"
+    },
+    "id": {
+      "$ref": "#/$defs/MessageId"
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "MessageTypeName": {
+      "title": "MessageTypeName",
+      "description": "Dotted lower camel case, e.g. slot.request.",
+      "type": "string",
+      "pattern": "^[a-z][A-Za-z]*(\\.[a-z][A-Za-z]*)*$",
+      "maxLength": 64
+    },
+    "MessageId": {
+      "title": "MessageId",
+      "description": "Chosen by the sender of a request, echoed unchanged in the reply.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    }
+  }
+}

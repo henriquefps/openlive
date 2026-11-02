@@ -1,0 +1,1 @@
+{ "type": "room.closed", "payload": { "reason": "expired" } }

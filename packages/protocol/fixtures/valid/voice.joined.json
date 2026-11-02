@@ -1,0 +1,13 @@
+{
+  "type": "voice.joined",
+  "id": "20",
+  "payload": {
+    "participant": {
+      "userId": "u_ana",
+      "muted": false,
+      "deafened": false,
+      "serverMuted": false,
+      "joinedAt": 1767225600000
+    }
+  }
+}

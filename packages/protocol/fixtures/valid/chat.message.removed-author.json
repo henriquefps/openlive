@@ -1,0 +1,13 @@
+{
+  "type": "chat.message",
+  "payload": {
+    "message": {
+      "id": "m_3",
+      "authorName": "",
+      "text": "old message",
+      "createdAt": 1767225600000,
+      "editedAt": 1767225660000,
+      "mentions": []
+    }
+  }
+}

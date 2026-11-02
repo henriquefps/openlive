@@ -1,0 +1,93 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+out/
+*.tsbuildinfo
+.vite/
+
+# Cloudflare / Wrangler (local state and secrets)
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+# Self-host setup: per-environment secrets and the config with this account's resource ids
+.secrets.*
+!.secrets.example
+wrangler.*.generated.jsonc
+.instance.*.json
+.env
+.env.*
+!.env.example
+
+# Secrets and keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+secrets/
+
+# Tests and coverage
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# Go helper
+/helper/bin/
+/helper/dist/
+*.exe
+*.test
+*.out
+*.prof
+go.work.sum
+
+# Swift (macOS capture backend)
+.build/
+*.xcuserstate
+xcuserdata/
+DerivedData/
+
+# Captured media and network traces (the product never records; these are only debug leftovers)
+*.mp4
+# The player's keep-awake fallback (a 2 s, 16 px black loop), not a recording.
+!apps/web/public/keep-awake.mp4
+*.mkv
+*.webm
+*.ivf
+*.h264
+*.h265
+*.opus
+*.pcap
+*.pcapng
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+
+tmp/
+scratch/
+
+# cf CLI cache
+.cloudflare/
+
+# Local UI review screenshots (apps/web README)
+apps/web/screenshots/
+
+# Helper packaging: the version the release workflow stamps into the Flatpak build
+packaging/linux/.version
+.flatpak-builder/

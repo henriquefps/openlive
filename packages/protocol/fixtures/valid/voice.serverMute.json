@@ -1,0 +1,1 @@
+{ "type": "voice.serverMute", "id": "23", "payload": { "userId": "u_bia", "muted": true } }

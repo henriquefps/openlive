@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/queue.join.json",
+  "title": "QueueJoinMessage",
+  "description": "Wait for a slot on a full stream. Members go ahead of guests; same role is first come, first served. If a slot is already free the reply is slot.granted.",
+  "x-openlive": {
+    "phase": 1,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["queue.position", "slot.granted", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "queue.join" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/QueueJoinPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "QueueJoinPayload": {
+      "title": "QueueJoinPayload",
+      "type": "object",
+      "properties": { "streamId": { "$ref": "../common.json#/$defs/Id" } },
+      "required": ["streamId"],
+      "additionalProperties": false
+    }
+  }
+}

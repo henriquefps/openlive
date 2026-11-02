@@ -1,0 +1,18 @@
+{
+  "type": "stream.updated",
+  "payload": {
+    "stream": {
+      "streamId": "st_1",
+      "userId": "u_ana",
+      "deviceId": "d_pc",
+      "source": { "kind": "window", "label": "Hollow Knight" },
+      "preset": "game",
+      "hasAudio": true,
+      "paused": true,
+      "startedAt": 1793142000000,
+      "viewerLimit": 6,
+      "viewerCount": 2,
+      "pauseReason": "privacy_curtain"
+    }
+  }
+}

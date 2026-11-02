@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/voice.leave.json",
+  "title": "VoiceLeaveMessage",
+  "description": "Leave the voice channel (since 1.10). Idempotent. The room closes your microphone track and your voice pulls.",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["voice.left", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "voice.leave"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/VoiceLeavePayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "VoiceLeavePayload": {
+      "title": "VoiceLeavePayload",
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  }
+}

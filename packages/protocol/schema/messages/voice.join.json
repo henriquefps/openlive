@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/voice.join.json",
+  "title": "VoiceJoinMessage",
+  "description": "Join the room's voice channel from this tab (since 1.10). Needs the voice capability and a free place (voice_full). Joining from another tab of the same user moves the voice there. Someone who may not speak joins muted.",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["voice.joined", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "voice.join"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/VoiceJoinPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "VoiceJoinPayload": {
+      "title": "VoiceJoinPayload",
+      "type": "object",
+      "properties": {
+        "muted": {
+          "type": "boolean",
+          "description": "Join muted (default false)."
+        },
+        "deafened": {
+          "type": "boolean",
+          "description": "Join deafened, which implies muted (default false)."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  }
+}

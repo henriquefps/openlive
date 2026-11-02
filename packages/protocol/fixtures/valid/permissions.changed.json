@@ -1,0 +1,11 @@
+{
+  "type": "permissions.changed",
+  "payload": {
+    "you": {
+      "userId": "u_ana",
+      "connectionId": "c_1",
+      "role": "guest",
+      "permissions": { "canStream": false, "canModerate": false }
+    }
+  }
+}

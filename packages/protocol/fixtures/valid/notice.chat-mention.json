@@ -1,0 +1,1 @@
+{ "type": "notice", "payload": { "event": "chat_mention", "roomId": "r_1", "userId": "u_bia" } }

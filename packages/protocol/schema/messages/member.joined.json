@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/member.joined.json",
+  "title": "MemberJoinedMessage",
+  "description": "A user's first connection to the room opened.",
+  "x-openlive": { "phase": 1, "channels": ["room"], "from": ["server"], "to": ["web", "helper"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "member.joined" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/MemberJoinedPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "MemberJoinedPayload": {
+      "title": "MemberJoinedPayload",
+      "type": "object",
+      "properties": { "member": { "$ref": "../common.json#/$defs/Member" } },
+      "required": ["member"],
+      "additionalProperties": false
+    }
+  }
+}

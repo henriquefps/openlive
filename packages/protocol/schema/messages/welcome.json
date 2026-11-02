@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/welcome.json",
+  "title": "WelcomeMessage",
+  "description": "Reply to hello in a room: who you are, who is here and what is live.",
+  "x-openlive": {
+    "phase": 1,
+    "channels": ["room"],
+    "from": ["server"],
+    "to": ["web", "helper"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "welcome"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/WelcomePayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "WelcomePayload": {
+      "title": "WelcomePayload",
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "$ref": "../common.json#/$defs/ProtocolVersion"
+        },
+        "minProtocol": {
+          "$ref": "../common.json#/$defs/ProtocolVersion"
+        },
+        "serverTime": {
+          "$ref": "../common.json#/$defs/UnixMs"
+        },
+        "you": {
+          "$ref": "../common.json#/$defs/You"
+        },
+        "room": {
+          "$ref": "../common.json#/$defs/RoomInfo"
+        },
+        "settings": {
+          "$ref": "../common.json#/$defs/RoomSettings"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "../common.json#/$defs/Member"
+          }
+        },
+        "streams": {
+          "type": "array",
+          "items": {
+            "$ref": "../common.json#/$defs/StreamInfo"
+          }
+        },
+        "voice": {
+          "type": "array",
+          "items": {
+            "$ref": "../common.json#/$defs/VoiceParticipant"
+          },
+          "description": "Who is in the voice channel (since 1.10; absent from older servers and in rooms without voice)."
+        },
+        "chat": {
+          "$ref": "../common.json#/$defs/ChatSummary",
+          "description": "Unread messages in the text chat (since 1.11; absent from older servers, for helpers and in rooms without text)."
+        }
+      },
+      "required": [
+        "protocol",
+        "minProtocol",
+        "serverTime",
+        "you",
+        "room",
+        "settings",
+        "members",
+        "streams"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

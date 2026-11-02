@@ -1,0 +1,1 @@
+{ "type": "error", "id": "30", "payload": { "code": "chat_message_too_long", "limit": 2000 } }

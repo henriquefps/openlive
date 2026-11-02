@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/ping.json",
+  "title": "PingMessage",
+  "description": "Keepalive. Answered by pong without waking the Durable Object (hibernation auto-response), so send exactly the bytes shown in docs/PROTOCOL.md.",
+  "x-openlive": {
+    "phase": 1,
+    "channels": ["room", "hub", "space"],
+    "from": ["web", "helper"],
+    "to": ["server"],
+    "replies": ["pong"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "ping" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/PingPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "PingPayload": {
+      "title": "PingPayload",
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "helper.status",
+  "payload": {
+    "deviceId": "d_pc",
+    "state": "live",
+    "stream": {
+      "roomId": "r_quick1",
+      "streamId": "st_1",
+      "sourceId": "portal:window",
+      "preset": "game",
+      "audioApp": { "name": "brave-browser", "binary": "brave", "pid": 4242, "browser": "chromium" }
+    },
+    "voiceSink": { "name": "openlive-voice", "label": "Openlive – voice" }
+  }
+}

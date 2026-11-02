@@ -1,0 +1,13 @@
+{
+  "streamId": "st_1",
+  "requiresImmediateRenegotiation": true,
+  "sessionDescription": {
+    "type": "offer",
+    "sdp": "v=0\r\no=- 1 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\n"
+  },
+  "tracks": [
+    { "mid": "1", "kind": "video" },
+    { "mid": "2", "kind": "audio" }
+  ],
+  "rid": "h"
+}

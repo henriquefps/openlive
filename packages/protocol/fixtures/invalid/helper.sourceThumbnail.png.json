@@ -1,0 +1,11 @@
+{
+  "type": "helper.sourceThumbnail",
+  "payload": {
+    "deviceId": "d_pc",
+    "sourceId": "screen:0",
+    "mimeType": "image/png",
+    "width": 320,
+    "height": 180,
+    "data": "AAAA"
+  }
+}

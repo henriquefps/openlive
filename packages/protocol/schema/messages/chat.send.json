@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/chat.send.json",
+  "title": "ChatSendMessage",
+  "description": "Send a message to the room's text chat (since 1.11). Needs the text capability and canWriteChat. The room trims the text, keeps it at most 2,000 characters and limits how many messages a person sends per minute (rate_limited).",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["chat.message", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "chat.send"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/ChatSendPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "ChatSendPayload": {
+      "title": "ChatSendPayload",
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000,
+          "description": "Plain text. Trimmed by the room; above 2,000 characters (code points) it answers chat_message_too_long."
+        },
+        "clientId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "Chosen by the sending tab to match its optimistic copy; echoed in the chat.message that answers it."
+        }
+      },
+      "required": ["text", "clientId"],
+      "additionalProperties": false
+    }
+  }
+}

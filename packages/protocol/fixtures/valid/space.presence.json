@@ -1,0 +1,27 @@
+{
+  "type": "space.presence",
+  "id": "1",
+  "payload": {
+    "spaceId": "sp_friends",
+    "protocol": { "major": 1, "minor": 13 },
+    "minProtocol": { "major": 1, "minor": 0 },
+    "serverTime": 1767225600000,
+    "rooms": [
+      {
+        "roomId": "r_games",
+        "voice": [
+          { "userId": "u_ana", "displayName": "Ana", "muted": false, "deafened": false },
+          {
+            "userId": "u_bia",
+            "displayName": "Bia",
+            "avatarUrl": "https://cdn.example/bia.png",
+            "muted": true,
+            "deafened": true,
+            "camera": true
+          }
+        ],
+        "live": [{ "userId": "u_ana", "displayName": "Ana", "streamId": "st_1" }]
+      }
+    ]
+  }
+}

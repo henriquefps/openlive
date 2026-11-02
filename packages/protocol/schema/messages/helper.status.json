@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/helper.status.json",
+  "title": "HelperStatusMessage",
+  "description": "Helper state, sent to all the user's web sessions on change and after hub.welcome.",
+  "x-openlive": { "phase": 3, "channels": ["hub"], "from": ["helper"], "to": ["web"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "helper.status" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelperStatusPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelperStatusPayload": {
+      "title": "HelperStatusPayload",
+      "type": "object",
+      "properties": {
+        "deviceId": { "$ref": "../common.json#/$defs/Id" },
+        "state": { "$ref": "../common.json#/$defs/HelperState" },
+        "stream": { "$ref": "../common.json#/$defs/HelperStreamStatus" },
+        "voiceSink": {
+          "$ref": "../common.json#/$defs/VoiceSink",
+          "description": "Since 1.16: the helper's voice sink, while it exists."
+        }
+      },
+      "required": ["deviceId", "state"],
+      "additionalProperties": false
+    }
+  }
+}

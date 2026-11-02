@@ -1,0 +1,19 @@
+{
+  "type": "helper.stats",
+  "payload": {
+    "deviceId": "d_pc",
+    "streamId": "st_1",
+    "targetBitrateKbps": 12500,
+    "sentBitrateKbps": 12100,
+    "fps": 60,
+    "width": 1920,
+    "height": 1080,
+    "packetLossPct": 0.2,
+    "rttMs": 41,
+    "encoder": "nvh264",
+    "capturedFps": 60,
+    "cpuPct": 14.5,
+    "keyframeRequests": 2,
+    "idrBytes": 182000
+  }
+}

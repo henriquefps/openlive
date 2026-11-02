@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/helper.sourceThumbnail.json",
+  "title": "HelperSourceThumbnailMessage",
+  "description": "A source picker thumbnail. Relayed only to the user's own web session that asked; never stored by the hub, R2 or any DO.",
+  "x-openlive": { "phase": 3, "channels": ["hub"], "from": ["helper"], "to": ["web"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "helper.sourceThumbnail" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelperSourceThumbnailPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelperSourceThumbnailPayload": {
+      "title": "HelperSourceThumbnailPayload",
+      "type": "object",
+      "properties": {
+        "deviceId": { "$ref": "../common.json#/$defs/Id" },
+        "sourceId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "mimeType": { "type": "string", "enum": ["image/jpeg", "image/webp"] },
+        "width": { "type": "integer", "minimum": 1, "maximum": 640 },
+        "height": { "type": "integer", "minimum": 1, "maximum": 640 },
+        "data": {
+          "type": "string",
+          "contentEncoding": "base64",
+          "minLength": 1,
+          "maxLength": 262144
+        }
+      },
+      "required": ["deviceId", "sourceId", "mimeType", "width", "height", "data"],
+      "additionalProperties": false
+    }
+  }
+}

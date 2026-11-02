@@ -1,0 +1,90 @@
+name: Release helper
+
+# A tag helper-v<version> (e.g. helper-v0.1.0) builds the Linux tarball and the Flatpak
+# bundle, both in the Flatpak SDK, and attaches them to a draft release for that tag.
+# Publishing the draft is done by hand (see packaging/linux/README.md). Signing and auto-update
+# come in a later phase.
+on:
+  push:
+    tags:
+      - 'helper-v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-helper-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Tarball and Flatpak (amd64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: version
+        run: echo "version=${GITHUB_REF_NAME#helper-v}" >> "$GITHUB_OUTPUT"
+      # Both artifacts are built in the Flatpak SDK, not on the runner: Ubuntu 24.04's
+      # GStreamer 1.24 is older than what go-gst needs, the SDK ships 1.28. Ubuntu restricts
+      # unprivileged user namespaces, which bubblewrap (flatpak's sandbox) needs.
+      - name: Flatpak tooling, the SDK and the runtime
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends flatpak
+          flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          runtime=$(sed -n "s/^runtime-version: '\(.*\)'$/\1/p" packaging/linux/dev.hfps.OpenliveHelper.yml)
+          flatpak --user install -y --noninteractive flathub org.flatpak.Builder \
+            "org.freedesktop.Platform//$runtime" "org.freedesktop.Sdk//$runtime"
+      # The binary, linked against the SDK's GStreamer and dynamically loaded from the user's
+      # system at run time (helper/README.md), with the desktop files and THIRD_PARTY_NOTICES.
+      - name: Tarball
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          OUT_DIR: ${{ github.workspace }}/dist
+        run: packaging/linux/build-tarball-in-sdk.sh
+      - name: Flatpak bundle
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          echo "$VERSION" > packaging/linux/.version
+          flatpak run org.flatpak.Builder --user --force-clean --disable-rofiles-fuse \
+            --state-dir=build/.flatpak-builder --repo=build/flatpak-repo build/flatpak \
+            packaging/linux/dev.hfps.OpenliveHelper.yml
+          flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo \
+            build/flatpak-repo "dist/openlive-helper-$VERSION.flatpak" dev.hfps.OpenliveHelper
+          (cd dist && sha256sum "openlive-helper-$VERSION.flatpak" > "openlive-helper-$VERSION.flatpak.sha256")
+      - uses: actions/upload-artifact@v5
+        with:
+          name: helper
+          path: dist/openlive-helper-*
+
+  release:
+    name: Draft release
+    runs-on: ubuntu-24.04
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          path: dist
+          merge-multiple: true
+      # Always a draft; an existing draft for the tag gets the files replaced, a published
+      # release is never touched.
+      - name: Upload to a draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if draft=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft 2>/dev/null); then
+            if [ "$draft" != true ]; then
+              echo "::error::$TAG is already published; not replacing its files."; exit 1
+            fi
+          else
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --draft --verify-tag \
+              --title "openlive-helper ${TAG#helper-v}" \
+              --notes "Linux: the tarball (NVIDIA: NVENC through the system GStreamer) and the Flatpak bundle. See helper/README.md, \"Install on Linux\"."
+          fi
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber dist/*

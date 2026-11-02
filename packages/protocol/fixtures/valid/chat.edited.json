@@ -1,0 +1,4 @@
+{
+  "type": "chat.edited",
+  "payload": { "messageId": "m_12", "text": "hello", "editedAt": 1767225660000, "mentions": [] }
+}

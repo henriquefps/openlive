@@ -1,0 +1,1 @@
+{ "type": "chat.delete", "id": "32", "payload": { "messageId": "m_12" } }

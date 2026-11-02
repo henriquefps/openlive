@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/slot.granted.json",
+  "title": "SlotGrantedMessage",
+  "description": "A viewer slot is held. Pass slotId to POST /api/rtc/rooms/:id/subscribe and renew before expiresAt.",
+  "x-openlive": { "phase": 1, "channels": ["room"], "from": ["server"], "to": ["web"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "slot.granted" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/SlotGrantedPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "SlotGrantedPayload": {
+      "title": "SlotGrantedPayload",
+      "type": "object",
+      "properties": {
+        "slotId": { "$ref": "../common.json#/$defs/Id" },
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "expiresAt": { "$ref": "../common.json#/$defs/UnixMs" },
+        "leaseMs": { "type": "integer", "minimum": 1 }
+      },
+      "required": ["slotId", "streamId", "expiresAt", "leaseMs"],
+      "additionalProperties": false
+    }
+  }
+}

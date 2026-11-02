@@ -1,0 +1,10 @@
+{
+  "type": "hello",
+  "id": "1",
+  "payload": {
+    "protocol": { "major": 1, "minor": 0 },
+    "client": "helper",
+    "clientVersion": "0.1.0-beta.2",
+    "deviceId": "d_pc"
+  }
+}

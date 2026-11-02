@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/voice.tracks.json",
+  "title": "VoiceTracksMessage",
+  "description": "The microphones to pull, sent only to the tab that is in voice, after voice.joined and whenever the list changes (since 1.10). The full list, without your own: pull new trackIds with POST .../voice/subscribe and stop the transceivers of the ones that disappeared (the room already closed those pulls). Since 1.12 it also lists the others' cameras (cameras), the same way, pulled with POST .../camera/subscribe.",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["server"],
+    "to": ["web"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "voice.tracks"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/VoiceTracksPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "VoiceTracksPayload": {
+      "title": "VoiceTracksPayload",
+      "type": "object",
+      "properties": {
+        "tracks": {
+          "type": "array",
+          "items": {
+            "$ref": "../common.json#/$defs/VoiceTrack"
+          },
+          "maxItems": 64
+        },
+        "cameras": {
+          "type": "array",
+          "items": {
+            "$ref": "../common.json#/$defs/CameraTrack"
+          },
+          "maxItems": 64,
+          "description": "The others' cameras (since 1.12; absent from older servers)."
+        }
+      },
+      "required": ["tracks"],
+      "additionalProperties": false
+    }
+  }
+}

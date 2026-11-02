@@ -1,0 +1,15 @@
+{
+  "type": "helper.sources",
+  "payload": {
+    "deviceId": "d_pc",
+    "sources": [
+      {
+        "sourceId": "portal:screen:last",
+        "kind": "screen",
+        "label": "DP-2",
+        "hasAudio": false,
+        "restored": "yes"
+      }
+    ]
+  }
+}

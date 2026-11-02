@@ -1,0 +1,100 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // The top level is local development and tests (`wrangler dev`, Vitest). Deployed instances
+  // use an environment below; the self-host setup (`pnpm run setup`, docs/self-host.md) deploys
+  // them. The name differs from production's so a bare `wrangler deploy` never replaces it.
+  "name": "openlive-dev",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-15",
+  // Locally every invocation is logged (wrangler dev prints them; nothing is sent anywhere).
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "openlive-dev",
+      // PLACEHOLDER: not a real database. Local dev and tests work with it as is.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations",
+    },
+  ],
+  // Thumbnails under thumbnails/, and the helper's release files under helper/
+  // (src/helper/release.ts). Simulated locally; private in every deployed environment.
+  "r2_buckets": [{ "binding": "THUMBNAILS", "bucket_name": "openlive-thumbnails-dev" }],
+  // Metrics (docs/observability.md): Workers Analytics Engine. Free on every plan
+  // (Workers Free: 100,000 data points written and 10,000 queries a day; 3 months of data). The
+  // dataset is created on the first write, so the setup needs nothing. Locally, writes are dropped.
+  "analytics_engine_datasets": [{ "binding": "METRICS", "dataset": "openlive_metrics" }],
+  "durable_objects": {
+    "bindings": [
+      { "name": "ROOM", "class_name": "RoomDO" },
+      { "name": "USER_HUB", "class_name": "UserHubDO" },
+      { "name": "SPACE", "class_name": "SpaceDO" },
+    ],
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["RoomDO", "UserHubDO"] },
+    // The space sidebar's room presence (docs/PROTOCOL.md 7.8).
+    { "tag": "v2", "new_sqlite_classes": ["SpaceDO"] },
+  ],
+  // Copies real Realtime egress into D1 (src/usage/scheduled.ts); inert until configured.
+  "triggers": { "crons": ["*/15 * * * *"] },
+  // In dev the web app runs on Vite (5179) and proxies /api to this Worker.
+  "vars": {
+    "APP_ORIGIN": "http://localhost:5179",
+    "EMAIL_FROM": "Openlive <login@localhost>",
+    // The build reported by /api/health. The setup overwrites both in the generated config.
+    "APP_COMMIT": "dev",
+    "APP_BUILT_AT": "",
+  },
+  "dev": { "port": 8790 },
+  "env": {
+    // The TEMPLATE of every deployed instance, with placeholders. Do not put an instance here:
+    // `pnpm run setup` copies this block into the git-ignored wrangler.<env>.generated.jsonc and
+    // fills in the instance's Worker name, route (custom domain or workers.dev), APP_ORIGIN,
+    // EMAIL_FROM and resource names from apps/api/.instance.<env>.json, plus the account and D1
+    // ids. Bindings added here reach every instance on its next setup run.
+    "production": {
+      "name": "openlive",
+      // One Worker serves everything: the built web app as static assets, with the
+      // Worker running first only for the API and the room WebSocket. Anything else that is not
+      // a file falls back to index.html for the SPA router. Build it with `pnpm build`.
+      "assets": {
+        "directory": "../web/dist",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": ["/api/*", "/ws/*", "/.well-known/openlive.json"],
+      },
+      // Workers Logs: every Worker and Durable Object invocation (each hibernated
+      // WebSocket message, alarm and cron run) is one log event plus one per console line, and
+      // Workers Free keeps 200,000 a day. A tenth of the invocations fits a busy group in that;
+      // the Worker's own error counts (Analytics Engine) are not sampled. `--log-sampling <0..1>`
+      // in the setup changes it per instance, and the setup passes it to the Worker as LOG_SAMPLING_RATE.
+      "observability": { "enabled": true, "head_sampling_rate": 0.1 },
+      // The setup sets the route: a custom_domain route, or workers_dev: true.
+      "workers_dev": false,
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "openlive",
+          // PLACEHOLDER: the setup writes the real id into the generated config, never here.
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "migrations",
+        },
+      ],
+      "r2_buckets": [{ "binding": "THUMBNAILS", "bucket_name": "openlive-thumbnails" }],
+      "analytics_engine_datasets": [{ "binding": "METRICS", "dataset": "openlive_metrics" }],
+      "durable_objects": {
+        "bindings": [
+          { "name": "ROOM", "class_name": "RoomDO" },
+          { "name": "USER_HUB", "class_name": "UserHubDO" },
+          { "name": "SPACE", "class_name": "SpaceDO" },
+        ],
+      },
+      "triggers": { "crons": ["*/15 * * * *"] },
+      // PLACEHOLDERS, replaced by the setup. Never DEV_AUTH: the setup refuses to deploy it.
+      "vars": {
+        "APP_ORIGIN": "https://openlive.example.com",
+        "EMAIL_FROM": "Openlive <login@openlive.example.com>",
+      },
+    },
+  },
+}

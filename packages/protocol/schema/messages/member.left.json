@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/member.left.json",
+  "title": "MemberLeftMessage",
+  "description": "A user's last connection to the room closed.",
+  "x-openlive": { "phase": 1, "channels": ["room"], "from": ["server"], "to": ["web", "helper"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "member.left" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/MemberLeftPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "MemberLeftPayload": {
+      "title": "MemberLeftPayload",
+      "type": "object",
+      "properties": { "userId": { "$ref": "../common.json#/$defs/Id" } },
+      "required": ["userId"],
+      "additionalProperties": false
+    }
+  }
+}

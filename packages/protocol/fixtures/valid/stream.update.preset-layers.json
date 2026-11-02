@@ -1,0 +1,13 @@
+{
+  "type": "stream.update",
+  "id": "5",
+  "payload": {
+    "streamId": "st_1",
+    "preset": "game",
+    "layers": [
+      { "rid": "f", "width": 2576, "height": 1080, "fps": 60, "kbps": 8000 },
+      { "rid": "h", "width": 1728, "height": 720, "fps": 60, "kbps": 3500 },
+      { "rid": "q", "width": 1152, "height": 480, "fps": 30, "kbps": 1000 }
+    ]
+  }
+}

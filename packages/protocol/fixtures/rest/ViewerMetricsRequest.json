@@ -1,0 +1,18 @@
+{
+  "roomId": "rm_1",
+  "streamId": "st_1",
+  "windowMs": 30000,
+  "watchMs": 29500,
+  "ttffMs": 412,
+  "start": "prepull",
+  "layer": "f",
+  "freezes": 0,
+  "fps": 59.6,
+  "bitrateKbps": 7420,
+  "lossPct": 0,
+  "framesDropped": 1,
+  "decodeErrors": 0,
+  "reconnects": 0,
+  "rttMs": 38,
+  "jitterBufferMs": 14.2
+}

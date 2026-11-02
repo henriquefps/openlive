@@ -1,0 +1,19 @@
+name: DCO
+
+# Every commit in a pull request carries a Signed-off-by line (CONTRIBUTING.md).
+# Commits merged before the DCO was adopted are not signed off; only pull requests are checked.
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  dco:
+    name: Sign-off
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: KineticCafe/actions-dco@5f160e3ee086af8fc0fb567b8add0937d074123e # v3.2.0

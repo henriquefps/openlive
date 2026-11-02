@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/queue.offer.json",
+  "title": "QueueOfferMessage",
+  "description": "A slot is free for you. Accept with queue.accept before expiresAt (30 s) or it goes to the next in line.",
+  "x-openlive": { "phase": 1, "channels": ["room"], "from": ["server"], "to": ["web"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "queue.offer" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/QueueOfferPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "QueueOfferPayload": {
+      "title": "QueueOfferPayload",
+      "type": "object",
+      "properties": {
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "offerId": { "$ref": "../common.json#/$defs/Id" },
+        "expiresAt": { "$ref": "../common.json#/$defs/UnixMs" }
+      },
+      "required": ["streamId", "offerId", "expiresAt"],
+      "additionalProperties": false
+    }
+  }
+}

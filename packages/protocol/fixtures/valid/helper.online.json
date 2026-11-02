@@ -1,0 +1,13 @@
+{
+  "type": "helper.online",
+  "payload": {
+    "helper": {
+      "deviceId": "d_pc",
+      "name": "Notebook",
+      "os": "windows",
+      "arch": "amd64",
+      "helperVersion": "0.1.0",
+      "protocol": { "major": 1, "minor": 0 }
+    }
+  }
+}

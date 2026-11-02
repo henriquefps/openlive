@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/pointer.ping.json",
+  "title": "PointerPingMessage",
+  "description": "A viewer clicks the video (since 1.20): x and y are 0..1 over the video frame. No reply on success; errors come back as error with the request id (pings_disabled, rate_limited, forbidden, stream_not_found).",
+  "x-openlive": { "phase": 2, "channels": ["room"], "from": ["web"], "to": ["server"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "pointer.ping" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/PointerPingPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "PointerPingPayload": {
+      "title": "PointerPingPayload",
+      "type": "object",
+      "properties": {
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Left to right over the video frame, 0..1."
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Top to bottom over the video frame, 0..1."
+        },
+        "style": { "$ref": "../common.json#/$defs/PointerStyle" }
+      },
+      "required": ["streamId", "x", "y", "style"],
+      "additionalProperties": false
+    }
+  }
+}

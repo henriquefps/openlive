@@ -1,0 +1,9 @@
+{
+  "type": "notice",
+  "payload": {
+    "event": "stream_started_in_room",
+    "roomId": "r_quick1",
+    "streamId": "st_1",
+    "userId": "u_ana"
+  }
+}

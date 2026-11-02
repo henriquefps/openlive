@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/chat.page.json",
+  "title": "ChatPageMessage",
+  "description": "A page of chat history, oldest first: the reply to chat.history (since 1.11).",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["server"],
+    "to": ["web"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "chat.page"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/ChatPagePayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "ChatPagePayload": {
+      "title": "ChatPagePayload",
+      "type": "object",
+      "properties": {
+        "messages": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "../common.json#/$defs/ChatMessage"
+          }
+        },
+        "hasMore": {
+          "type": "boolean",
+          "description": "Older messages exist before the first one of this page."
+        }
+      },
+      "required": ["messages", "hasMore"],
+      "additionalProperties": false
+    }
+  }
+}

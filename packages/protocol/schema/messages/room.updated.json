@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/room.updated.json",
+  "title": "RoomUpdatedMessage",
+  "description": "The room's effective settings changed (its capabilities or limits, at the room, space or platform level). Clients re-render the room from the new settings. Since 1.9; sent to web connections only.",
+  "x-openlive": { "phase": 1, "channels": ["room"], "from": ["server"], "to": ["web", "helper"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "room.updated" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/RoomUpdatedPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "RoomUpdatedPayload": {
+      "title": "RoomUpdatedPayload",
+      "type": "object",
+      "properties": { "settings": { "$ref": "../common.json#/$defs/RoomSettings" } },
+      "required": ["settings"],
+      "additionalProperties": false
+    }
+  }
+}

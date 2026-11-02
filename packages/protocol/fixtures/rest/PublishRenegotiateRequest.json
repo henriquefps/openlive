@@ -1,0 +1,7 @@
+{
+  "sfuSessionId": "9c2821cbf73ecde97affc0b99ec3b1e72fb7dd3103978c85703c2255acc7426f",
+  "sessionDescription": {
+    "type": "offer",
+    "sdp": "v=0\r\no=- 1 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\n"
+  }
+}

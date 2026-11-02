@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/pong.json",
+  "title": "PongMessage",
+  "description": "Answer to ping.",
+  "x-openlive": {
+    "phase": 1,
+    "channels": ["room", "hub", "space"],
+    "from": ["server"],
+    "to": ["web", "helper"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "pong" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/PongPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "PongPayload": {
+      "title": "PongPayload",
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  }
+}

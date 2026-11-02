@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/helper.setPreset.json",
+  "title": "HelperSetPresetMessage",
+  "description": "Change the preset of the current stream.",
+  "x-openlive": {
+    "phase": 3,
+    "channels": ["hub"],
+    "from": ["web"],
+    "to": ["helper"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "helper.setPreset" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelperSetPresetPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelperSetPresetPayload": {
+      "title": "HelperSetPresetPayload",
+      "type": "object",
+      "properties": {
+        "deviceId": { "$ref": "../common.json#/$defs/Id" },
+        "preset": { "$ref": "../common.json#/$defs/Preset" }
+      },
+      "required": ["deviceId", "preset"],
+      "additionalProperties": false
+    }
+  }
+}

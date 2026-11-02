@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/chat.history.json",
+  "title": "ChatHistoryMessage",
+  "description": "Ask for a page of older chat messages (since 1.11): the newest ones before `before`, or the newest of all without it.",
+  "x-openlive": {
+    "phase": 6,
+    "channels": ["room"],
+    "from": ["web"],
+    "to": ["server"],
+    "replies": ["chat.page", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "chat.history"
+    },
+    "id": {
+      "$ref": "../envelope.json#/$defs/MessageId"
+    },
+    "payload": {
+      "$ref": "#/$defs/ChatHistoryPayload"
+    }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "ChatHistoryPayload": {
+      "title": "ChatHistoryPayload",
+      "type": "object",
+      "properties": {
+        "before": {
+          "$ref": "../common.json#/$defs/Id",
+          "description": "A message id; the page holds messages older than it."
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Default 50."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  }
+}

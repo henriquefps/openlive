@@ -1,0 +1,1 @@
+{ "type": "chat.edit", "id": "31", "payload": { "messageId": "m_12", "text": "hello" } }

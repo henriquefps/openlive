@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Openlive helper
+GenericName=Screen streaming helper
+Comment=Stream to Openlive from the system tray
+Exec=openlive-helper run
+Icon=dev.hfps.OpenliveHelper
+Terminal=false
+Categories=AudioVideo;Video;
+Keywords=stream;screen;share;openlive;webrtc;
+StartupNotify=false
+SingleMainWindow=true

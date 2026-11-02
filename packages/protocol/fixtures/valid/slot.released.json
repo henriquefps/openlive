@@ -1,0 +1,4 @@
+{
+  "type": "slot.released",
+  "payload": { "slotId": "sl_1", "streamId": "st_1", "reason": "lease_expired" }
+}

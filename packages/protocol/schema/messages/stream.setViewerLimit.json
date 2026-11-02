@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/stream.setViewerLimit.json",
+  "title": "StreamSetViewerLimitMessage",
+  "description": "The streamer (or a moderator) changes the stream's viewer limit, never above the room's limit and the platform ceiling.",
+  "x-openlive": {
+    "phase": 2,
+    "channels": ["room"],
+    "from": ["web", "helper"],
+    "to": ["server"],
+    "replies": ["ack", "error"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "stream.setViewerLimit" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/StreamSetViewerLimitPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "StreamSetViewerLimitPayload": {
+      "title": "StreamSetViewerLimitPayload",
+      "type": "object",
+      "properties": {
+        "streamId": { "$ref": "../common.json#/$defs/Id" },
+        "limit": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["streamId", "limit"],
+      "additionalProperties": false
+    }
+  }
+}

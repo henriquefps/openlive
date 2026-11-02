@@ -1,0 +1,8 @@
+{
+  "type": "error",
+  "payload": {
+    "code": "protocol_unsupported",
+    "minProtocol": { "major": 2, "minor": 0 },
+    "maxProtocol": { "major": 2, "minor": 3 }
+  }
+}

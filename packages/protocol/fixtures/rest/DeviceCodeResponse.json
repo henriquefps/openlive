@@ -1,0 +1,8 @@
+{
+  "deviceCode": "Zm9vYmFyYmF6cXV4cXV1eGNvcmdlZ3JhdWx0Z2FycGx",
+  "userCode": "K7F-2QM",
+  "verificationUri": "https://openlive.example/link",
+  "verificationUriComplete": "https://openlive.example/link?code=K7F-2QM",
+  "expiresInMs": 600000,
+  "intervalMs": 5000
+}

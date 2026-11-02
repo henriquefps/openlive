@@ -1,0 +1,4 @@
+{
+  "type": "slot.granted",
+  "payload": { "slotId": "sl_1", "streamId": "st_1", "expiresAt": -1, "leaseMs": 30000 }
+}

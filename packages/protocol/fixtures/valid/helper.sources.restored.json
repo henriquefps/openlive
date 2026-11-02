@@ -1,0 +1,25 @@
+{
+  "type": "helper.sources",
+  "id": "21",
+  "payload": {
+    "deviceId": "d_pc",
+    "sources": [
+      {
+        "sourceId": "portal:screen",
+        "kind": "screen",
+        "label": "A monitor (picked in the system dialog)",
+        "hasAudio": false
+      },
+      {
+        "sourceId": "portal:window:last",
+        "kind": "window",
+        "label": "Hollow Knight",
+        "appName": "hollow_knight",
+        "width": 1913,
+        "height": 1047,
+        "hasAudio": true,
+        "restored": true
+      }
+    ]
+  }
+}

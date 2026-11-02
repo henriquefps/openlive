@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/stream.end.json",
+  "title": "StreamEndMessage",
+  "description": "The helper stopped the stream.",
+  "x-openlive": {
+    "phase": 2,
+    "channels": ["room"],
+    "from": ["helper"],
+    "to": ["server"],
+    "replies": ["ack"]
+  },
+  "type": "object",
+  "properties": {
+    "type": { "const": "stream.end" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/StreamEndPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "StreamEndPayload": {
+      "title": "StreamEndPayload",
+      "type": "object",
+      "properties": { "streamId": { "$ref": "../common.json#/$defs/Id" } },
+      "required": ["streamId"],
+      "additionalProperties": false
+    }
+  }
+}
