@@ -3,7 +3,7 @@
 // Package compositor asks the desktop compositor what the portal does not say: the name of
 // a captured output, which window a window stream shows, and whether that window is
 // minimized. On KDE, KWin keeps sending a minimized window's frames and
-// gives no paused signal (Phase 0 P7), so the helper watches the window itself.
+// gives no paused signal, so the helper watches the window itself.
 //
 // Only KWin (Plasma 6) is implemented. Elsewhere Watch fails with ErrUnsupported and the
 // helper streams without the paused state and without output names.

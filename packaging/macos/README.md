@@ -75,9 +75,30 @@ spctl --assess --type execute -vv /tmp/olh/"Openlive Helper.app"   # accepted, N
 hdiutil detach "/Volumes/Openlive Helper"
 ```
 
+## Attach it to the release (maintainer)
+
+The official disk image goes on the public repository's GitHub release for the tag, next to the
+Linux files the `release-helper` workflow attached to the draft (the full order is in
+[../RELEASING.md](../RELEASING.md)). From the Mac, with `gh` logged in:
+
+```sh
+scripts/release/add-asset.sh helper-v<version> dist/openlive-helper-<version>-macos.dmg
+```
+
+It uploads the image to the **draft** release and adds its SHA-256 to the release's `SHA256SUMS`,
+which `helper:publish --from-release` checks every file against. Then publish the draft.
+
 ## Publish to an instance
 
-Copy the image to the machine you publish from (into `dist/`) and add it to the release:
+From a release (what self-hosters do; no Mac needed): the disk image comes with the Linux files.
+
+```sh
+pnpm run helper:publish -- --env production --from-release <version> --dry-run
+pnpm run helper:publish -- --env production --from-release <version>
+```
+
+From your own build (an unreleased version, or a build of your own): copy the image to the
+machine you publish from (into `dist/`) and add it to a local build:
 
 ```sh
 pnpm run helper:publish -- --env production --mac-dmg dist/openlive-helper-<version>-macos.dmg --dry-run
@@ -85,9 +106,9 @@ pnpm run helper:publish -- --env production --mac-dmg dist/openlive-helper-<vers
 ```
 
 The name must carry the version being published (the Linux files are built for the same one).
-The image is uploaded next to the Linux files, listed in `SHA256SUMS` and in `helper/latest.json`
-(`kind: dmg`, `os: macos`, `arch: universal`, with its size and SHA-256), and `/download` shows the
-macOS card with the install steps.
+Either way the image is uploaded next to the Linux files, listed in `SHA256SUMS` and in
+`helper/latest.json` (`kind: dmg`, `os: macos`, `arch: universal`, with its size and SHA-256), and
+`/download` shows the macOS card with the install steps.
 
 ## What the app does when opened
 

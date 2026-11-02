@@ -42,7 +42,7 @@ func TestFitLayers(t *testing.T) {
 		want     string
 		original bool
 	}{
-		// Phase 0 P4: the 3440x1440 monitor at the 1080p preset was 2580x1080; widths are
+		// Measured: the 3440x1440 monitor at the 1080p preset was 2580x1080; widths are
 		// now multiples of 16 (the mixer letterboxes the 4 pixels).
 		{"ultrawide", 3440, 1440, "f=2576x1080 h=1728x720 q=1152x480", false},
 		{"16:9", 2560, 1440, "f=1920x1080 h=1280x720 q=848x480", false},
@@ -122,7 +122,7 @@ func TestSourcePolicyResize(t *testing.T) {
 	if r := p.onCaps(1600, 900); r != restartNone {
 		t.Fatalf("same caps restarted: %q", r)
 	}
-	// Phase 0 P7: the new size negotiates and then pipewiresrc stalls; restart.
+	// Measured: the new size negotiates and then pipewiresrc stalls; restart.
 	if r := p.onCaps(1280, 720); r != restartResize {
 		t.Fatalf("resize: %q", r)
 	}
@@ -307,7 +307,7 @@ func TestLinuxSourceDescription(t *testing.T) {
 	window := linuxSourceDescription(PathGL, sourceSpec{fd: 7, serial: 5123, fps: 60})
 	for _, want := range []string{
 		"pipewiresrc name=vsrc fd=7 target-object=5123",
-		// Phase 0 P4: without max-framerate KWin delivers up to the monitor's refresh.
+		// Measured: without max-framerate KWin delivers up to the monitor's refresh.
 		"video/x-raw(memory:DMABuf),max-framerate=60/1 !",
 		"! proxysink name=capsink",
 	} {

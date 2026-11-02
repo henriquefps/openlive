@@ -841,8 +841,8 @@ S→C DO to client, W→H web to helper relayed by the hub, H→W helper to web 
 | `chat.page`             | 6     | S→C (web)          | `messages[]`, `hasMore`                                                                                                                     |                                             |
 | `chat.read`             | 6     | C→S (web)          | `messageId`                                                                                                                                 | `ack` / `error`                             |
 
-Slots and the queue are Phase 1 because viewer slots and the priority queue are part of the
-foundation; they are exercised against test streams until Phase 2 brings real ones.
+Slots and the queue are part of the foundation (the first version): viewer slots and the priority
+queue are exercised against test streams until real ones exist.
 
 ### 9.3 User hub
 
@@ -912,10 +912,10 @@ Defined in `packages/protocol/schema/common.json`; field-level detail is in the 
 ## 11. REST bodies
 
 Every REST error uses `ErrorPayload` (section 6). Request and response bodies of the REST routes
-are added to the schema as the routes are implemented, starting in Phase 1, under
+are added to the schema as the routes are implemented, starting with the first version, under
 the same additive rules.
 
-Phase 1 implements the space, member, room, room access, invite and join request routes in
+The first version implements the space, member, room, room access, invite and join request routes in
 `apps/api/src/api/` (bodies validated with Zod there; their JSON Schemas come with the web client
 that consumes them). Conventions:
 
@@ -1139,7 +1139,7 @@ Cameras (web, since 1.12, section 7.7). Also on the viewer session:
 4. `POST .../camera/unsubscribe` closes pulls; `POST .../camera/unpublish` turns the camera off.
    Leaving voice closes both, and `POST /api/rtc/leave` closes them with the rest of the session.
 
-Realtime behaviour this relies on (measured in Phase 0):
+Realtime behaviour this relies on (measured during development):
 
 - `sessions/new` with no body answers `201 { sessionId }`; with an offer it also returns the
   answer. An unconnected session can expire before first use, so viewer sessions are created when

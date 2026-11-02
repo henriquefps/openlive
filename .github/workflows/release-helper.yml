@@ -1,9 +1,11 @@
 name: Release helper
 
 # A tag helper-v<version> (e.g. helper-v0.1.0) builds the Linux tarball and the Flatpak
-# bundle, both in the Flatpak SDK, and attaches them to a draft release for that tag.
-# Publishing the draft is done by hand (see packaging/linux/README.md). Signing and auto-update
-# come in a later phase.
+# bundle, both in the Flatpak SDK, and attaches them to a draft release for that tag, with a
+# SHA256SUMS over every helper file of the release. The maintainer adds the notarized macOS disk
+# image (scripts/release/add-asset.sh, which updates SHA256SUMS) and publishes the draft by hand:
+# packaging/RELEASING.md. Instances publish a release with
+# `pnpm run helper:publish -- --from-release <version>`, which checks each file against SHA256SUMS.
 on:
   push:
     tags:
@@ -87,4 +89,17 @@ jobs:
               --title "openlive-helper ${TAG#helper-v}" \
               --notes "Linux: the tarball (NVIDIA: NVENC through the system GStreamer) and the Flatpak bundle. See helper/README.md, \"Install on Linux\"."
           fi
+          # SHA256SUMS covers every helper file of the release: the ones built here and, on a
+          # re-run, a macOS disk image the maintainer already attached (its line is kept).
+          mkdir -p old
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern SHA256SUMS --dir old 2>/dev/null || true
+          (
+            cd dist
+            sha256sum openlive-helper-*.tar.gz openlive-helper-*.flatpak > SHA256SUMS.new
+            if [ -f ../old/SHA256SUMS ]; then
+              awk 'NR==FNR { built[$2] = 1; next } !($2 in built)' SHA256SUMS.new ../old/SHA256SUMS >> SHA256SUMS.new
+            fi
+            sort -k2 SHA256SUMS.new > SHA256SUMS && rm SHA256SUMS.new
+            cat SHA256SUMS
+          )
           gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber dist/*

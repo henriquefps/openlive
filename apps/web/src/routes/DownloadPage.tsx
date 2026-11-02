@@ -36,8 +36,11 @@ import { DESKTOP_OSES, detectDesktopOs } from '../lib/os.ts';
 /** The encoder notes and `doctor` (helper/README.md, "Encoders"). */
 const ENCODER_NOTES = 'https://github.com/henriquefps/openlive/blob/main/helper/README.md#encoders';
 const FLATPAK_APP = 'dev.hfps.OpenliveHelper';
-const PUBLISH_COMMAND = 'pnpm run helper:publish -- --env production';
-const MAC_PUBLISH_COMMAND = `${PUBLISH_COMMAND} --mac-dmg dist/openlive-helper-<version>-macos.dmg`;
+/** From the official GitHub release, with the macOS disk image when it has one (packaging/RELEASING.md). */
+const PUBLISH_COMMAND = 'pnpm run helper:publish -- --env production --from-release latest';
+/** A build from source with a disk image made on a Mac, for a release that has none. */
+const MAC_PUBLISH_COMMAND =
+  'pnpm run helper:publish -- --env production --mac-dmg dist/openlive-helper-<version>-macos.dmg';
 
 /** The install and pairing commands of each kind of file, for this instance. */
 function installSteps(file: HelperFile, instance: string): string[] {

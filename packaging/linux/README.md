@@ -1,7 +1,8 @@
 # Linux packaging of the helper
 
 Two release artifacts, both built by the
-`release-helper` workflow on a `helper-v<version>` tag and attached to a **draft** release:
+`release-helper` workflow on a `helper-v<version>` tag and attached to a **draft** release, with a
+`SHA256SUMS` over the release's files ([../RELEASING.md](../RELEASING.md)):
 
 | Artifact                                       | What                                                                                                                                                                                                                                          |
 | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -52,27 +53,44 @@ instead (`go mod vendor`, plus a `go-modules` source list).
 
 ## Publish to an instance
 
-The repository is private for now, so friends do not download from GitHub Releases: each instance
-serves the helper itself from its private R2 bucket, to signed-in members of any space and the
-platform admin (the Download page, `GET /api/helper/latest`, `GET /api/helper/download/...`).
+Members do not download from GitHub: each instance serves the helper itself from its private R2
+bucket, to signed-in members of any space and the platform admin (the Download page,
+`GET /api/helper/latest`, `GET /api/helper/download/...`). The usual way fills the bucket from an
+official release (the public repository's GitHub Releases; [../RELEASING.md](../RELEASING.md)):
+
+```sh
+pnpm run helper:publish -- --env production --from-release latest --dry-run   # print the plan
+pnpm run helper:publish -- --env production --from-release latest             # or a version: 0.2.0
+```
+
+It reads the release from the GitHub REST API (no `gh`, no token), downloads the tarball, the
+Flatpak and the macOS disk image (whichever the release has) over HTTPS into
+`build/helper-publish/<version>/release/`, checks each against the release's `SHA256SUMS` and its
+size, and stops before any upload when one does not match. The protocol version comes from
+`helper/internal/api/room.go` at the release's tag, the release notes link defaults to the release
+page. `--release-repo owner/name` reads another repository (a fork with its own releases); a draft
+is never taken, a prerelease only with `--allow-prerelease`.
+
+To build it yourself instead (an unreleased version, or your own build):
 
 ```sh
 pnpm run helper:publish -- --env production --version 0.2.0 --dry-run   # print the plan
 pnpm run helper:publish -- --env production --version 0.2.0
 ```
 
-The script (`scripts/setup/src/helper-publish.ts`) builds with the scripts above
+The script (`scripts/setup/src/helper-publish.ts`) then builds with the scripts above
 (`build-tarball-in-sdk.sh`, then the Flatpak like the release workflow when `org.flatpak.Builder`
 or `flatpak-builder` is installed; `--no-flatpak` leaves it out, `--skip-build` publishes what is in
 `dist/`), writes `SHA256SUMS` and `latest.json` into `build/helper-publish/<version>/`, and uploads
 with the pinned wrangler and the instance's generated config (`wrangler r2 object put --remote`).
-Without `--version` it takes the latest `helper-v*` tag. Layout in the bucket (the `THUMBNAILS`
-binding, the instance's only bucket; thumbnails live under `thumbnails/`):
+Without `--version` it takes the latest `helper-v*` tag. Both ways write the same layout in the
+bucket (the `THUMBNAILS` binding, the instance's only bucket; thumbnails live under `thumbnails/`):
 
 | Key                                                             | What                                                       |
 | --------------------------------------------------------------- | ---------------------------------------------------------- |
 | `helper/<version>/openlive-helper-<version>-linux-amd64.tar.gz` | The tarball                                                |
 | `helper/<version>/openlive-helper-<version>.flatpak`            | The Flatpak bundle (when built)                            |
+| `helper/<version>/openlive-helper-<version>-macos.dmg`          | The macOS disk image (when there is one)                   |
 | `helper/<version>/SHA256SUMS`                                   | `sha256sum -c` format                                      |
 | `helper/latest.json`                                            | Written last: what the Download page offers (format below) |
 

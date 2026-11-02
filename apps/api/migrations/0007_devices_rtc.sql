@@ -1,4 +1,4 @@
--- Phase 2: helper pairing (docs/PROTOCOL.md 11.1) and the Realtime sessions the
+-- Helper pairing (docs/PROTOCOL.md 11.1) and the Realtime sessions the
 -- RoomDOs create.
 
 -- A pending pairing (RFC 8628 style). The helper holds the device code, the person types the user

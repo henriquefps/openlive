@@ -4,7 +4,7 @@ import { REALTIME_API } from '../api/checks';
 
 // The Cloudflare Realtime SFU and TURN HTTPS APIs. The Worker is
 // their only client: the app token and the TURN key token stay here. Shapes and behaviour come
-// from the Phase 0 proxies:
+// from the first proxy experiments:
 //
 // - errors arrive at three levels: the HTTP status, a top-level errorCode, and an errorCode on
 //   each track. Every call checks all three and throws SfuError on the first one found;
@@ -72,7 +72,7 @@ export const TRACKS_PER_REQUEST = 4;
 const STUN_ONLY: IceServer[] = [{ urls: ['stun:stun.cloudflare.com:3478'] }];
 const TURN_TTL_S = 4 * 60 * 60;
 
-/** Browsers block port 53; drop those URLs so ICE does not wait on them (Phase 0, P1). */
+/** Browsers block port 53; drop those URLs so ICE does not wait on them. */
 function withoutPort53(urls: string[]): string[] {
   return urls.filter((u) => !/:53(\?|$)/.test(u));
 }

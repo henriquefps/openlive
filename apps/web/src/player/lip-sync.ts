@@ -48,7 +48,7 @@ function split(sdp: string): { eol: string; session: string[]; sections: Section
 
 /**
  * Moves each pair's audio into its video's msid stream. Without `pairs`, an offer with one video
- * section gets every audio section joined to it (the Phase 0 case); with several videos (one SFU
+ * section gets every audio section joined to it (the first case); with several videos (one SFU
  * session carrying more than one stream) the caller must say which audio goes with which video,
  * from the mids that tracks/new returned. Unknown mids and sections without msid are left alone.
  */

@@ -1126,7 +1126,7 @@
       "signedOut": "Entre para baixar o helper.",
       "noSpace": "O helper é para membros de um space nesta instância. Entre em um space com um convite e volte aqui.",
       "unpublished": "Nenhum helper publicado ainda",
-      "adminHint": "Compile e envie um a partir do repositório com:",
+      "adminHint": "Publique a versão oficial a partir do repositório com:",
       "unpublishedMember": "O helper ainda não está disponível nesta instância. Fale com quem a administra."
     },
     "macos": {
@@ -1143,7 +1143,7 @@
         "goLive": "Use Transmitir numa sala: o helper transmite pela barra de menus."
       },
       "unpublished": "Nenhum helper para macOS publicado ainda",
-      "adminHint": "Gere e notarize a imagem de disco num Mac com packaging/macos/build-app.sh e publique com:",
+      "adminHint": "Publique uma versão oficial (--from-release, que inclui a imagem de disco), ou gere e notarize a imagem num Mac com packaging/macos/build-app.sh e publique uma compilação do código-fonte com:",
       "unpublishedMember": "O helper para macOS ainda não está disponível nesta instância. Pergunte a quem a administra."
     }
   },

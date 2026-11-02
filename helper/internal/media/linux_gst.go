@@ -104,7 +104,7 @@ func (b *LinuxBackend) Start(ctx context.Context, src Source, p Profile) (Stream
 	}
 	path := ResolveCapturePath(b.opts.Path, enc, HasElement)
 	if path == PathCPU || enc == EncoderX264 {
-		log.Warn("software path: Phase 0 P4 measured that the CPU path does not hold 1080p60", "capturePath", path, "encoder", enc)
+		log.Warn("software path: measurements showed that the CPU path does not hold 1080p60", "capturePath", path, "encoder", enc)
 	}
 	if b.opts.TestPattern != "" {
 		return b.startTest(ctx, p, enc, path)
@@ -184,7 +184,7 @@ func (b *LinuxBackend) startPortal(ctx context.Context, kind portal.Kind, p Prof
 
 	// Windows use shared-memory frames: with DMA-BUFs, a capture branch restarted after a
 	// resize negotiated the new size and then got no frame (KWin 6.8, this task's run);
-	// Phase 0 P7's window runs that worked read shared memory. Monitors keep DMA-BUFs.
+	// The window runs that worked read shared memory. Monitors keep DMA-BUFs.
 	spec := sourceSpec{serial: st.Serial, fps: p.Layers[0].FPS, shm: kind == portal.KindWindow}
 	if spec.serial == 0 {
 		spec.serial = uint64(st.NodeID)
@@ -309,7 +309,7 @@ func (b *LinuxBackend) startTest(ctx context.Context, p Profile, enc Encoder, pa
 }
 
 // probeSize reads the stream's frame size with a throwaway pipewiresrc → fakesink. A
-// fresh pipewiresrc on the same node starts at full rate afterwards (Phase 0 P7).
+// fresh pipewiresrc on the same node starts at full rate afterwards.
 func probeSize(sess *portal.Session, spec sourceSpec, timeout time.Duration) (int, int, error) {
 	remote, err := sess.OpenPipeWireRemote()
 	if err != nil {
@@ -795,7 +795,7 @@ func (s *LinuxStream) control() {
 		closed = s.session.Closed()
 	}
 	// KWin says a window was resized at once; the stream's own caps come seconds later
-	// (Phase 0 P7 and this task's runs), so the window's size drives the restart.
+	// (early runs), so the window's size drives the restart.
 	settle := time.NewTimer(time.Hour)
 	settle.Stop()
 	var resizedAt time.Time

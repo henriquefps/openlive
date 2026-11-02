@@ -7,7 +7,7 @@ package api
 const (
 	pathDeviceCode  = "/api/devices/code"
 	pathDeviceToken = "/api/devices/token"
-	// %s is the room id. Phase 1 route; its body is not in the schema yet (PROTOCOL.md §11).
+	// %s is the room id. Route of the first version; its body is not in the schema yet (PROTOCOL.md §11).
 	pathRoomFmt               = "/api/rooms/%s"
 	pathICEFmt                = "/api/rtc/rooms/%s/ice"
 	pathPublishFmt            = "/api/rtc/rooms/%s/publish"

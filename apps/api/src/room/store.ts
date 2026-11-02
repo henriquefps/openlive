@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS queue (
   offer_expires_at INTEGER,
   UNIQUE (stream_id, connection_id)
 );
--- Phase 2. A helper's SFU session from POST .../publish until it ends. announce_by is set until
+-- A helper's SFU session from POST .../publish until it ends. announce_by is set until
 -- stream.announce turns it into a stream (stream_id).
 CREATE TABLE IF NOT EXISTS publications (
   sfu_session_id   TEXT PRIMARY KEY,
@@ -512,7 +512,7 @@ export class RoomStore {
     ).map((r) => r.stream_id);
   }
 
-  // --- Publications and stream internals (Phase 2) ---
+  // --- Publications and stream internals ---
 
   insertPublication(p: PublicationRow): void {
     this.sql.exec(
@@ -616,7 +616,7 @@ export class RoomStore {
     ).map((r) => r.stream_id);
   }
 
-  // --- Viewer sessions and subscriptions (Phase 2) ---
+  // --- Viewer sessions and subscriptions ---
 
   insertViewerSession(sessionId: string, userId: string, now: number): void {
     this.sql.exec(
@@ -941,7 +941,7 @@ export class RoomStore {
     return this.all('SELECT rid FROM camera_pulls');
   }
 
-  // --- Usage meter (Phase 2) ---
+  // --- Usage meter ---
 
   /** Every held slot with the layer its viewer pulled, if any. */
   /** Every held slot with the layer and codec its viewer pulled (null before the pull). */

@@ -1594,525 +1594,525 @@ export const MessageType = {
 } as const;
 export type MessageType = (typeof MessageType)[keyof typeof MessageType];
 
-/** Success reply for requests that have no specific reply type. (Phase 1) */
+/** Success reply for requests that have no specific reply type. */
 export interface AckMessage {
   type: "ack";
   id?: MessageId;
   payload: AckPayload;
 }
 
-/** Delete a chat message (since 1.11): your own, or as owner or admin someone else's (never the owner's, and an admin never another admin's). (Phase 6) */
+/** Delete a chat message (since 1.11): your own, or as owner or admin someone else's (never the owner's, and an admin never another admin's). */
 export interface ChatDeleteMessage {
   type: "chat.delete";
   id?: MessageId;
   payload: ChatDeletePayload;
 }
 
-/** A chat message was deleted: the reply to chat.delete (with its id) and an event to everyone else (since 1.11). Clients drop it; the room keeps no text of it. (Phase 6) */
+/** A chat message was deleted: the reply to chat.delete (with its id) and an event to everyone else (since 1.11). Clients drop it; the room keeps no text of it. */
 export interface ChatDeletedMessage {
   type: "chat.deleted";
   id?: MessageId;
   payload: ChatDeletedPayload;
 }
 
-/** Edit one of your own chat messages (since 1.11). Same limits as chat.send; needs canWriteChat. (Phase 6) */
+/** Edit one of your own chat messages (since 1.11). Same limits as chat.send; needs canWriteChat. */
 export interface ChatEditMessage {
   type: "chat.edit";
   id?: MessageId;
   payload: ChatEditPayload;
 }
 
-/** A chat message was edited: the reply to chat.edit (with its id) and an event to everyone else (since 1.11). (Phase 6) */
+/** A chat message was edited: the reply to chat.edit (with its id) and an event to everyone else (since 1.11). */
 export interface ChatEditedMessage {
   type: "chat.edited";
   id?: MessageId;
   payload: ChatEditedPayload;
 }
 
-/** Ask for a page of older chat messages (since 1.11): the newest ones before `before`, or the newest of all without it. (Phase 6) */
+/** Ask for a page of older chat messages (since 1.11): the newest ones before `before`, or the newest of all without it. */
 export interface ChatHistoryMessage {
   type: "chat.history";
   id?: MessageId;
   payload: ChatHistoryPayload;
 }
 
-/** A new chat message: the reply to chat.send (with its id and clientId) and an event to every other web connection in the room (since 1.11). (Phase 6) */
+/** A new chat message: the reply to chat.send (with its id and clientId) and an event to every other web connection in the room (since 1.11). */
 export interface ChatMessageMessage {
   type: "chat.message";
   id?: MessageId;
   payload: ChatMessagePayload;
 }
 
-/** A page of chat history, oldest first: the reply to chat.history (since 1.11). (Phase 6) */
+/** A page of chat history, oldest first: the reply to chat.history (since 1.11). */
 export interface ChatPageMessage {
   type: "chat.page";
   id?: MessageId;
   payload: ChatPagePayload;
 }
 
-/** Mark the chat as read up to a message (since 1.11). The room keeps the latest per user, for welcome.chat and the unread counts of the space's room list. (Phase 6) */
+/** Mark the chat as read up to a message (since 1.11). The room keeps the latest per user, for welcome.chat and the unread counts of the space's room list. */
 export interface ChatReadMessage {
   type: "chat.read";
   id?: MessageId;
   payload: ChatReadPayload;
 }
 
-/** Send a message to the room's text chat (since 1.11). Needs the text capability and canWriteChat. The room trims the text, keeps it at most 2,000 characters and limits how many messages a person sends per minute (rate_limited). (Phase 6) */
+/** Send a message to the room's text chat (since 1.11). Needs the text capability and canWriteChat. The room trims the text, keeps it at most 2,000 characters and limits how many messages a person sends per minute (rate_limited). */
 export interface ChatSendMessage {
   type: "chat.send";
   id?: MessageId;
   payload: ChatSendPayload;
 }
 
-/** A request failed, or the connection is about to be closed. Carries the request id when it answers one. (Phase 1) */
+/** A request failed, or the connection is about to be closed. Carries the request id when it answers one. */
 export interface ErrorMessage {
   type: "error";
   id?: MessageId;
   payload: ErrorPayload;
 }
 
-/** First message on every connection. Authentication already happened at the HTTP upgrade; hello carries the protocol version and what kind of client this is. (Phase 1) */
+/** First message on every connection. Authentication already happened at the HTTP upgrade; hello carries the protocol version and what kind of client this is. */
 export interface HelloMessage {
   type: "hello";
   id?: MessageId;
   payload: HelloPayload;
 }
 
-/** List capturable screens and windows. Thumbnails follow as helper.sourceThumbnail to the requesting web session only. (Phase 3) */
+/** List capturable screens and windows. Thumbnails follow as helper.sourceThumbnail to the requesting web session only. */
 export interface HelperListSourcesMessage {
   type: "helper.listSources";
   id?: MessageId;
   payload: HelperListSourcesPayload;
 }
 
-/** One of the user's helpers disconnected. (Phase 3) */
+/** One of the user's helpers disconnected. */
 export interface HelperOfflineMessage {
   type: "helper.offline";
   id?: MessageId;
   payload: HelperOfflinePayload;
 }
 
-/** One of the user's helpers connected. (Phase 3) */
+/** One of the user's helpers connected. */
 export interface HelperOnlineMessage {
   type: "helper.online";
   id?: MessageId;
   payload: HelperOnlinePayload;
 }
 
-/** Privacy curtain on or off from the web. (Phase 3) */
+/** Privacy curtain on or off from the web. */
 export interface HelperPauseStreamMessage {
   type: "helper.pauseStream";
   id?: MessageId;
   payload: HelperPauseStreamPayload;
 }
 
-/** Change the preset of the current stream. (Phase 3) */
+/** Change the preset of the current stream. */
 export interface HelperSetPresetMessage {
   type: "helper.setPreset";
   id?: MessageId;
   payload: HelperSetPresetPayload;
 }
 
-/** Since 1.16: the speakers the voice sink plays on, as the browser labels them (the output picked in Settings > Voice). No label: the system's default output. (Phase 3) */
+/** Since 1.16: the speakers the voice sink plays on, as the browser labels them (the output picked in Settings > Voice). No label: the system's default output. */
 export interface HelperSetVoiceOutputMessage {
   type: "helper.setVoiceOutput";
   id?: MessageId;
   payload: HelperSetVoiceOutputPayload;
 }
 
-/** A source picker thumbnail. Relayed only to the user's own web session that asked; never stored by the hub, R2 or any DO. (Phase 3) */
+/** A source picker thumbnail. Relayed only to the user's own web session that asked; never stored by the hub, R2 or any DO. */
 export interface HelperSourceThumbnailMessage {
   type: "helper.sourceThumbnail";
   id?: MessageId;
   payload: HelperSourceThumbnailPayload;
 }
 
-/** Reply to helper.listSources. (Phase 3) */
+/** Reply to helper.listSources. */
 export interface HelperSourcesMessage {
   type: "helper.sources";
   id?: MessageId;
   payload: HelperSourcesPayload;
 }
 
-/** Start streaming a source into a room. The helper publishes, then announces in the room; progress arrives as helper.status. (Phase 3) */
+/** Start streaming a source into a room. The helper publishes, then announces in the room; progress arrives as helper.status. */
 export interface HelperStartStreamMessage {
   type: "helper.startStream";
   id?: MessageId;
   payload: HelperStartStreamPayload;
 }
 
-/** Encoder and network numbers for the streamer's 'stats for nerds', about once per second while live. (Phase 3) */
+/** Encoder and network numbers for the streamer's 'stats for nerds', about once per second while live. */
 export interface HelperStatsMessage {
   type: "helper.stats";
   id?: MessageId;
   payload: HelperStatsPayload;
 }
 
-/** Helper state, sent to all the user's web sessions on change and after hub.welcome. (Phase 3) */
+/** Helper state, sent to all the user's web sessions on change and after hub.welcome. */
 export interface HelperStatusMessage {
   type: "helper.status";
   id?: MessageId;
   payload: HelperStatusPayload;
 }
 
-/** Stop the helper's current stream (also from another device, e.g. the phone). (Phase 3) */
+/** Stop the helper's current stream (also from another device, e.g. the phone). */
 export interface HelperStopStreamMessage {
   type: "helper.stopStream";
   id?: MessageId;
   payload: HelperStopStreamPayload;
 }
 
-/** Reply to hello on the user hub: which helpers are online. (Phase 3) */
+/** Reply to hello on the user hub: which helpers are online. */
 export interface HubWelcomeMessage {
   type: "hub.welcome";
   id?: MessageId;
   payload: HubWelcomePayload;
 }
 
-/** Sent right before the server closes the connection with code 4004. (Phase 1) */
+/** Sent right before the server closes the connection with code 4004. */
 export interface KickedMessage {
   type: "kicked";
   id?: MessageId;
   payload: KickedPayload;
 }
 
-/** A user's first connection to the room opened. (Phase 1) */
+/** A user's first connection to the room opened. */
 export interface MemberJoinedMessage {
   type: "member.joined";
   id?: MessageId;
   payload: MemberJoinedPayload;
 }
 
-/** A user's last connection to the room closed. (Phase 1) */
+/** A user's last connection to the room closed. */
 export interface MemberLeftMessage {
   type: "member.left";
   id?: MessageId;
   payload: MemberLeftPayload;
 }
 
-/** A present user's role or stream permission changed. (Phase 1) */
+/** A present user's role or stream permission changed. */
 export interface MemberUpdatedMessage {
   type: "member.updated";
   id?: MessageId;
   payload: MemberUpdatedPayload;
 }
 
-/** A user notice; the web plays a sound and shows a toast. (Phase 5) */
+/** A user notice; the web plays a sound and shows a toast. */
 export interface NoticeMessage {
   type: "notice";
   id?: MessageId;
   payload: NoticePayload;
 }
 
-/** The receiving connection's role or permissions changed; applied immediately, without waiting for the next request. (Phase 1) */
+/** The receiving connection's role or permissions changed; applied immediately, without waiting for the next request. */
 export interface PermissionsChangedMessage {
   type: "permissions.changed";
   id?: MessageId;
   payload: PermissionsChangedPayload;
 }
 
-/** Keepalive. Answered by pong without waking the Durable Object (hibernation auto-response), so send exactly the bytes shown in docs/PROTOCOL.md. (Phase 1) */
+/** Keepalive. Answered by pong without waking the Durable Object (hibernation auto-response), so send exactly the bytes shown in docs/PROTOCOL.md. */
 export interface PingMessage {
   type: "ping";
   id?: MessageId;
   payload: PingPayload;
 }
 
-/** A viewer clicks the video (since 1.20): x and y are 0..1 over the video frame. No reply on success; errors come back as error with the request id (pings_disabled, rate_limited, forbidden, stream_not_found). (Phase 2) */
+/** A viewer clicks the video (since 1.20): x and y are 0..1 over the video frame. No reply on success; errors come back as error with the request id (pings_disabled, rate_limited, forbidden, stream_not_found). */
 export interface PointerPingMessage {
   type: "pointer.ping";
   id?: MessageId;
   payload: PointerPingPayload;
 }
 
-/** The room forwards a viewer's ping to the publishing helper of the stream, and only to it (since 1.20). (Phase 2) */
+/** The room forwards a viewer's ping to the publishing helper of the stream, and only to it (since 1.20). */
 export interface PointerPingedMessage {
   type: "pointer.pinged";
   id?: MessageId;
   payload: PointerPingedPayload;
 }
 
-/** Answer to ping. (Phase 1) */
+/** Answer to ping. */
 export interface PongMessage {
   type: "pong";
   id?: MessageId;
   payload: PongPayload;
 }
 
-/** Take the offered slot. (Phase 1) */
+/** Take the offered slot. */
 export interface QueueAcceptMessage {
   type: "queue.accept";
   id?: MessageId;
   payload: QueueAcceptPayload;
 }
 
-/** Wait for a slot on a full stream. Members go ahead of guests; same role is first come, first served. If a slot is already free the reply is slot.granted. (Phase 1) */
+/** Wait for a slot on a full stream. Members go ahead of guests; same role is first come, first served. If a slot is already free the reply is slot.granted. */
 export interface QueueJoinMessage {
   type: "queue.join";
   id?: MessageId;
   payload: QueueJoinPayload;
 }
 
-/** Stop waiting. Idempotent. (Phase 1) */
+/** Stop waiting. Idempotent. */
 export interface QueueLeaveMessage {
   type: "queue.leave";
   id?: MessageId;
   payload: QueueLeavePayload;
 }
 
-/** You are no longer in the queue for a reason other than your own queue.leave. (Phase 1) */
+/** You are no longer in the queue for a reason other than your own queue.leave. */
 export interface QueueLeftMessage {
   type: "queue.left";
   id?: MessageId;
   payload: QueueLeftPayload;
 }
 
-/** A slot is free for you. Accept with queue.accept before expiresAt (30 s) or it goes to the next in line. (Phase 1) */
+/** A slot is free for you. Accept with queue.accept before expiresAt (30 s) or it goes to the next in line. */
 export interface QueueOfferMessage {
   type: "queue.offer";
   id?: MessageId;
   payload: QueueOfferPayload;
 }
 
-/** Position in the queue of a full stream (1 = next). Sent on join and whenever it changes. (Phase 1) */
+/** Position in the queue of a full stream (1 = next). Sent on join and whenever it changes. */
 export interface QueuePositionMessage {
   type: "queue.position";
   id?: MessageId;
   payload: QueuePositionPayload;
 }
 
-/** Sent right before the server closes every connection with code 4005. (Phase 1) */
+/** Sent right before the server closes every connection with code 4005. */
 export interface RoomClosedMessage {
   type: "room.closed";
   id?: MessageId;
   payload: RoomClosedPayload;
 }
 
-/** A quick room will expire at expiresAt (an expiry was scheduled or moved while someone is connected). (Phase 1) */
+/** A quick room will expire at expiresAt (an expiry was scheduled or moved while someone is connected). */
 export interface RoomExpiringMessage {
   type: "room.expiring";
   id?: MessageId;
   payload: RoomExpiringPayload;
 }
 
-/** The room's effective settings changed (its capabilities or limits, at the room, space or platform level). Clients re-render the room from the new settings. Since 1.9; sent to web connections only. (Phase 1) */
+/** The room's effective settings changed (its capabilities or limits, at the room, space or platform level). Clients re-render the room from the new settings. Since 1.9; sent to web connections only. */
 export interface RoomUpdatedMessage {
   type: "room.updated";
   id?: MessageId;
   payload: RoomUpdatedPayload;
 }
 
-/** A viewer slot is held. Pass slotId to POST /api/rtc/rooms/:id/subscribe and renew before expiresAt. (Phase 1) */
+/** A viewer slot is held. Pass slotId to POST /api/rtc/rooms/:id/subscribe and renew before expiresAt. */
 export interface SlotGrantedMessage {
   type: "slot.granted";
   id?: MessageId;
   payload: SlotGrantedPayload;
 }
 
-/** Give the slot back (viewer closed the player). (Phase 1) */
+/** Give the slot back (viewer closed the player). */
 export interface SlotReleaseMessage {
   type: "slot.release";
   id?: MessageId;
   payload: SlotReleasePayload;
 }
 
-/** The slot is gone: released by the viewer, lease expired, stream ended or access revoked. The client must close its SFU subscription. (Phase 1) */
+/** The slot is gone: released by the viewer, lease expired, stream ended or access revoked. The client must close its SFU subscription. */
 export interface SlotReleasedMessage {
   type: "slot.released";
   id?: MessageId;
   payload: SlotReleasedPayload;
 }
 
-/** Lease heartbeat. Send every leaseMs/3; the slot is released about leaseMs after the last renewal. (Phase 1) */
+/** Lease heartbeat. Send every leaseMs/3; the slot is released about leaseMs after the last renewal. */
 export interface SlotRenewMessage {
   type: "slot.renew";
   id?: MessageId;
   payload: SlotRenewPayload;
 }
 
-/** The lease was extended. (Phase 1) */
+/** The lease was extended. */
 export interface SlotRenewedMessage {
   type: "slot.renewed";
   id?: MessageId;
   payload: SlotRenewedPayload;
 }
 
-/** Ask for a viewer slot on a stream. Required before subscribing at the SFU. (Phase 1) */
+/** Ask for a viewer slot on a stream. Required before subscribing at the SFU. */
 export interface SlotRequestMessage {
   type: "slot.request";
   id?: MessageId;
   payload: SlotRequestPayload;
 }
 
-/** Reply to hello on a space connection, and sent again after the caller's access changed: every non-empty room summary of the space the caller may see (since 1.13). (Phase 6) */
+/** Reply to hello on a space connection, and sent again after the caller's access changed: every non-empty room summary of the space the caller may see (since 1.13). */
 export interface SpacePresenceMessage {
   type: "space.presence";
   id?: MessageId;
   payload: SpacePresencePayload;
 }
 
-/** A room's summary changed; both lists empty means the room is quiet now (since 1.13). (Phase 6) */
+/** A room's summary changed; both lists empty means the room is quiet now (since 1.13). */
 export interface SpacePresenceUpdatedMessage {
   type: "space.presence.updated";
   id?: MessageId;
   payload: SpacePresenceUpdatedPayload;
 }
 
-/** The helper has published tracks to the SFU and announces the stream. (Phase 2) */
+/** The helper has published tracks to the SFU and announces the stream. */
 export interface StreamAnnounceMessage {
   type: "stream.announce";
   id?: MessageId;
   payload: StreamAnnouncePayload;
 }
 
-/** The helper stopped the stream. (Phase 2) */
+/** The helper stopped the stream. */
 export interface StreamEndMessage {
   type: "stream.end";
   id?: MessageId;
   payload: StreamEndPayload;
 }
 
-/** A stream ended. Viewers drop their subscriptions; their slots are released without a separate slot.released. (Phase 2) */
+/** A stream ended. Viewers drop their subscriptions; their slots are released without a separate slot.released. */
 export interface StreamEndedMessage {
   type: "stream.ended";
   id?: MessageId;
   payload: StreamEndedPayload;
 }
 
-/** The streamer allows or forbids visual pointer pings on their own stream (since 1.20). Everyone gets stream.updated. Enabling needs a helper that announced pingOverlay. (Phase 2) */
+/** The streamer allows or forbids visual pointer pings on their own stream (since 1.20). Everyone gets stream.updated. Enabling needs a helper that announced pingOverlay. */
 export interface StreamSetPingsMessage {
   type: "stream.setPings";
   id?: MessageId;
   payload: StreamSetPingsPayload;
 }
 
-/** The streamer (or a moderator) changes the stream's viewer limit, never above the room's limit and the platform ceiling. (Phase 2) */
+/** The streamer (or a moderator) changes the stream's viewer limit, never above the room's limit and the platform ceiling. */
 export interface StreamSetViewerLimitMessage {
   type: "stream.setViewerLimit";
   id?: MessageId;
   payload: StreamSetViewerLimitPayload;
 }
 
-/** A stream went live. Also the reply to stream.announce. (Phase 2) */
+/** A stream went live. Also the reply to stream.announce. */
 export interface StreamStartedMessage {
   type: "stream.started";
   id?: MessageId;
   payload: StreamStartedPayload;
 }
 
-/** The room ends this helper's stream (moderator, revoked permission, room closing, quota). The helper stops publishing and closes its SFU session. (Phase 2) */
+/** The room ends this helper's stream (moderator, revoked permission, room closing, quota). The helper stops publishing and closes its SFU session. */
 export interface StreamStopMessage {
   type: "stream.stop";
   id?: MessageId;
   payload: StreamStopPayload;
 }
 
-/** End a stream from the web: your own, or anyone's with canModerate. The room sends stream.stop to the helper. (Phase 2) */
+/** End a stream from the web: your own, or anyone's with canModerate. The room sends stream.stop to the helper. */
 export interface StreamTerminateMessage {
   type: "stream.terminate";
   id?: MessageId;
   payload: StreamTerminatePayload;
 }
 
-/** Paused or resumed (source hidden, privacy curtain) or new preset. Only the fields that changed. (Phase 2) */
+/** Paused or resumed (source hidden, privacy curtain) or new preset. Only the fields that changed. */
 export interface StreamUpdateMessage {
   type: "stream.update";
   id?: MessageId;
   payload: StreamUpdatePayload;
 }
 
-/** Paused, resumed, preset or viewer limit changed. Carries the full stream. (Phase 2) */
+/** Paused, resumed, preset or viewer limit changed. Carries the full stream. */
 export interface StreamUpdatedMessage {
   type: "stream.updated";
   id?: MessageId;
   payload: StreamUpdatedPayload;
 }
 
-/** Who holds a slot on a stream and how many slots exist. Sent to every member when it changes. (Phase 1) */
+/** Who holds a slot on a stream and how many slots exist. Sent to every member when it changes. */
 export interface ViewersMessage {
   type: "viewers";
   id?: MessageId;
   payload: ViewersPayload;
 }
 
-/** Turn someone's camera off (since 1.12), same rule as voice.serverMute: canModerate, the owner acts on anyone else, an admin on members and guests. The room closes the camera at the SFU and the target's tab gets voice.cameraStopped with reason moderator; they may turn it on again. (Phase 6) */
+/** Turn someone's camera off (since 1.12), same rule as voice.serverMute: canModerate, the owner acts on anyone else, an admin on members and guests. The room closes the camera at the SFU and the target's tab gets voice.cameraStopped with reason moderator; they may turn it on again. */
 export interface VoiceCameraOffMessage {
   type: "voice.cameraOff";
   id?: MessageId;
   payload: VoiceCameraOffPayload;
 }
 
-/** The room closed your camera (since 1.12): sent only to the tab in voice whose camera it was. Stop the camera's transceiver and the local track; everyone else sees VoiceParticipant.camera turn false. (Phase 6) */
+/** The room closed your camera (since 1.12): sent only to the tab in voice whose camera it was. Stop the camera's transceiver and the local track; everyone else sees VoiceParticipant.camera turn false. */
 export interface VoiceCameraStoppedMessage {
   type: "voice.cameraStopped";
   id?: MessageId;
   payload: VoiceCameraStoppedPayload;
 }
 
-/** Join the room's voice channel from this tab (since 1.10). Needs the voice capability and a free place (voice_full). Joining from another tab of the same user moves the voice there. Someone who may not speak joins muted. (Phase 6) */
+/** Join the room's voice channel from this tab (since 1.10). Needs the voice capability and a free place (voice_full). Joining from another tab of the same user moves the voice there. Someone who may not speak joins muted. */
 export interface VoiceJoinMessage {
   type: "voice.join";
   id?: MessageId;
   payload: VoiceJoinPayload;
 }
 
-/** Someone joined the voice channel: the reply to voice.join (with its id) and an event to everyone else in the room (since 1.10). (Phase 6) */
+/** Someone joined the voice channel: the reply to voice.join (with its id) and an event to everyone else in the room (since 1.10). */
 export interface VoiceJoinedMessage {
   type: "voice.joined";
   id?: MessageId;
   payload: VoiceJoinedPayload;
 }
 
-/** Take someone out of the voice channel (since 1.10), same rule as voice.serverMute. They get voice.left with reason kicked and may join again; to keep them out, remove them from the room. (Phase 6) */
+/** Take someone out of the voice channel (since 1.10), same rule as voice.serverMute. They get voice.left with reason kicked and may join again; to keep them out, remove them from the room. */
 export interface VoiceKickMessage {
   type: "voice.kick";
   id?: MessageId;
   payload: VoiceKickPayload;
 }
 
-/** Leave the voice channel (since 1.10). Idempotent. The room closes your microphone track and your voice pulls. (Phase 6) */
+/** Leave the voice channel (since 1.10). Idempotent. The room closes your microphone track and your voice pulls. */
 export interface VoiceLeaveMessage {
   type: "voice.leave";
   id?: MessageId;
   payload: VoiceLeavePayload;
 }
 
-/** Someone left the voice channel: the reply to voice.leave (with its id) and an event to everyone in the room (since 1.10). With reason moved, only the tab that lost the voice gets it. (Phase 6) */
+/** Someone left the voice channel: the reply to voice.leave (with its id) and an event to everyone in the room (since 1.10). With reason moved, only the tab that lost the voice gets it. */
 export interface VoiceLeftMessage {
   type: "voice.left";
   id?: MessageId;
   payload: VoiceLeftPayload;
 }
 
-/** Mute (or unmute) someone in the voice channel for everyone (since 1.10): owners and admins (canModerate), never the owner, never another admin for an admin, never yourself. The room closes their microphone track and refuses a new one until unmuted. (Phase 6) */
+/** Mute (or unmute) someone in the voice channel for everyone (since 1.10): owners and admins (canModerate), never the owner, never another admin for an admin, never yourself. The room closes their microphone track and refuses a new one until unmuted. */
 export interface VoiceServerMuteMessage {
   type: "voice.serverMute";
   id?: MessageId;
   payload: VoiceServerMutePayload;
 }
 
-/** Your own mute and deafen state (since 1.10). Deafened implies muted; muted false is refused with voice_speak_not_allowed when you may not speak. (Phase 6) */
+/** Your own mute and deafen state (since 1.10). Deafened implies muted; muted false is refused with voice_speak_not_allowed when you may not speak. */
 export interface VoiceStateMessage {
   type: "voice.state";
   id?: MessageId;
   payload: VoiceStatePayload;
 }
 
-/** The microphones to pull, sent only to the tab that is in voice, after voice.joined and whenever the list changes (since 1.10). The full list, without your own: pull new trackIds with POST .../voice/subscribe and stop the transceivers of the ones that disappeared (the room already closed those pulls). Since 1.12 it also lists the others' cameras (cameras), the same way, pulled with POST .../camera/subscribe. (Phase 6) */
+/** The microphones to pull, sent only to the tab that is in voice, after voice.joined and whenever the list changes (since 1.10). The full list, without your own: pull new trackIds with POST .../voice/subscribe and stop the transceivers of the ones that disappeared (the room already closed those pulls). Since 1.12 it also lists the others' cameras (cameras), the same way, pulled with POST .../camera/subscribe. */
 export interface VoiceTracksMessage {
   type: "voice.tracks";
   id?: MessageId;
   payload: VoiceTracksPayload;
 }
 
-/** A voice participant's state changed (mute, deafen, server mute, or the voice moved to another tab), sent to everyone in the room (since 1.10). (Phase 6) */
+/** A voice participant's state changed (mute, deafen, server mute, or the voice moved to another tab), sent to everyone in the room (since 1.10). */
 export interface VoiceUpdatedMessage {
   type: "voice.updated";
   id?: MessageId;
   payload: VoiceUpdatedPayload;
 }
 
-/** Reply to hello in a room: who you are, who is here and what is live. (Phase 1) */
+/** Reply to hello in a room: who you are, who is here and what is live. */
 export interface WelcomeMessage {
   type: "welcome";
   id?: MessageId;

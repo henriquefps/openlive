@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-// `pnpm run helper:publish -- --env production [--version X] [--mac-dmg P] [--dry-run]`: builds
-// the Linux helper and publishes it, with the macOS disk image made on a Mac, to the instance's
-// private R2 bucket for the Download page (helper-release.ts has the plan;
-// packaging/linux/README.md, packaging/macos/README.md, docs/self-host.md).
+// `pnpm run helper:publish -- --env production --from-release latest [--dry-run]`: publishes the
+// official build of a GitHub release (helper-from-release.ts). Without --from-release
+// (`[--version X] [--mac-dmg P]`) it builds the Linux helper and publishes it, with the macOS disk
+// image made on a Mac. Either way to the instance's private R2 bucket for the Download page
+// (helper-release.ts has the plan; packaging/RELEASING.md, packaging/linux/README.md,
+// packaging/macos/README.md, docs/self-host.md).
 
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -34,12 +36,14 @@ import {
   uploadCommand,
   versionFromDescribe,
 } from './helper-release.ts';
+import { type InstanceFacts, publishFromRelease, ReleaseError } from './helper-from-release.ts';
 
 class Stop extends Error {}
 
 const repoRoot = resolve(import.meta.dirname, '../../..');
 const apiDir = join(repoRoot, 'apps', 'api');
 const win = process.platform === 'win32';
+const wranglerBin = join(apiDir, 'node_modules', '.bin', win ? 'wrangler.cmd' : 'wrangler');
 
 function run(command: string[], opts: { cwd?: string; env?: Record<string, string> } = {}): void {
   const [cmd, ...args] = command;
@@ -70,13 +74,23 @@ function sha256File(path: string): Promise<string> {
   });
 }
 
-function gatherFacts(env: string, version: string | undefined): PublishFacts {
+function instanceFacts(env: string): InstanceFacts {
   const instancePath = join(apiDir, `.instance.${env}.json`);
   const generated = `apps/api/wrangler.${env}.generated.jsonc`;
   if (!existsSync(instancePath) || !existsSync(join(repoRoot, generated))) {
     throw new Stop(`no instance "${env}" here: run \`pnpm run setup -- --env ${env}\` first`);
   }
   const inst = parseInstance(readFileSync(instancePath, 'utf8'), `apps/api/.instance.${env}.json`);
+  return {
+    bucketName: inst.r2.bucketName,
+    // Run from apps/api, where the pinned wrangler is.
+    generatedConfig: generated,
+    instanceUrl: originOf(inst.route, inst.workerName),
+  };
+}
+
+function gatherFacts(env: string, version: string | undefined): PublishFacts {
+  const instance = instanceFacts(env);
 
   let versionSource: PublishFacts['versionSource'] = 'flag';
   if (version === undefined) {
@@ -113,10 +127,7 @@ function gatherFacts(env: string, version: string | undefined): PublishFacts {
   return {
     version,
     versionSource,
-    bucketName: inst.r2.bucketName,
-    // Run from apps/api, where the pinned wrangler is.
-    generatedConfig: generated,
-    instanceUrl: originOf(inst.route, inst.workerName),
+    ...instance,
     flatpakBuilder,
     runtimeVersion,
   };
@@ -133,6 +144,15 @@ async function main(): Promise<void> {
     const abs = resolve(process.env.INIT_CWD ?? process.cwd(), args.macDmg);
     const rel = relative(repoRoot, abs);
     args.macDmg = rel.startsWith('..') || isAbsolute(rel) ? abs : rel;
+  }
+  if (args.fromRelease !== undefined) {
+    await publishFromRelease(args, instanceFacts(args.env), {
+      fetch: globalThis.fetch,
+      upload: ([, ...wranglerArgs]) => run([wranglerBin, ...wranglerArgs], { cwd: apiDir }),
+      log: (line) => console.log(line),
+      root: repoRoot,
+    });
+    return;
   }
   const facts = gatherFacts(args.env, args.version);
   const plan = computePublishPlan(args, facts);
@@ -194,12 +214,7 @@ async function main(): Promise<void> {
   for (const upload of plan.uploads) {
     console.log(`→ ${upload.key}`);
     const [, ...wranglerArgs] = uploadCommand(facts.bucketName, args.env, upload);
-    run(
-      [join(apiDir, 'node_modules', '.bin', win ? 'wrangler.cmd' : 'wrangler'), ...wranglerArgs],
-      {
-        cwd: apiDir,
-      },
-    );
+    run([wranglerBin, ...wranglerArgs], { cwd: apiDir });
   }
   console.log(
     `\nPublished openlive-helper ${plan.version}: ${facts.instanceUrl}/download shows it to members.`,
@@ -207,7 +222,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((err: unknown) => {
-  if (err instanceof Stop || err instanceof PublishArgsError) {
+  if (err instanceof Stop || err instanceof PublishArgsError || err instanceof ReleaseError) {
     console.error(err.message);
     if (err instanceof PublishArgsError) console.error(`\n${PUBLISH_USAGE}`);
   } else console.error(err);

@@ -2,7 +2,7 @@
 import { vi } from 'vitest';
 
 // A fake Cloudflare Realtime SFU and TURN API behind a replaced global fetch. The response shapes
-// are the ones the Phase 0 proxies saw (publish, join, tracks/update): sessions/new answers 201 { sessionId } (plus the answer when given an offer); a
+// are the ones the first proxy experiments saw (publish, join, tracks/update): sessions/new answers 201 { sessionId } (plus the answer when given an offer); a
 // local tracks/new answers the offer; a remote pull returns requiresImmediateRenegotiation with an
 // offer; tracks/close and tracks/update return the tracks. Responses are created per call, inside
 // the Durable Object that fetches (workerd refuses I/O objects made in another context).

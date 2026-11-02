@@ -210,7 +210,9 @@ describe('/download', () => {
     });
     renderApp('/download');
     expect(await screen.findByText('No helper published yet')).toBeInTheDocument();
-    expect(screen.getByText('pnpm run helper:publish -- --env production')).toBeInTheDocument();
+    expect(
+      screen.getByText('pnpm run helper:publish -- --env production --from-release latest'),
+    ).toBeInTheDocument();
   });
 
   it('gives others a neutral message when nothing is published', async () => {

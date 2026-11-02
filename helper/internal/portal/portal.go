@@ -122,7 +122,7 @@ type Session struct {
 }
 
 // restoredBelow is how fast a Start must answer to count as restored without a dialog.
-// Phase 0 P4/P7 measured 4–13 ms with a token; a person needs far more than this.
+// Measured: 4–13 ms with a token; a person needs far more than this.
 const restoredBelow = 500 * time.Millisecond
 
 // ErrCancelled is returned when the person closes the portal dialog.

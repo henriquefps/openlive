@@ -708,7 +708,7 @@
       "cycleDay": "Billing cycle reset day",
       "cycleDayDescription": "The day of the month your Cloudflare billing cycle turns over (1 to 31).",
       "overheads": "Include measured overheads",
-      "overheadsDescription": "Count about 1.5× the bitrate plus about 15 MB per viewer join, as measured in Phase 0. Turn it off for the plain formula.",
+      "overheadsDescription": "Count about 1.5× the bitrate plus about 15 MB per viewer join, as measured during development. Turn it off for the plain formula.",
       "save": "Save",
       "saving": "Saving…",
       "saved": "Settings saved.",
@@ -1126,7 +1126,7 @@
       "signedOut": "Sign in to download the helper.",
       "noSpace": "The helper is for members of a space on this instance. Join a space with an invite, then come back.",
       "unpublished": "No helper published yet",
-      "adminHint": "Build and upload one from the repository with:",
+      "adminHint": "Publish the official release from the repository with:",
       "unpublishedMember": "The helper is not available on this instance yet. Ask whoever runs it."
     },
     "macos": {
@@ -1143,7 +1143,7 @@
         "goLive": "Use Go live in a room: the helper streams from the menu bar."
       },
       "unpublished": "No macOS helper published yet",
-      "adminHint": "Build and notarize the disk image on a Mac with packaging/macos/build-app.sh, then publish it with:",
+      "adminHint": "Publish an official release (--from-release; it includes the disk image), or build and notarize the disk image on a Mac with packaging/macos/build-app.sh and publish a build from source with:",
       "unpublishedMember": "The macOS helper is not available on this instance yet. Ask whoever runs it."
     }
   },

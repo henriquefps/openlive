@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-// Real Realtime egress from Cloudflare's GraphQL Analytics API (Phase 0 P8): `callsUsageAdaptiveGroups` (SFU) and
+// Real Realtime egress from Cloudflare's GraphQL Analytics API: `callsUsageAdaptiveGroups` (SFU) and
 // `callsTurnUsageAdaptiveGroups` (TURN), per day. The data is sampled and the
 // SFU dataset is Beta, so it checks the estimate rather than replacing the
 // invoice. SFU + TURN is an upper bound (relayed bytes are billed once).

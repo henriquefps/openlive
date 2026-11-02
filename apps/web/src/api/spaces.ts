@@ -12,7 +12,7 @@ import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query
 import { ME_KEY } from './auth.ts';
 import { apiGet, apiSend } from './client.ts';
 
-// Spaces, members, rooms, room access, invites and join requests: the Phase 1 REST API
+// Spaces, members, rooms, room access, invites and join requests: the REST API
 // (apps/api/src/api/). Bodies mirror the API's Zod schemas; errors are ApiError
 // with the code the API returned, for translateError.
 

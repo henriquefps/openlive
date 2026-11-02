@@ -55,14 +55,14 @@ func dump(ctx context.Context) (Graph, error) {
 	return ParseDump(bytes.NewReader(out))
 }
 
-// PWCapture is the capture built from PipeWire's own tools, the approach Phase 0 P4
+// PWCapture is the capture built from PipeWire's own tools, the approach an early experiment
 // proved: pw-record as the unconnected capture node, pw-link for the links, pw-dump to
 // read the graph.
 //
 // The design asks for libpipewire. These tools are thin libpipewire clients, so the graph
 // sees exactly what an in-process client would create (a Stream/Input/Audio node with
 // node.autoconnect=false and plain port links), and never GStreamer's PipeWire audio
-// elements or a null sink, which stalled the whole graph in Phase 0. Running them as
+// elements or a null sink, which stalled the whole graph in early experiments. Running them as
 // child processes also keeps an audio failure out of the helper's own process, which
 // the design requires for screen capture. The in-process binding replaces this type behind
 // the Capture interface; see helper/README.md.

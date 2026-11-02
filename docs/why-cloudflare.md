@@ -36,8 +36,7 @@ headroom.
 There is no server to patch, no certificate to renew, no UDP port range to open, no TURN server
 to run, no database to back up and no process to restart at 3 a.m. `pnpm run setup` creates
 everything and deploys; running it again updates. This is what makes "host your own Discord
-alternative" realistic for someone who is not a sysadmin, which is the point of the project
-.
+alternative" realistic for someone who is not a sysadmin, which is the point of the project.
 
 ### 3. A global network, close to every viewer
 

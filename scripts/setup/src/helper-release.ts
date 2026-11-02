@@ -23,8 +23,20 @@ export interface PublishArgs {
    * absolute); without it the release has no macOS file.
    */
   macDmg: string | undefined;
+  /**
+   * Publish the files of a GitHub release (a version, or `latest`) instead of building them:
+   * helper-from-release.ts. Excludes the build flags and --mac-dmg.
+   */
+  fromRelease: string | undefined;
+  /** owner/name of the repository whose releases --from-release reads. */
+  releaseRepo: string;
+  /** Let --from-release take a prerelease. */
+  allowPrerelease: boolean;
   help: boolean;
 }
+
+/** The public repository, where the release-helper workflow drafts the official builds. */
+export const DEFAULT_RELEASE_REPO = 'henriquefps/openlive';
 
 const VERSION_SOURCE_LABEL = {
   flag: '--version',
@@ -32,10 +44,17 @@ const VERSION_SOURCE_LABEL = {
   project: 'project version in package.json',
 } as const;
 
-export const PUBLISH_USAGE = `Usage: pnpm run helper:publish -- [--env <name>] [--version <x.y.z>] [--dry-run]
+export const PUBLISH_USAGE = `Usage: pnpm run helper:publish -- [--env <name>] --from-release <x.y.z|latest> [--dry-run]
+                                [--release-repo <owner/name>] [--allow-prerelease] [--notes-url <url>]
+       pnpm run helper:publish -- [--env <name>] [--version <x.y.z>] [--dry-run]
                                 [--skip-build] [--no-flatpak] [--mac-dmg <path>] [--notes-url <url>]
 
-Builds the Linux helper (the tarball, and the Flatpak bundle when flatpak-builder is installed)
+With --from-release, downloads the official build of a GitHub release (the Linux tarball, the
+Flatpak and the macOS disk image, whichever the release has) over HTTPS, checks each file against
+the release's SHA256SUMS, and uploads them like a local build. Nothing is built: no Flatpak SDK,
+no Mac. See packaging/RELEASING.md.
+
+Without it, builds the Linux helper (the tarball, and the Flatpak bundle when flatpak-builder is installed)
 in the Flatpak SDK, adds the macOS disk image given with --mac-dmg, computes the SHA-256 of each
 file and uploads them to the instance's private R2 bucket with wrangler, using the config the
 setup generated. helper/latest.json goes last, so the Download page never offers a file that is
@@ -48,7 +67,15 @@ not there yet. See packaging/linux/README.md and packaging/macos/README.md.
   --no-flatpak        publish the tarball only
   --mac-dmg <path>    also publish this notarized openlive-helper-<version>-macos.dmg, made on a Mac
                       by packaging/macos/build-app.sh (copy it here first; it is not built here)
-  --notes-url <url>   a release notes link for the Download page`;
+  --notes-url <url>   a release notes link for the Download page (--from-release: default the release page)
+
+  --from-release <x.y.z|latest>
+                      publish the files of the release helper-v<x.y.z> (or the newest helper-v*
+                      release) instead of building; not with --version, --mac-dmg, --skip-build
+                      or --no-flatpak
+  --release-repo <owner/name>
+                      the GitHub repository of the release (default: ${DEFAULT_RELEASE_REPO})
+  --allow-prerelease  accept a release marked as a prerelease`;
 
 export class PublishArgsError extends Error {}
 
@@ -70,6 +97,9 @@ export function parsePublishArgs(argv: string[]): PublishArgs {
         'no-flatpak': { type: 'boolean', default: false },
         'notes-url': { type: 'string' },
         'mac-dmg': { type: 'string' },
+        'from-release': { type: 'string' },
+        'release-repo': { type: 'string' },
+        'allow-prerelease': { type: 'boolean', default: false },
         help: { type: 'boolean', short: 'h', default: false },
       },
       strict: true,
@@ -85,6 +115,9 @@ export function parsePublishArgs(argv: string[]): PublishArgs {
     noFlatpak: values['no-flatpak'],
     releaseNotesUrl: values['notes-url']?.trim(),
     macDmg: values['mac-dmg']?.trim() || undefined,
+    fromRelease: values['from-release']?.trim().replace(/^(helper-)?v/, ''),
+    releaseRepo: values['release-repo']?.trim() ?? DEFAULT_RELEASE_REPO,
+    allowPrerelease: values['allow-prerelease'],
     help: values.help,
   };
   if (parsed.help) return parsed;
@@ -100,6 +133,31 @@ export function parsePublishArgs(argv: string[]): PublishArgs {
   }
   if (parsed.macDmg !== undefined && !parsed.macDmg.endsWith('-macos.dmg')) {
     throw new PublishArgsError('--mac-dmg must be an openlive-helper-<version>-macos.dmg');
+  }
+  if (parsed.fromRelease !== undefined) {
+    if (parsed.fromRelease !== 'latest' && !validVersion(parsed.fromRelease)) {
+      throw new PublishArgsError(
+        `--from-release ${parsed.fromRelease} is not a version like 0.2.0, or latest`,
+      );
+    }
+    const clash = (
+      [
+        ['--version', parsed.version !== undefined],
+        ['--mac-dmg', parsed.macDmg !== undefined],
+        ['--skip-build', parsed.skipBuild],
+        ['--no-flatpak', parsed.noFlatpak],
+      ] as const
+    ).find(([, set]) => set);
+    if (clash) {
+      throw new PublishArgsError(
+        `--from-release publishes the release as it is: leave out ${clash[0]}`,
+      );
+    }
+  } else if (values['release-repo'] !== undefined || parsed.allowPrerelease) {
+    throw new PublishArgsError('--release-repo and --allow-prerelease go with --from-release');
+  }
+  if (!/^[\w.-]+\/[\w.-]+$/.test(parsed.releaseRepo)) {
+    throw new PublishArgsError('--release-repo must be owner/name, as in github.com/owner/name');
   }
   return parsed;
 }
@@ -247,7 +305,20 @@ export function computePublishPlan(args: PublishArgs, facts: PublishFacts): Publ
     }
     files.push({ name: dmgName(v), kind: 'dmg', path: args.macDmg });
   }
-  const uploads = [
+  return {
+    version: v,
+    files,
+    build: args.skipBuild ? [] : build,
+    flatpakSkipped,
+    uploads: uploadsFor(v, files),
+  };
+}
+
+export type Upload = PublishPlan['uploads'][number];
+
+/** The files, then SHA256SUMS, then helper/latest.json, from the staging directory. */
+export function uploadsFor(v: string, files: PublishFile[]): Upload[] {
+  return [
     ...files.map((f) => ({
       key: objectKey(v, f.name),
       path: f.path,
@@ -261,7 +332,6 @@ export function computePublishPlan(args: PublishArgs, facts: PublishFacts): Publ
     // Last: until it is replaced, the page keeps offering the previous version, whole.
     { key: LATEST_KEY, path: stagingPath(v, 'latest.json'), contentType: CONTENT_TYPES.manifest },
   ];
-  return { version: v, files, build: args.skipBuild ? [] : build, flatpakSkipped, uploads };
 }
 
 /**

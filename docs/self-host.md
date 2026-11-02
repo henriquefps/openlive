@@ -29,7 +29,7 @@ several instances, each with its own `--env`.
       Workers, Durable Objects, D1 and Analytics Engine.
 - [ ] **Card or not.** Decide now, because R2 asks:
   - **R2 needs an R2 subscription.** It costs $0 within its free tier, but enabling it asks for
-    a payment method (Phase 0 P8). Without R2 there is no instance today.
+    a payment method. Without R2 there is no instance today.
   - **Realtime** has no plan and is **never blocked** by Cloudflare: above the free 1,000 GB a
     month it bills $0.05/GB to the card on file. Openlive keeps the card on purpose and brakes in
     the app instead: you pick a monthly limit, it warns at 70 %, 90 % and 100 %, and by default
@@ -45,8 +45,7 @@ several instances, each with its own `--env`.
   - **Discord:** a Discord account, for an application at
     <https://discord.com/developers/applications>.
   - **E-mail (magic link):** a [Resend](https://resend.com) account and a domain you can add DNS
-    records to. Resend only sends to people other than you from a **verified domain**
-    .
+    records to. Resend only sends to people other than you from a **verified domain**.
 - [ ] **Node 26 and pnpm 12.15**: install Node from <https://nodejs.org>, then `corepack enable`.
 - [ ] **This repository**, and its dependencies:
 
@@ -233,21 +232,27 @@ Windows later):
       wrangler as in step 2:
 
       ```sh
-      pnpm run helper:publish -- --env production --version 0.2.0 --dry-run   # the plan only
-      pnpm run helper:publish -- --env production --version 0.2.0
+      pnpm run helper:publish -- --env production --from-release latest --dry-run   # the plan only
+      pnpm run helper:publish -- --env production --from-release latest
       ```
 
-      It builds the tarball (and the Flatpak, when `flatpak-builder` is installed) in the Flatpak
-      SDK, computes their SHA-256 and uploads them with `wrangler r2 object put --remote` into
-      the instance's private bucket under `helper/`, `helper/latest.json` last. Needs flatpak
-      with the SDK: [packaging/linux/README.md](../packaging/linux/README.md#publish-to-an-instance).
-      Until then, `/download` tells the platform admin this command and everyone else that the
-      helper is not available yet.
+      It takes the newest official release from the project's
+      [GitHub Releases](https://github.com/henriquefps/openlive/releases) (`--from-release 0.2.0`
+      picks one), downloads the Linux tarball, the Flatpak and the signed, notarized macOS disk
+      image over HTTPS, checks each against the release's `SHA256SUMS`, and uploads them with
+      `wrangler r2 object put --remote` into the instance's private bucket under `helper/`,
+      `helper/latest.json` last. Nothing is built: no Flatpak SDK and no Mac needed. A file that
+      does not match stops it before anything is uploaded. Until you run it, `/download` tells the
+      platform admin this command and everyone else that the helper is not available yet.
 
-      **macOS** needs a Mac with Xcode and an Apple Developer ID: build the notarized disk image
+      **Building it yourself** instead (your own build, or changes that have no release yet):
+      `pnpm run helper:publish -- --env production --version 0.2.0` builds the tarball (and the
+      Flatpak, when `flatpak-builder` is installed) in the Flatpak SDK and uploads them the same
+      way ([packaging/linux/README.md](../packaging/linux/README.md#publish-to-an-instance)). A
+      macOS build needs a Mac with Xcode and an Apple Developer ID: build the notarized disk image
       there with `packaging/macos/build-app.sh`, copy it into `dist/`, and add
-      `--mac-dmg dist/openlive-helper-<version>-macos.dmg` to the command above
-      ([packaging/macos/README.md](../packaging/macos/README.md)). Without it the release is
+      `--mac-dmg dist/openlive-helper-<version>-macos.dmg`
+      ([packaging/macos/README.md](../packaging/macos/README.md)). Without it that build is
       Linux-only and the macOS card says so.
 
 - [ ] Open `/download` on your instance (signed in, as a member of a space): it shows the
@@ -276,8 +281,7 @@ for most groups means: Realtime under 1,000 GB of egress a month.
   12 Mbps is ~32 GB by the plain formula, ~49 GB with the overheads: the free tier holds about
   20 to 31 such hours a month.
 - **What happens above it:** Cloudflare bills $0.05/GB to the card and does not stop. Openlive
-  stops instead, at the **monthly limit you choose** in the admin panel
-  :
+  stops instead, at the **monthly limit you choose** in the admin panel:
   - **Free tier**, 1,000 GB (default, $0);
   - **1,500 / 2,000 / 5,000 GB** (about $25 / $50 / $200 a month at most);
   - **custom** GB (or a monthly dollar amount), or **unlimited**.

@@ -153,7 +153,7 @@ func settingsFor(e Encoder, l Layer, gop time.Duration) encoderSettings {
 // target-usage, and the CPB (its VBV) in kbit.
 // AV1 (NVENC, VA-API): the same rules, main profile (8-bit 4:2:0); NVENC AV1 has no
 // B-frames in low-latency tuning and changes its bitrate in place like nvh264enc.
-// x264 uses sliced threads: frame threads (sliced-threads=false, as in the Phase 0
+// x264 uses sliced threads: frame threads (sliced-threads=false, as in the first
 // experiments) delay every frame by one per thread, measured at ~390 ms for a forced
 // IDR on a 16-thread CPU versus ~18 ms with slices.
 func encoderElement(e Encoder, l Layer, gop time.Duration) (string, error) {

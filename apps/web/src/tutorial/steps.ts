@@ -2,8 +2,8 @@
 // The interactive tutorial's steps. Each step points at an element by its
 // `data-tour` attribute; a screen's steps run, in order, the first time the user opens it.
 //
-// Extension points: Phase 2 adds a `player` screen (volume and mute, theatre mode, quality,
-// stats) and Phase 3 the `golive-*` screens (pick a helper, a source, the options; live). Give the
+// Extension points: a later version adds a `player` screen (volume and mute, theatre mode, quality,
+// stats) and another the `golive-*` screens (pick a helper, a source, the options; live). Give the
 // elements a `data-tour`, register the steps below (or call registerTutorialSteps from the
 // feature's module), add the copy under `tutorial.<screen>` in both locales, and call
 // useTutorialScreen('<screen>', ready) in the screen.

@@ -72,7 +72,7 @@ func TestMatchWindow(t *testing.T) {
 func TestMatchApp(t *testing.T) {
 	windows := []Window{
 		// Two windows of one browser process, of the same size (this machine's KWin snapshot
-		// during P3-C's manual run: MatchWindow could not tell them apart, so a shared Brave
+		// during a manual run: MatchWindow could not tell them apart, so a shared Brave
 		// window had no app audio).
 		{ID: "b", Caption: "Openlive - Brave", Class: "brave-browser", PID: 4100, ClientW: 1751, ClientH: 1030, Scale: 1},
 		{ID: "c", Caption: "Docs - Brave", Class: "brave-browser", PID: 4100, ClientW: 1751, ClientH: 1030, Scale: 1},

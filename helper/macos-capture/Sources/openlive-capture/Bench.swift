@@ -86,7 +86,7 @@ func parseLayers(_ spec: String, vbvMs: Int) throws -> [LayerConfig] {
 }
 
 /// Runs a capture for duration seconds, forcing a key frame on every layer every keyframeEvery
-/// seconds, and prints the report (Phase 4 step 1, the P3 measurement).
+/// seconds, and prints the report (the macOS capture measurement).
 @MainActor
 func runBench(config: Config, duration: Int, keyframeEvery: Double, warmup: Int) async throws {
     let sink = BenchSink()

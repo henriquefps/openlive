@@ -20,7 +20,7 @@ func TestChoiceMatches(t *testing.T) {
 		want   bool
 	}{
 		{"same output", dp2, Choice{Kind: KindMonitor, Output: "DP-2", Width: 3440, Height: 1440}, true},
-		// Phase 0 P4: with DP-2 gone the token silently restored another output.
+		// Measured: with DP-2 gone the token silently restored another output.
 		{"other output", dp2, Choice{Kind: KindMonitor, Output: "HDMI-A-1", Width: 1920, Height: 1080}, false},
 		{"same output, new resolution", dp2, Choice{Kind: KindMonitor, Output: "DP-2", Width: 2560, Height: 1080}, true},
 		{"kind differs", dp2, Choice{Kind: KindWindow, WindowClass: "code"}, false},
@@ -147,7 +147,7 @@ func TestStreamFromProps(t *testing.T) {
 	if s != want {
 		t.Fatalf("%+v, want %+v", s, want)
 	}
-	// A restored window: size 0x0 and no position (Phase 0 P7).
+	// A restored window: size 0x0 and no position.
 	s = streamFromProps(98, map[string]dbus.Variant{"size": dbus.MakeVariant([]any{int32(0), int32(0)}), "source_type": dbus.MakeVariant(uint32(2))})
 	if s.Width != 0 || s.HasPosition || s.Kind != KindWindow {
 		t.Fatalf("restored window: %+v", s)

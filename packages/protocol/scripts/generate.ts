@@ -215,7 +215,7 @@ function generateTypes(): string {
   out += `} as const;\nexport type MessageType = (typeof MessageType)[keyof typeof MessageType];\n\n`;
 
   for (const m of messages) {
-    out += tsDoc(`${m.schema['description']} (Phase ${m.meta.phase})`);
+    out += tsDoc(`${m.schema['description']}`);
     out += `export interface ${m.name}Message {\n  type: ${JSON.stringify(m.type)};\n  id?: MessageId;\n  payload: ${m.payloadType};\n}\n\n`;
   }
 

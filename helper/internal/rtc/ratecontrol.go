@@ -22,7 +22,7 @@ type RateConfig struct {
 	UpThreshold   float64
 	DownThreshold float64
 
-	// Watchdog (Phase 0 risk 1: pion's GCC can stop updating under a deep queue with
+	// Watchdog (pion's GCC can stop updating under a deep queue with
 	// NACK): when receiver-reported loss stays at or above LossHigh for WatchdogHold
 	// while the estimate moves by less than WatchdogStill, cap the target at
 	// WatchdogCut of itself. The cap relaxes by UpStep every WatchdogHold once loss is

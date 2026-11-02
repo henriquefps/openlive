@@ -8,8 +8,8 @@ import { answer, FakeSfu, offer } from './fake-sfu';
 import { Client, elapseMeter, newRoom, roomStub, seed, SPACE_ID, USERS } from './room-helpers';
 import { DEV_DEVICE_HEADER, DEV_USER_HEADER } from '../src/room/identity';
 
-// The SFU proxy (docs/PROTOCOL.md 11.2) and the Phase 2 stream lifecycle (7.2), against a fake
-// Realtime API (test/fake-sfu.ts) with the response shapes seen in Phase 0.
+// The SFU proxy (docs/PROTOCOL.md 11.2) and the stream lifecycle (7.2), against a fake
+// Realtime API (test/fake-sfu.ts) with the response shapes seen in early experiments.
 
 beforeAll(seed);
 afterEach(() => {

@@ -28,10 +28,10 @@ const (
 	PathAuto CapturePath = "auto"
 	// PathGL: DMA-BUF → glupload → glcolorconvert → glvideomixer (scale + letterbox) →
 	// per layer glcolorscale → cudaupload (NVENC), gldownload → vapostproc (VA-API) or
-	// gldownload (x264). Phase 0 P4.
+	// gldownload (x264).
 	PathGL CapturePath = "gl"
-	// PathCPU: shared-memory frames, videoconvert/compositor/videoscale on the CPU. P4
-	// measured that it does not hold 1080p60.
+	// PathCPU: shared-memory frames, videoconvert/compositor/videoscale on the CPU.
+	// Measured: it does not hold 1080p60.
 	PathCPU CapturePath = "cpu"
 )
 
@@ -151,7 +151,7 @@ func alignMB(v float64, limit int) int {
 }
 
 // FitLayers sizes the layers for a source of srcW x srcH: each keeps its preset height
-// and takes the source's aspect ratio (Phase 0 P4: a 3440x1440 monitor at the 1080p
+// and takes the source's aspect ratio (measured: a 3440x1440 monitor at the 1080p
 // preset is 2576x1080), never upscales the source, and stays within NVENC's width. Widths
 // are multiples of 16, and so is a height below the preset's (a small window); the mixer
 // letterboxes the few pixels this takes off the aspect ratio (FitRect). The size is fixed
@@ -181,7 +181,7 @@ type Rect struct{ X, Y, W, H int }
 
 // FitRect places a srcW x srcH frame inside outW x outH, keeping its aspect ratio,
 // centered (the rest is black). A window resized during a stream is scaled into the
-// fixed output size this way (Phase 0 P7).
+// fixed output size this way.
 func FitRect(srcW, srcH, outW, outH int) Rect {
 	if srcW <= 0 || srcH <= 0 {
 		return Rect{0, 0, outW, outH}
@@ -196,8 +196,7 @@ func FitRect(srcW, srcH, outW, outH int) Rect {
 
 // sourcePolicy decides when the capture branch (pipewiresrc → glupload) restarts.
 //
-//   - A size change restarts it: pipewiresrc negotiates the new size and then stalls
-//     (Phase 0 P7), while a fresh one runs at full rate.
+//   - A size change restarts it: pipewiresrc negotiates the new size and then stalls, while a fresh one runs at full rate.
 //   - No frame for frameTimeout restarts it once; a restarted branch that still delivers
 //     nothing within frameTimeout is fatal (the source never negotiated).
 //   - Restarts are rate-limited, so a window being dragged to a new size restarts once
@@ -311,7 +310,7 @@ var ErrSourceEnded = errors.New("the shared source ended")
 var ErrSourceStalled = errors.New("the capture source stalled")
 
 // isSourceEndedMessage recognises pipewiresrc's error when its target node goes away
-// (a closed window: "stream error: target not found", Phase 0 P7).
+// (a closed window: "stream error: target not found").
 func isSourceEndedMessage(text string) bool {
 	t := strings.ToLower(text)
 	return strings.Contains(t, "target not found") || strings.Contains(t, "stream error: unconnected") ||
@@ -361,7 +360,7 @@ func (s pauseState) paused() (bool, protocol.PauseReason) {
 // stillDetector is the "content unchanged for N s" fallback for paused,
 // off by default. It reads the top layer's encoded frame sizes instead of pixels: an
 // unchanged frame encodes to a few hundred bytes of skipped macroblocks, so this needs
-// no extra GPU readback (an extra GL consumer cost KWin frames in Phase 0 P7).
+// no extra GPU readback (an extra GL consumer cost KWin frames).
 type stillDetector struct {
 	after    time.Duration
 	maxBytes int
@@ -528,9 +527,9 @@ type sourceSpec struct {
 // the 1 fps keepalive.
 //
 // pipewiresrc keeps the encoder fed from a static window with keepalive-time and
-// resend-last (Phase 0 P4). max-framerate is pinned: without it KWin delivers up to the
-// monitor's refresh (175 Hz in P4). Only the encoder pipeline's glupload reads KWin's
-// DMA-BUFs (one GL consumer, P7); its allocation query crosses the proxy, so DMA-BUF
+// resend-last. max-framerate is pinned: without it KWin delivers up to the
+// monitor's refresh (175 Hz when measured). Only the encoder pipeline's glupload reads KWin's
+// DMA-BUFs (one GL consumer); its allocation query crosses the proxy, so DMA-BUF
 // formats negotiate as in one pipeline.
 func linuxSourceDescription(path CapturePath, s sourceSpec) string {
 	size := ""

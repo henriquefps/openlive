@@ -17,7 +17,7 @@ const BYTES_PER_MB = 1e6;
 const SECONDS_PER_HOUR = 3600;
 
 /**
- * Billed-egress overheads measured in Phase 0 (status **Proposed**:
+ * Billed-egress overheads measured during development (status **Proposed**:
  * placeholders until a dedicated test explains them).
  */
 export interface Overheads {

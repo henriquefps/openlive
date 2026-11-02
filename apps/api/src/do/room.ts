@@ -537,7 +537,7 @@ export class RoomDO extends DurableObject<Env> {
   // --- RPC for the Worker: admin actions ---
 
   /**
-   * Registers or updates a stream directly, without a helper (tests, and the Phase 1 synthetic
+   * Registers or updates a stream directly, without a helper (tests, and the synthetic
    * streams). Changing viewerLimit re-runs the queue at once.
    */
   async upsertStream(stream: RoomStream): Promise<void> {
@@ -2082,7 +2082,7 @@ export class RoomDO extends DurableObject<Env> {
     return sockets.length;
   }
 
-  // --- Streams (Phase 2, PROTOCOL.md 7.2) ---
+  // --- Streams (PROTOCOL.md 7.2) ---
 
   private onStreamAnnounce(
     ws: WebSocket,

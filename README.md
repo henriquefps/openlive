@@ -42,8 +42,7 @@ side-by-side test against Discord.
 **Honest limits.**
 
 - "Free" means within Cloudflare's free tier, 1,000 GB of egress a month. Above it Cloudflare
-  bills US$ 0.05 per GB, and the app warns and brakes at the monthly limit the admin picks
-  .
+  bills US$ 0.05 per GB, and the app warns and brakes at the monthly limit the admin picks.
 - It depends on Cloudflare as infrastructure. That is a much smaller dependency than a social
   network: the account, the code and the data are yours, and the code is portable.
 - Not there yet: direct messages, bots and integrations, push notifications, a native mobile app
@@ -297,8 +296,12 @@ troubleshooting.
 Viewers need only the browser; whoever streams installs the helper. Releases ship a tarball
 (`./install.sh` into `~/.local`) and a Flatpak for Linux, and a disk image for macOS; see
 [packaging/linux/README.md](packaging/linux/README.md) and
-[packaging/macos/README.md](packaging/macos/README.md). Then pair it with your instance and start
-it from the menu:
+[packaging/macos/README.md](packaging/macos/README.md). The official builds are on
+[GitHub Releases](https://github.com/henriquefps/openlive/releases); a self-hosted instance serves
+them to its members from `/download` after
+`pnpm run helper:publish -- --env production --from-release latest` (nothing to build;
+[docs/self-host.md](docs/self-host.md#6-install-the-helper-and-stream)). Then pair it with your
+instance and start it from the menu:
 
 ```sh
 openlive-helper pair --instance https://live.example.com

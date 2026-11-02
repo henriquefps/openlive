@@ -8,7 +8,7 @@ The native streaming helper. It has three `MediaBackend`s:
 - the **Linux screen backend**: a monitor or a window through the Wayland
   ScreenCast portal and PipeWire, scaled on the GPU, NVENC or VA-API (x264 as the fallback), plus the
   audio of one app;
-- the **macOS screen backend** (Phase 4 step 1): a display or a window through the Swift sidecar
+- the **macOS screen backend** (added after the Linux backend): a display or a window through the Swift sidecar
   `openlive-capture` (`macos-capture/`: ScreenCaptureKit + VideoToolbox), plus the audio of one
   app ("macOS" below).
 
@@ -68,7 +68,7 @@ It also takes `--loopback`, `--preset`, `--layers`, `--encoder` and `--duration`
   geometry from KWin, or the window's app and title), in `screencast.json` (0600) in the config
   directory. A restored start (the web's "Last: …" sources, or `stream` without `--pick`) uses
   the token, so no dialog shows, and then **checks** what was restored against that choice:
-  another output (Phase 0 P4 saw the portal silently restore a different one) or a window of
+  another output (the portal was seen silently restoring a different one) or a window of
   another app closes the session and shows the dialog again. The web's "choose a screen/window"
   and `--pick` never send the token, so the dialog always asks (with the token, KDE never showed
   the picker again after the first window).
@@ -79,7 +79,7 @@ It also takes `--loopback`, `--preset`, `--layers`, `--encoder` and `--duration`
     DMA-BUFs; windows read shared memory (with DMA-BUFs a window branch restarted after a resize
     got no frame on KWin 6.8).
   - encoder: `proxysrc` → leaky queue → `glupload` → `glcolorconvert` (the one GL consumer of
-    KWin's buffers, P7) → `glvideomixer` (scale and letterbox into the fixed output size) →
+    KWin's buffers) → `glvideomixer` (scale and letterbox into the fixed output size) →
     `tee` → per layer `glcolorscale` → `cudaupload` → `nvh264enc` → appsink. The mixer's first
     input is a live black 16x16 source, so the encoders keep running at the output rate whatever
     the capture does, and a paused source or the curtain shows black.
@@ -118,7 +118,7 @@ It also takes `--loopback`, `--preset`, `--layers`, `--encoder` and `--duration`
   the mixer scales the capture down to the layers on the GPU.
 - **Source ended.** A closed window (`target not found` from `pipewiresrc`) or a portal session
   closed from the desktop ends the stream normally: `stream.end`, then unpublish.
-- **Paused.** KWin keeps sending a minimized window's frames (P7), so the helper loads a small
+- **Paused.** KWin keeps sending a minimized window's frames, so the helper loads a small
   KWin script (D-Bus `org.kde.kwin.Scripting`) that calls the helper back with every window's
   state. The shared window is found by its frame size (`--window-hint` breaks ties between
   windows of one size); minimizing it sends `stream.update {paused: true, pauseReason:
@@ -144,10 +144,10 @@ source_hidden}` and shows black, restoring it resumes. `--still-pause <d>` adds 
   packet (`empty_track_error`), which left viewers of a window shared with a silent app on
   "reconnecting".
   **Gap:** the design asks for libpipewire in-process. This version drives PipeWire through its
-  own libpipewire clients, as Phase 0 P4 proved: `pw-record` (the capture node, raw PCM on a
+  own libpipewire clients, as experiments proved: `pw-record` (the capture node, raw PCM on a
   pipe), `pw-link` and `pw-dump`, behind the `audio.Capture` interface. The graph sees the same
   objects an in-process client would create. Replacing them with a cgo binding (or a small C
-  shim) touches only `internal/audio/capture.go`. Kept on purpose after a second look (P3-E): there is no
+  shim) touches only `internal/audio/capture.go`. Kept on purpose after a second look: there is no
   maintained Go binding for libpipewire, and a cgo shim would run a `pw_thread_loop` with the
   registry, a `pw_stream` and link-factory proxies inside the helper process, the one place
   where a stall would reach the video (the design's own consequence); the child processes keep
@@ -298,9 +298,9 @@ openlive-helper doctor                                    # macOS version, Scree
     sends a key frame (`gatedStream`), so viewers see the screen again at once. `SIGUSR1` toggles
     it in `stream`.
 
-**Measured** (Phase 4 step 1, P3: M4 Pro, macOS 26.3, a 3440x1440 175 Hz display, a moving test
+**Measured** (M4 Pro, macOS 26.3, a 3440x1440 175 Hz display, a moving test
 window with 1000 particles/s; `openlive-capture bench`, 15 s, a forced IDR every second on every
-layer; the PR of M1 has the full tables):
+layer; the full tables are in the pull request that added it):
 
 | Preset (layers f/h/q)                   | f fps | h, q fps   | f encode p50/p95 | forced IDR p50/p95 (f) | sidecar CPU    |
 | --------------------------------------- | ----- | ---------- | ---------------- | ---------------------- | -------------- |
@@ -387,14 +387,14 @@ test -tags integration ./internal/overlay/` draws one and checks the click-throu
 `Stream.SetBitrate` and `Stream.RequestKeyframe` take the layer's RID, unlike the §9.3 sketch:
 each layer has its own encoder, and a PLI/FIR arrives for one layer's SSRC.
 
-Encoder rules (Phase 0 report §3 change 6): CBR, no B-frames, low-latency tuning, a
+Encoder rules: CBR, no B-frames, low-latency tuning, a
 **fixed VBV** (250 ms at the start bitrate by default, `--vbv`; only the bitrate changes live), a **long fallback GOP**
 (10 s), and every PLI/FIR forces an IDR, at most one per 250 ms per layer with requests inside the
 window merged into one IDR at its end. x264 runs with sliced threads: with frame threads (as in the
-Phase 0 experiments) a forced IDR took ~390 ms to come out on a 16-thread CPU, with slices ~18 ms.
+first experiments) a forced IDR took ~390 ms to come out on a 16-thread CPU, with slices ~18 ms.
 
 Rate control: the GCC estimate × 0.85 headroom is the total; it goes down at once when 10% lower,
-and up only after 2 s above, by at most 25% per step. The **watchdog** (Phase 0 risk 1) caps the
+and up only after 2 s above, by at most 25% per step. The **watchdog** caps the
 target at 75% when receiver reports show ≥ 5% loss for 2 s while the estimate moves by less than
 5%; the cap relaxes by 25% every 2 s once loss is under 2%. The total is split over the layers
 lowest first (each gets its minimum, then `q`, `h`, `f` up to their targets), so the top layer
@@ -483,8 +483,8 @@ viewer, stays on the H.264 simulcast track.
 
 Auto picks the first one GStreamer has: **NVENC** (`nvh264enc`, NVIDIA), **VA-API**
 (`vah264enc`, or `vah264lpenc` where only Intel's low-power entrypoint exists; AMD and Intel
-through Mesa or intel-media-driver), then **x264** (CPU, the last resort; Phase 0 P4
-measured that the CPU path does not hold 1080p60). `--encoder` forces one; `status` and `doctor` show what was found.
+through Mesa or intel-media-driver), then **x264** (CPU, the last resort; an
+experiment measured that the CPU path does not hold 1080p60). `--encoder` forces one; `status` and `doctor` show what was found.
 
 - Where they live: `internal/media/encoder.go` (choice: `ResolveEncoder`, `DetectEncoders`;
   settings: `encoderElement`), `internal/media/linux.go` (`linuxPipelineDescription`: how frames
@@ -594,8 +594,8 @@ The `integration` tag adds tests that need this desktop and are never run in CI:
 pipeline on a GL test pattern (start time, fps per layer from the first second, a source restart
 at a new size, the curtain), 12 live preset changes on NVENC, where
 `MALLOC_MMAP_THRESHOLD_=65536` makes a use-after-free crash at once, the KWin watch script, the tray over the session bus (menu layout, a click, the icon change), the GlobalShortcuts binding (`OPENLIVE_PRESS=1` waits for a real key press), and a real per-app capture linked to the first app playing audio (it checks
-that nothing else is linked in). The portal itself needs a person at the dialog; see the PR of
-P3-A for the measured run. `stream --test-pattern mandelbrot` runs the whole Linux path without a
+that nothing else is linked in). The portal itself needs a person at the dialog; see the pull request that
+added it for the measured run. `stream --test-pattern mandelbrot` runs the whole Linux path without a
 portal.
 
 ## Contract with the server

@@ -55,7 +55,7 @@ export interface PlayerSource {
   readonly layers: readonly Layer[];
   /** The layer being received now, or null before the first pull. */
   readonly layer: Rid | null;
-  /** Switch layers without renegotiating (`tracks/update`, about 300 ms in Phase 0). */
+  /** Switch layers without renegotiating (`tracks/update`, about 300 ms when measured). */
   setLayer(rid: Rid): void;
   getStats(): Promise<StatsReportLike>;
   /**

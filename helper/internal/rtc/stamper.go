@@ -18,7 +18,7 @@ const (
 // ridStamper writes the sdes:mid and sdes:rtp-stream-id header extensions on every
 // outgoing packet of a simulcast encoding. pion v4.2 negotiates these extensions but does
 // not set them on packets, and without them the SFU cannot map an SSRC to a RID (the SDP
-// carries no SSRC per RID), so it never sees the track (Phase 0 P6).
+// carries no SSRC per RID), so it never sees the track.
 //
 // It is its own interceptor factory, so one instance can be added to a Registry and
 // configured (set, setMid) after the PeerConnection exists. Each SSRC has its own mid: an

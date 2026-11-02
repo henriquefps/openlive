@@ -4,7 +4,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { joinMsidStreams } from '../src/player/lip-sync.ts';
 
-// SFU-style offers modelled on the Phase 0 capture : every
+// SFU-style offers modelled on the first capture : every
 // pulled track in its own msid stream. The second one carries two streams in one SFU session (one
 // session per room) and ssrc attributes.
 const fixture = (name: string) =>
