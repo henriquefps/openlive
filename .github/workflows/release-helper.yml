@@ -36,11 +36,13 @@ jobs:
         run: |
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends flatpak
+          # librsvg2-common: the SVG loader flatpak needs to validate the app icon on export.
+          sudo apt-get install -y --no-install-recommends flatpak flatpak-builder librsvg2-common
           flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           runtime=$(sed -n "s/^runtime-version: '\(.*\)'$/\1/p" packaging/linux/dev.hfps.OpenliveHelper.yml)
-          flatpak --user install -y --noninteractive flathub org.flatpak.Builder \
+          flatpak --user install -y --noninteractive flathub \
             "org.freedesktop.Platform//$runtime" "org.freedesktop.Sdk//$runtime"
+          flatpak-builder --version
       # The binary, linked against the SDK's GStreamer and dynamically loaded from the user's
       # system at run time (helper/README.md), with the desktop files and THIRD_PARTY_NOTICES.
       - name: Tarball
@@ -53,7 +55,9 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           echo "$VERSION" > packaging/linux/.version
-          flatpak run org.flatpak.Builder --user --force-clean --disable-rofiles-fuse \
+          # The distribution's flatpak-builder, not the org.flatpak.Builder app: run from its
+          # sandbox on Ubuntu 24.04's flatpak it cannot see the user installation's SDK.
+          flatpak-builder --user --force-clean --disable-rofiles-fuse \
             --state-dir=build/.flatpak-builder --repo=build/flatpak-repo build/flatpak \
             packaging/linux/dev.hfps.OpenliveHelper.yml
           flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo \
