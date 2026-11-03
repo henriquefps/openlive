@@ -69,6 +69,15 @@ DEBUG_CERT="$(keytool -list -v -keystore android/app/debug.keystore -storepass a
   | sed -n 's/^ *SHA256: //p' | tr -d ':' | tr 'A-F' 'a-f')"
 [ "$CERT" != "$DEBUG_CERT" ] || die "the APK is signed with the public debug key"
 
+# A config plugin can strip a permission the app needs (expo-image-picker's
+# microphonePermission: false removed RECORD_AUDIO in 0.1.4): the voice then fails without asking.
+AAPT2="$(ls -d "$ANDROID_HOME"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1)"
+[ -x "$AAPT2" ] || die "aapt2 not found in $ANDROID_HOME/build-tools"
+PERMS="$("$AAPT2" dump permissions "$APK_BUILT")"
+for perm in RECORD_AUDIO CAMERA POST_NOTIFICATIONS FOREGROUND_SERVICE_MICROPHONE; do
+  grep -q "android.permission.$perm'" <<<"$PERMS" || die "the APK does not declare android.permission.$perm"
+done
+
 mkdir -p "$DIST_DIR"
 OUT="$DIST_DIR/openlive-$VERSION-android.apk"
 cp "$APK_BUILT" "$OUT"

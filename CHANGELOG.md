@@ -3,6 +3,14 @@
 All notable changes to Openlive. The server (Worker and web app) and the helper share one version.
 The wire protocol has its own version, in [docs/PROTOCOL.md](docs/PROTOCOL.md).
 
+## 0.1.5 (2026-11-03)
+
+Android app fix.
+
+- The microphone works again: the 0.1.4 APK did not declare the microphone permission (a photo
+  picker setting removed it), so voice said it had no access without ever asking. The release
+  build now refuses an APK that lacks the permissions the app needs.
+
 ## 0.1.4 (2026-11-02)
 
 - Global voice shortcuts through the helper: push-to-talk, mute and deafen work while a game has

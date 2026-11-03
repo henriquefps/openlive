@@ -48,8 +48,7 @@
         "expo-image-picker",
         {
           "photosPermission": false,
-          "cameraPermission": "Openlive uses the camera to take your profile photo.",
-          "microphonePermission": false
+          "cameraPermission": "Openlive uses the camera to take your profile photo."
         }
       ],
       "expo-secure-store",
