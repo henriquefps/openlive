@@ -3,9 +3,21 @@
 All notable changes to Openlive. The server (Worker and web app) and the helper share one version.
 The wire protocol has its own version, in [docs/PROTOCOL.md](docs/PROTOCOL.md).
 
+## Unreleased
+
+- The Download page links straight to the helper files in the public GitHub release, with their
+  SHA-256, instead of serving them from the server's own storage: the server still offers exactly
+  the version its admin pinned, but no download goes through the Worker and no copy sits in R2.
+  `pnpm run helper:publish -- --from-release X.Y.Z` now writes only the manifest (check the
+  assets exist and are in `SHA256SUMS`); builds you upload yourself (`--version`, `--mac-dmg`) are
+  served from the server as before. A fork with its own releases sets `HELPER_RELEASE_REPO`.
+- The Android card has a direct "Download APK (X.Y.Z)" button with the SHA-256, set with
+  `pnpm run helper:publish -- --android-from-release X.Y.Z`; without it the card links to the
+  Android releases as before.
+
 ## 0.1.5 (2026-11-03)
 
-Android app fix.
+**Android app (beta)**
 
 - The microphone works again: the 0.1.4 APK did not declare the microphone permission (a photo
   picker setting removed it), so voice said it had no access without ever asking. The release

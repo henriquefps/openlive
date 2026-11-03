@@ -2,8 +2,9 @@
 import { queryOptions } from '@tanstack/react-query';
 import { ApiError, apiGet } from './client.ts';
 
-// The helper release this instance serves: GET /api/helper/latest, the
-// helper/latest.json that `pnpm run helper:publish` uploads (apps/api/src/helper/release.ts).
+// The helper release this instance offers: GET /api/helper/latest, the
+// helper/latest.json that `pnpm run helper:publish` uploads (apps/api/src/helper/release.ts), and
+// the Android APK in GET /api/helper/android (helper/android.json).
 
 export interface HelperFile {
   name: string;
@@ -13,7 +14,10 @@ export interface HelperFile {
   arch: 'amd64' | 'universal';
   size: number;
   sha256: string;
-  /** Same-origin download path; the session cookie authorizes it. */
+  /**
+   * Where to download it: the public GitHub release asset when the manifest names one, otherwise a
+   * same-origin path that the session cookie authorizes (a build the instance serves from R2).
+   */
   url: string;
 }
 
@@ -48,6 +52,35 @@ export const helperReleaseQuery = queryOptions({
         if (error.status === 401) return { kind: 'signedOut' };
         if (error.status === 403) return { kind: 'noSpace' };
       }
+      throw error;
+    }
+  },
+  retry: false,
+});
+
+/** The APK of an Android release on GitHub (helper/android.json). */
+export interface AndroidRelease {
+  schema: 1;
+  version: string;
+  publishedAt: string;
+  name: string;
+  /** The public GitHub release asset. */
+  url: string;
+  size: number;
+  sha256: string;
+}
+
+/**
+ * The APK this instance links to, or null when none was published or the caller may not see it;
+ * the Android card then only links to the releases page.
+ */
+export const androidReleaseQuery = queryOptions({
+  queryKey: ['helper', 'android'],
+  queryFn: async (): Promise<AndroidRelease | null> => {
+    try {
+      return await apiGet<AndroidRelease>('/api/helper/android');
+    } catch (error) {
+      if (error instanceof ApiError && [401, 403, 404].includes(error.status)) return null;
       throw error;
     }
   },

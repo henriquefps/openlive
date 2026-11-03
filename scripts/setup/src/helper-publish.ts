@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-// `pnpm run helper:publish -- --env production --from-release latest [--dry-run]`: publishes the
-// official build of a GitHub release (helper-from-release.ts). Without --from-release
-// (`[--version X] [--mac-dmg P]`) it builds the Linux helper and publishes it, with the macOS disk
-// image made on a Mac. Either way to the instance's private R2 bucket for the Download page
-// (helper-release.ts has the plan; packaging/RELEASING.md, packaging/linux/README.md,
-// packaging/macos/README.md, docs/self-host.md).
+// `pnpm run helper:publish -- --env production --from-release X.Y.Z [--android-from-release X.Y.Z]
+// [--dry-run]`: points the Download page at the official files of the public GitHub releases by
+// writing only the manifest to the instance's R2 bucket (helper-from-release.ts). Without them
+// (`[--version X] [--mac-dmg P]`) it builds the Linux helper and uploads it, with the macOS disk
+// image made on a Mac, to the same private bucket for the Worker to serve (helper-release.ts has the
+// plan; packaging/RELEASING.md, packaging/linux/README.md, packaging/macos/README.md,
+// docs/self-host.md).
 
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -145,7 +146,7 @@ async function main(): Promise<void> {
     const rel = relative(repoRoot, abs);
     args.macDmg = rel.startsWith('..') || isAbsolute(rel) ? abs : rel;
   }
-  if (args.fromRelease !== undefined) {
+  if (args.fromRelease !== undefined || args.androidFromRelease !== undefined) {
     await publishFromRelease(args, instanceFacts(args.env), {
       fetch: globalThis.fetch,
       upload: ([, ...wranglerArgs]) => run([wranglerBin, ...wranglerArgs], { cwd: apiDir }),

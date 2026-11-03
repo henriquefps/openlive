@@ -11,9 +11,13 @@ The official helper builds live on the public repository's GitHub Releases, one 
 | `SHA256SUMS`                                   | the workflow, updated by `scripts/release/add-asset.sh`     |
 | `*.sha256`                                     | the build scripts (one per file; `SHA256SUMS` is the check) |
 
-Instances do not build anything: `pnpm run helper:publish -- --from-release <version|latest>`
-downloads the files of a published release, checks each one against `SHA256SUMS` and its size,
-and uploads them to the instance's bucket (docs/self-host.md, section 6).
+Instances do not build or copy anything: `pnpm run helper:publish -- --from-release <version|latest>`
+checks that the files of a published release exist and are listed in `SHA256SUMS`, and uploads
+only the manifest (`helper/latest.json`) with their GitHub URLs, sizes and hashes to the instance's
+bucket; the Download page links the browser to GitHub (docs/self-host.md, section 6). The
+Android app is the same with `--android-from-release <version>` (`android-v<version>`,
+`openlive-<version>-android.apk` and `SHA256SUMS`; `scripts/release/android-release.sh`), which
+writes `helper/android.json`.
 
 ## Steps (maintainer)
 
@@ -59,8 +63,9 @@ sha256sum -c SHA256SUMS`).
    pnpm run helper:publish -- --env production --from-release X.Y.Z
    ```
 
-A release without the disk image is Linux-only: `--from-release` publishes what the release has,
-and the Download page says macOS is not available.
+A release without the disk image is Linux-only: `--from-release` links what the release has,
+and the Download page says macOS is not available. Android releases are betas
+(prereleases), and `--android-from-release` accepts them without `--allow-prerelease`.
 
 ## Unreleased changes
 

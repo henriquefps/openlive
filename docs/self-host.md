@@ -227,25 +227,38 @@ deploy it.
 Viewers need only the browser. Whoever streams installs the **helper** (Linux and macOS today;
 Windows later):
 
-- [ ] **Publish the helper to your instance** (once per helper version), so members can download
-      it from `/download` without access to the repository. From the repository, logged in to
-      wrangler as in step 2:
+- [ ] **Choose the helper version your instance offers** (once per helper version), so members
+      can download it from `/download`. From the repository, logged in to wrangler as in step 2:
 
       ```sh
-      pnpm run helper:publish -- --env production --from-release latest --dry-run   # the plan only
-      pnpm run helper:publish -- --env production --from-release latest
+      pnpm run helper:publish -- --env production --from-release 0.2.0 --dry-run   # the plan only
+      pnpm run helper:publish -- --env production --from-release 0.2.0
       ```
 
-      It takes the newest official release from the project's
-      [GitHub Releases](https://github.com/henriquefps/openlive/releases) (`--from-release 0.2.0`
-      picks one), downloads the Linux tarball, the Flatpak and the signed, notarized macOS disk
-      image over HTTPS, checks each against the release's `SHA256SUMS`, and uploads them with
-      `wrangler r2 object put --remote` into the instance's private bucket under `helper/`,
-      `helper/latest.json` last. Nothing is built: no Flatpak SDK and no Mac needed. A file that
-      does not match stops it before anything is uploaded. Until you run it, `/download` tells the
-      platform admin this command and everyone else that the helper is not available yet.
+      The official builds are public in the project's
+      [GitHub Releases](https://github.com/henriquefps/openlive/releases) (`helper-v0.2.0`; with
+      `latest` the script picks the newest and writes that version, never "latest", so the helper
+      always speaks your server's protocol). The script checks that the Linux tarball, the Flatpak
+      and the signed, notarized macOS disk image exist and are listed in the release's `SHA256SUMS`,
+      then uploads only `helper/latest.json` to the instance's private bucket: the GitHub URL and
+      SHA-256 of each file. Nothing is copied or built (no Flatpak SDK, no Mac) and the files do not
+      go through your Worker: `/download` links the browser straight to GitHub. Until you run it,
+      `/download` tells the platform admin this command and everyone else that the helper is not
+      available yet.
 
-      **Building it yourself** instead (your own build, or changes that have no release yet):
+      The Android app (beta) works the same way, from the `android-v<version>` release:
+      `--android-from-release 0.1.5`, alone or together with `--from-release`. It writes
+      `helper/android.json`, and the Android card on `/download` then shows "Download APK" with the
+      SHA-256; without it the card only links to the Android releases. Both flags are read-only on
+      GitHub (no token).
+
+      **A fork with its own releases** passes `--release-repo owner/name` and sets the
+      `HELPER_RELEASE_REPO` var of the Worker (`apps/api/wrangler.jsonc`, `env.production.vars`) to
+      the same value: the Worker serves a GitHub URL only when it is a release asset of that
+      repository, over https.
+
+      **Building it yourself** instead (your own build, or changes that have no release yet; the
+      files go to your bucket and the Worker serves them to members):
       `pnpm run helper:publish -- --env production --version 0.2.0` builds the tarball (and the
       Flatpak, when `flatpak-builder` is installed) in the Flatpak SDK and uploads them the same
       way ([packaging/linux/README.md](../packaging/linux/README.md#publish-to-an-instance)). A
@@ -359,10 +372,10 @@ pnpm install
 pnpm run setup -- --yes        # add --env <name> for another instance
 ```
 
-A new helper version: `pnpm run helper:publish -- --version <x.y.z>` (above, step 6). Older
-versions stay in the bucket under `helper/<version>/`; the page offers the one in
-`helper/latest.json`. Without a `--version` and without a `helper-v*` git tag, it publishes the
-project version (the root `package.json`).
+A new helper version: `pnpm run helper:publish -- --from-release <x.y.z>` (above, step 6), or
+`--version <x.y.z>` for your own build. The page offers the one in `helper/latest.json`; builds
+uploaded earlier stay in the bucket under `helper/<version>/`. Without a `--version` and without a
+`helper-v*` git tag, a build publishes the project version (the root `package.json`).
 
 ### Versions
 

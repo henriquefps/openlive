@@ -17,7 +17,10 @@ func GStreamerVersion() string { return "" }
 func HasElement(string) bool { return false }
 
 // TestBackend is unavailable in this build.
-type TestBackend struct{}
+type TestBackend struct {
+	Image string
+	Label string
+}
 
 // NewTestBackend fails in builds without GStreamer.
 func NewTestBackend() (*TestBackend, error) { return nil, ErrUnavailable }

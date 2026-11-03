@@ -1,33 +1,37 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-// `pnpm run helper:publish -- --from-release <x.y.z|latest>`: publish the official build of a
-// GitHub release (drafted by .github/workflows/release-helper.yml, the macOS disk image added by
-// the maintainer: packaging/RELEASING.md) instead of building it. Reads the public REST API with
-// fetch (no gh, no token), downloads each asset over HTTPS, checks its size and SHA-256 against
-// the release's SHA256SUMS, and only then uploads, in the same order and layout as a local build
-// (helper-release.ts). The network and wrangler come in as functions, so the tests mock both.
+// `pnpm run helper:publish -- --from-release <x.y.z|latest> [--android-from-release <x.y.z>]`:
+// point the instance at the official builds of GitHub releases (helper-v<x.y.z>, drafted by
+// .github/workflows/release-helper.yml with the macOS disk image added by the maintainer:
+// packaging/RELEASING.md; android-v<x.y.z> by scripts/release/android-release.sh). Nothing is
+// copied: the release is only read (public REST API with fetch, no gh, no token), every wanted
+// asset must exist and be listed in the release's SHA256SUMS, and what goes to the instance's R2
+// bucket is the manifest alone (helper/latest.json, helper/android.json) with the GitHub asset
+// URLs and hashes. The Download page links the browser straight to GitHub; the instance keeps
+// serving exactly the version it was pinned to. The network and wrangler come in as functions, so
+// the tests mock both.
 
-import { createHash } from 'node:crypto';
-import { createWriteStream, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { Readable } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
 import {
+  ANDROID_KEY,
+  androidApkName,
+  buildAndroidManifest,
   buildManifest,
   CHECKSUMS_NAME,
+  CONTENT_TYPES,
   dmgName,
   type FileKind,
   flatpakName,
   type HashedFile,
   helperProtocol,
+  LATEST_KEY,
   type PublishArgs,
-  type PublishFile,
-  sha256sums,
   shellLine,
   stagingPath,
   tarballName,
   type Upload,
   uploadCommand,
-  uploadsFor,
+  validAndroidVersion,
   validVersion,
 } from './helper-release.ts';
 
@@ -53,8 +57,13 @@ const HEADERS = {
   'x-github-api-version': '2022-11-28',
 };
 const TAG_PREFIX = 'helper-v';
+const ANDROID_TAG_PREFIX = 'android-v';
 
-export const releaseTag = (version: string) => `${TAG_PREFIX}${version}`;
+export const releaseTag = (version: string, prefix = TAG_PREFIX) => `${prefix}${version}`;
+
+/** The public download URL of a release asset; the Worker accepts exactly this shape. */
+export const assetUrl = (repo: string, tag: string, name: string) =>
+  `https://github.com/${repo}/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(name)}`;
 
 async function getJson(fetch: Fetch, url: string, what: string): Promise<unknown> {
   let res: Response;
@@ -102,6 +111,7 @@ export async function findRelease(
   repo: string,
   which: string,
   allowPrerelease: boolean,
+  prefix = TAG_PREFIX,
 ): Promise<GitHubRelease> {
   const where = `github.com/${repo}`;
   let release: GitHubRelease;
@@ -113,23 +123,23 @@ export async function findRelease(
     )) as GitHubRelease[] | null;
     if (list === null) throw new ReleaseError(`${where} does not exist or is not public`);
     const candidates = list
-      .filter((r) => r.tag_name.startsWith(TAG_PREFIX))
-      .filter((r) => validVersion(r.tag_name.slice(TAG_PREFIX.length)))
+      .filter((r) => r.tag_name.startsWith(prefix))
+      .filter((r) => validVersion(r.tag_name.slice(prefix.length)))
       .filter((r) => !r.draft && (allowPrerelease || !r.prerelease))
       .sort((a, b) =>
-        compareVersions(b.tag_name.slice(TAG_PREFIX.length), a.tag_name.slice(TAG_PREFIX.length)),
+        compareVersions(b.tag_name.slice(prefix.length), a.tag_name.slice(prefix.length)),
       );
     const newest = candidates[0];
     if (!newest) {
       throw new ReleaseError(
-        `${where} has no published ${TAG_PREFIX}* release yet` +
+        `${where} has no published ${prefix}* release yet` +
           (allowPrerelease ? '' : ' (prereleases are skipped without --allow-prerelease)') +
           ': build from source instead (leave out --from-release)',
       );
     }
     release = newest;
   } else {
-    const tag = releaseTag(which);
+    const tag = releaseTag(which, prefix);
     const found = (await getJson(
       fetch,
       `${API}/repos/${repo}/releases/tags/${tag}`,
@@ -153,14 +163,19 @@ export async function findRelease(
   return release;
 }
 
-export interface ReleaseFile extends PublishFile {
+export interface ReleaseFile {
+  name: string;
+  kind: FileKind;
   url: string;
   /** Bytes, as GitHub reports them. */
   size: number;
 }
 
-/** The helper files of the release, in the order they are uploaded, and its SHA256SUMS. */
-export function releaseFiles(release: GitHubRelease): {
+/** The helper files of the release, in the order the page lists them, and its SHA256SUMS. */
+export function releaseFiles(
+  release: GitHubRelease,
+  repo: string,
+): {
   version: string;
   files: ReleaseFile[];
   checksumsUrl: string;
@@ -179,13 +194,7 @@ export function releaseFiles(release: GitHubRelease): {
   for (const [kind, name] of wanted) {
     const a = asset(name);
     if (!a) continue;
-    files.push({
-      name,
-      kind,
-      path: stagingPath(version, `release/${name}`),
-      url: a.browser_download_url,
-      size: a.size,
-    });
+    files.push({ name, kind, url: assetUrl(repo, release.tag_name, name), size: a.size });
   }
   if (!files.some((f) => f.kind === 'tarball')) {
     throw new ReleaseError(`${release.tag_name} has no ${tarballName(version)}`);
@@ -197,6 +206,33 @@ export function releaseFiles(release: GitHubRelease): {
     );
   }
   return { version, files, checksumsUrl: sums.browser_download_url };
+}
+
+/** The APK of an android-v<version> release, with its size and the SHA256SUMS to read its hash from. */
+export function androidAsset(
+  release: GitHubRelease,
+  repo: string,
+): { version: string; name: string; url: string; size: number; checksumsUrl: string } {
+  const version = release.tag_name.slice(ANDROID_TAG_PREFIX.length);
+  if (!release.tag_name.startsWith(ANDROID_TAG_PREFIX) || !validAndroidVersion(version)) {
+    throw new ReleaseError(`${release.tag_name} is not an ${ANDROID_TAG_PREFIX}<version> release`);
+  }
+  const name = androidApkName(version);
+  const apk = release.assets.find((a) => a.name === name);
+  if (!apk) throw new ReleaseError(`${release.tag_name} has no ${name}`);
+  const sums = release.assets.find((a) => a.name === CHECKSUMS_NAME);
+  if (!sums) {
+    throw new ReleaseError(
+      `${release.tag_name} has no ${CHECKSUMS_NAME}, so ${name} cannot be checked; not publishing it`,
+    );
+  }
+  return {
+    version,
+    name,
+    url: assetUrl(repo, release.tag_name, name),
+    size: apk.size,
+    checksumsUrl: sums.browser_download_url,
+  };
 }
 
 /** `sha256sum` output (also the `*name` binary form) → name → lowercase hex. */
@@ -220,55 +256,11 @@ async function getText(fetch: Fetch, url: string, what: string): Promise<string>
   return res.text();
 }
 
-/** Each file must be listed; returns the expected hash per file. */
-export function expectedHashes(files: ReleaseFile[], sums: Map<string, string>): string[] {
-  return files.map((f) => {
-    const h = sums.get(f.name);
-    if (!h) throw new ReleaseError(`${CHECKSUMS_NAME} of the release does not list ${f.name}`);
-    return h;
-  });
-}
-
-/**
- * Streams one asset to `dest`, hashing it on the way; throws (and removes the partial file) when
- * the size or the SHA-256 is not the expected one.
- */
-export async function downloadVerified(
-  fetch: Fetch,
-  file: ReleaseFile,
-  sha256: string,
-  dest: string,
-): Promise<HashedFile> {
-  let res: Response;
-  try {
-    res = await fetch(file.url, { headers: { 'user-agent': HEADERS['user-agent'] } });
-  } catch (err) {
-    throw new ReleaseError(`could not download ${file.name}: ${(err as Error).message}`);
-  }
-  if (!res.ok || !res.body) {
-    throw new ReleaseError(`downloading ${file.name} failed: HTTP ${res.status}`);
-  }
-  mkdirSync(dirname(dest), { recursive: true });
-  const hash = createHash('sha256');
-  let size = 0;
-  const body = Readable.fromWeb(res.body as import('node:stream/web').ReadableStream);
-  body.on('data', (chunk: Buffer) => {
-    hash.update(chunk);
-    size += chunk.length;
-  });
-  await pipeline(body, createWriteStream(dest));
-  const got = hash.digest('hex');
-  if (size !== file.size || got !== sha256) {
-    rmSync(dest, { force: true });
-    throw new ReleaseError(
-      `${file.name} does not match the release: ` +
-        (size !== file.size
-          ? `${size} bytes, GitHub lists ${file.size}`
-          : `SHA-256 ${got}, ${CHECKSUMS_NAME} says ${sha256}`) +
-        '. Nothing was uploaded.',
-    );
-  }
-  return { name: file.name, kind: file.kind, size, sha256: got };
+/** The hash SHA256SUMS lists for `name`; the release must list it. */
+export function hashOf(sums: Map<string, string>, name: string): string {
+  const h = sums.get(name);
+  if (!h) throw new ReleaseError(`${CHECKSUMS_NAME} of the release does not list ${name}`);
+  return h;
 }
 
 export interface InstanceFacts {
@@ -283,117 +275,205 @@ export interface FromReleaseDeps {
   /** Runs one wrangler upload (the argv of uploadCommand); throws on failure. */
   upload: (command: string[]) => void;
   log: (line: string) => void;
-  /** The repository root: downloads and the staged files go under its build/. */
+  /** The repository root: the staged manifests go under its build/. */
   root: string;
   now?: () => Date;
 }
 
 const mb = (bytes: number) => `${(bytes / 1e6).toFixed(1)} MB`;
 
+interface HelperPlan {
+  release: GitHubRelease;
+  version: string;
+  files: (ReleaseFile & { sha256: string })[];
+  protocol: { major: number; minor: number };
+}
+interface AndroidPlan {
+  release: GitHubRelease;
+  version: string;
+  name: string;
+  url: string;
+  size: number;
+  sha256: string;
+}
+
+const stagedLatest = (version: string) => stagingPath(version, 'latest.json');
+const stagedAndroid = (version: string) => stagingPath(`android-${version}`, 'android.json');
+
 export function formatFromReleasePlan(input: {
   args: PublishArgs;
   facts: InstanceFacts;
-  release: GitHubRelease;
-  version: string;
-  files: ReleaseFile[];
-  protocol: { major: number; minor: number };
+  helper: HelperPlan | null;
+  android: AndroidPlan | null;
   uploads: Upload[];
 }): string {
-  const { args, facts, release, version, files, protocol, uploads } = input;
-  const dmg = files.find((f) => f.kind === 'dmg');
-  return [
-    `Publish openlive-helper ${version} from the release ${release.tag_name} of ` +
-      `github.com/${args.releaseRepo} to ${facts.instanceUrl}`,
-    `Release ${release.html_url}` +
-      (release.published_at ? ` (published ${release.published_at})` : ''),
+  const { args, facts, helper, android, uploads } = input;
+  const lines = [
+    `Point ${facts.instanceUrl} at the public releases of github.com/${args.releaseRepo}`,
     `Bucket ${facts.bucketName} (private), config ${facts.generatedConfig}, env ${args.env}`,
+    'Only the manifests are written to R2; the files stay on GitHub and the browser downloads them from there.',
+  ];
+  if (helper) {
+    const dmg = helper.files.some((f) => f.kind === 'dmg');
+    lines.push(
+      '',
+      `Helper ${helper.version}: release ${helper.release.tag_name}, ${helper.release.html_url}` +
+        (helper.release.published_at ? ` (published ${helper.release.published_at})` : ''),
+      `Each asset exists and is listed in the release's ${CHECKSUMS_NAME}:`,
+      ...helper.files.map(
+        (f, i) =>
+          `  ${i + 1}. ${f.name} (${f.kind}, ${mb(f.size)})\n     ${f.url}\n     sha256 ${f.sha256}`,
+      ),
+      dmg
+        ? 'macOS: the disk image above, as the maintainer built, notarized and attached it'
+        : 'macOS: none (the release has no disk image; the Download page says macOS is not available)',
+      `Protocol ${helper.protocol.major}.${helper.protocol.minor}, from helper/internal/api/room.go at ${helper.release.tag_name}`,
+    );
+  }
+  if (android) {
+    lines.push(
+      '',
+      `Android ${android.version}: release ${android.release.tag_name}, ${android.release.html_url}`,
+      `  ${android.name} (${mb(android.size)})\n     ${android.url}\n     sha256 ${android.sha256}`,
+    );
+  }
+  lines.push(
     '',
-    `Download over HTTPS into ${stagingPath(version, 'release/')}, each checked against the`,
-    `release's ${CHECKSUMS_NAME} (all listed) and its size, before anything is uploaded:`,
-    ...files.map((f, i) => `  ${i + 1}. ${f.name} (${f.kind}, ${mb(f.size)})`),
-    dmg
-      ? 'macOS: the disk image above, as the maintainer built, notarized and attached it'
-      : 'macOS: none (the release has no disk image; the Download page says macOS is not available)',
-    '',
-    `Then: SHA256SUMS and latest.json (protocol ${protocol.major}.${protocol.minor}, from ` +
-      `helper/internal/api/room.go at ${release.tag_name})`,
-    `  (${stagingPath(version, '')})`,
-    '',
-    'Upload, from apps/api (the pinned wrangler, the account in the generated config):',
+    `Manifests are staged in ${stagingPath('<version>', '')} and uploaded from apps/api (the pinned wrangler, the account in the generated config):`,
     ...uploads.map(
       (u, i) =>
         `  ${i + 1}. ${u.key}\n     ${shellLine({ command: uploadCommand(facts.bucketName, args.env, u) })}`,
     ),
-  ].join('\n');
+  );
+  return lines.join('\n');
 }
 
 /**
- * The whole --from-release run. The dry run reads only the release, its SHA256SUMS and room.go
- * (a few kilobytes), then prints the plan.
+ * The whole --from-release / --android-from-release run. It only reads the releases (a few
+ * kilobytes: the release metadata, SHA256SUMS and room.go) and uploads at most two small manifests.
  */
 export async function publishFromRelease(
   args: PublishArgs,
   facts: InstanceFacts,
   deps: FromReleaseDeps,
 ): Promise<void> {
-  if (args.fromRelease === undefined) throw new ReleaseError('--from-release is missing');
-  const release = await findRelease(
-    deps.fetch,
-    args.releaseRepo,
-    args.fromRelease,
-    args.allowPrerelease,
-  );
-  const { version, files, checksumsUrl } = releaseFiles(release);
-  const sums = parseSha256sums(
-    await getText(deps.fetch, checksumsUrl, `${CHECKSUMS_NAME} of ${release.tag_name}`),
-  );
-  const expected = expectedHashes(files, sums);
-  const protocol = helperProtocol(
-    await getText(
-      deps.fetch,
-      `${RAW}/${args.releaseRepo}/${release.tag_name}/helper/internal/api/room.go`,
-      `helper/internal/api/room.go at ${release.tag_name}`,
-    ),
-  );
-  if (!protocol) {
-    throw new ReleaseError(
-      `could not read the protocol version from room.go at ${release.tag_name}`,
-    );
+  if (args.fromRelease === undefined && args.androidFromRelease === undefined) {
+    throw new ReleaseError('--from-release or --android-from-release is missing');
   }
-  const uploads = uploadsFor(version, files);
-  deps.log(formatFromReleasePlan({ args, facts, release, version, files, protocol, uploads }));
+  let helper: HelperPlan | null = null;
+  if (args.fromRelease !== undefined) {
+    const release = await findRelease(
+      deps.fetch,
+      args.releaseRepo,
+      args.fromRelease,
+      args.allowPrerelease,
+    );
+    const { version, files, checksumsUrl } = releaseFiles(release, args.releaseRepo);
+    const sums = parseSha256sums(
+      await getText(deps.fetch, checksumsUrl, `${CHECKSUMS_NAME} of ${release.tag_name}`),
+    );
+    const protocol = helperProtocol(
+      await getText(
+        deps.fetch,
+        `${RAW}/${args.releaseRepo}/${release.tag_name}/helper/internal/api/room.go`,
+        `helper/internal/api/room.go at ${release.tag_name}`,
+      ),
+    );
+    if (!protocol) {
+      throw new ReleaseError(
+        `could not read the protocol version from room.go at ${release.tag_name}`,
+      );
+    }
+    helper = {
+      release,
+      version,
+      files: files.map((f) => ({ ...f, sha256: hashOf(sums, f.name) })),
+      protocol,
+    };
+  }
+  let android: AndroidPlan | null = null;
+  if (args.androidFromRelease !== undefined) {
+    // The Android app is a beta and its releases are prereleases (scripts/release/android-release.sh).
+    const release = await findRelease(
+      deps.fetch,
+      args.releaseRepo,
+      args.androidFromRelease,
+      true,
+      ANDROID_TAG_PREFIX,
+    );
+    const apk = androidAsset(release, args.releaseRepo);
+    const sums = parseSha256sums(
+      await getText(deps.fetch, apk.checksumsUrl, `${CHECKSUMS_NAME} of ${release.tag_name}`),
+    );
+    android = { release, ...apk, sha256: hashOf(sums, apk.name) };
+  }
+
+  const uploads: Upload[] = [];
+  if (helper) {
+    uploads.push({
+      key: LATEST_KEY,
+      path: stagedLatest(helper.version),
+      contentType: CONTENT_TYPES.manifest,
+    });
+  }
+  if (android) {
+    uploads.push({
+      key: ANDROID_KEY,
+      path: stagedAndroid(android.version),
+      contentType: CONTENT_TYPES.manifest,
+    });
+  }
+  deps.log(formatFromReleasePlan({ args, facts, helper, android, uploads }));
   if (args.dryRun) {
-    deps.log('\nDry run: nothing was downloaded or uploaded.');
+    deps.log('\nDry run: nothing was staged or uploaded.');
     return;
   }
 
-  // Everything is downloaded and checked first: a bad file stops the run before any upload.
-  const hashed: HashedFile[] = [];
-  for (const [i, f] of files.entries()) {
-    deps.log(`\n↓ ${f.name}`);
-    hashed.push(await downloadVerified(deps.fetch, f, expected[i] ?? '', join(deps.root, f.path)));
-  }
-  const write = (name: string, text: string) => {
-    const path = join(deps.root, stagingPath(version, name));
-    mkdirSync(dirname(path), { recursive: true });
-    writeFileSync(path, text);
+  const now = (deps.now ?? (() => new Date()))();
+  const write = (path: string, value: unknown) => {
+    const abs = join(deps.root, path);
+    mkdirSync(dirname(abs), { recursive: true });
+    writeFileSync(abs, `${JSON.stringify(value, null, 2)}\n`);
   };
-  write(CHECKSUMS_NAME, sha256sums(hashed));
-  const manifest = buildManifest({
-    version,
-    publishedAt: (deps.now ?? (() => new Date()))(),
-    protocol,
-    releaseNotesUrl: args.releaseNotesUrl ?? release.html_url,
-    files: hashed,
-  });
-  write('latest.json', `${JSON.stringify(manifest, null, 2)}\n`);
-  deps.log(`\n${sha256sums(hashed)}`);
-
+  if (helper) {
+    const hashed: (HashedFile & { url: string })[] = helper.files.map((f) => ({
+      name: f.name,
+      kind: f.kind,
+      size: f.size,
+      sha256: f.sha256,
+      url: f.url,
+    }));
+    write(
+      stagedLatest(helper.version),
+      buildManifest({
+        version: helper.version,
+        publishedAt: now,
+        protocol: helper.protocol,
+        releaseNotesUrl: args.releaseNotesUrl ?? helper.release.html_url,
+        files: hashed,
+      }),
+    );
+  }
+  if (android) {
+    write(
+      stagedAndroid(android.version),
+      buildAndroidManifest({
+        version: android.version,
+        publishedAt: now,
+        name: android.name,
+        url: android.url,
+        size: android.size,
+        sha256: android.sha256,
+      }),
+    );
+  }
   for (const u of uploads) {
     deps.log(`→ ${u.key}`);
     deps.upload(uploadCommand(facts.bucketName, args.env, u));
   }
-  deps.log(
-    `\nPublished openlive-helper ${version} from ${release.tag_name}: ${facts.instanceUrl}/download shows it to members.`,
-  );
+  const done = [
+    helper && `openlive-helper ${helper.version} (${helper.release.tag_name})`,
+    android && `the Android app ${android.version} (${android.release.tag_name})`,
+  ].filter(Boolean);
+  deps.log(`\nPublished ${done.join(' and ')}: ${facts.instanceUrl}/download shows it to members.`);
 }

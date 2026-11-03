@@ -4,10 +4,12 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
-import { parseHelperManifest } from '../../../apps/api/src/helper/release.ts';
+import { parseAndroidManifest, parseHelperManifest } from '../../../apps/api/src/helper/release.ts';
 import {
   compareVersions,
   type Fetch,
+  androidAsset,
+  assetUrl,
   findRelease,
   type GitHubRelease,
   parseSha256sums,
@@ -69,12 +71,31 @@ function mockFetch(table: Record<string, unknown>) {
   return { fetch, calls };
 }
 
+const ADL = `https://github.com/${REPO}/releases/download/android-v0.1.5`;
+const APK = 'openlive-0.1.5-android.apk';
+const apkSha = sha('apk bytes');
+function androidRelease(over: Partial<GitHubRelease> = {}): GitHubRelease {
+  return {
+    tag_name: 'android-v0.1.5',
+    html_url: `https://github.com/${REPO}/releases/tag/android-v0.1.5`,
+    draft: false,
+    prerelease: true,
+    published_at: '2026-11-03T10:00:00Z',
+    assets: [
+      { name: APK, size: 9, browser_download_url: `${ADL}/${APK}` },
+      { name: 'SHA256SUMS', size: 93, browser_download_url: `${ADL}/SHA256SUMS` },
+    ],
+    ...over,
+  };
+}
+
 const room = 'ProtocolVersion = protocol.ProtocolVersion{Major: 1, Minor: 12}';
 const table = (over: Record<string, unknown> = {}) => ({
   [`${API}/releases/tags/helper-v0.2.0`]: release(),
   [`${DL}/SHA256SUMS`]: sums(),
   [ROOM_GO]: room,
-  ...Object.fromEntries(Object.entries(files).map(([n, body]) => [`${DL}/${n}`, body])),
+  [`${API}/releases/tags/android-v0.1.5`]: androidRelease(),
+  [`${ADL}/SHA256SUMS`]: `${apkSha}  ${APK}\n`,
   ...over,
 });
 
@@ -94,7 +115,7 @@ afterAll(() => {
   for (const r of roots) rmSync(r, { recursive: true, force: true });
 });
 
-async function run(argv: string[], t = table()) {
+async function run(argv: string[], t: Record<string, unknown> = table()) {
   const { fetch, calls } = mockFetch(t);
   const uploads: string[][] = [];
   const log: string[] = [];
@@ -133,6 +154,20 @@ describe('parsePublishArgs with --from-release', () => {
     }
     expect(() => parsePublishArgs(['--release-repo', 'a/b'])).toThrow(/go with --from-release/);
     expect(() => parsePublishArgs(['--allow-prerelease'])).toThrow(/go with --from-release/);
+    expect(parsePublishArgs(['--android-from-release', 'v0.1.5'])).toMatchObject({
+      androidFromRelease: '0.1.5',
+      fromRelease: undefined,
+    });
+    expect(
+      parsePublishArgs(['--from-release', '0.1.4', '--android-from-release', '0.1.5']),
+    ).toMatchObject({
+      fromRelease: '0.1.4',
+      androidFromRelease: '0.1.5',
+    });
+    expect(() => parsePublishArgs(['--android-from-release', 'latest'])).toThrow(/not a version/);
+    expect(() => parsePublishArgs(['--android-from-release', '0.1.5', '--skip-build'])).toThrow(
+      /leave out/,
+    );
     expect(() => parsePublishArgs(['--from-release', 'latest', '--release-repo', 'x'])).toThrow(
       /owner\/name/,
     );
@@ -188,21 +223,40 @@ describe('finding the release', () => {
 });
 
 describe('the files of a release', () => {
-  it('takes the helper files in upload order and needs SHA256SUMS and the tarball', () => {
-    const r = releaseFiles(release());
+  it('takes the helper files, with GitHub URLs, and needs SHA256SUMS and the tarball', () => {
+    const r = releaseFiles(release(), REPO);
     expect(r.version).toBe('0.2.0');
     expect(r.files.map((f) => f.kind)).toEqual(['tarball', 'flatpak', 'dmg']);
-    expect(r.files[0]?.path).toBe(
-      'build/helper-publish/0.2.0/release/openlive-helper-0.2.0-linux-amd64.tar.gz',
-    );
-    const linuxOnly = releaseFiles(release({}, ['openlive-helper-0.2.0-linux-amd64.tar.gz']));
+    expect(r.files[0]?.url).toBe(`${DL}/openlive-helper-0.2.0-linux-amd64.tar.gz`);
+    const linuxOnly = releaseFiles(release({}, ['openlive-helper-0.2.0-linux-amd64.tar.gz']), REPO);
     expect(linuxOnly.files.map((f) => f.kind)).toEqual(['tarball']);
     expect(() =>
-      releaseFiles(release({ assets: release().assets.filter((a) => a.name !== 'SHA256SUMS') })),
+      releaseFiles(
+        release({ assets: release().assets.filter((a) => a.name !== 'SHA256SUMS') }),
+        REPO,
+      ),
     ).toThrow(/no SHA256SUMS/);
-    expect(() => releaseFiles(release({}, ['openlive-helper-0.2.0.flatpak']))).toThrow(
+    expect(() => releaseFiles(release({}, ['openlive-helper-0.2.0.flatpak']), REPO)).toThrow(
       /no openlive-helper-0\.2\.0-linux-amd64\.tar\.gz/,
     );
+  });
+
+  it('builds the asset URL the Worker accepts', () => {
+    expect(assetUrl(REPO, 'helper-v0.2.0', 'a.tar.gz')).toBe(`${DL}/a.tar.gz`);
+  });
+
+  it('takes the APK of an android release, and needs it and SHA256SUMS', () => {
+    expect(androidAsset(androidRelease(), REPO)).toMatchObject({
+      version: '0.1.5',
+      name: APK,
+      url: `${ADL}/${APK}`,
+      size: 9,
+    });
+    expect(() => androidAsset(androidRelease({ assets: [] }), REPO)).toThrow(/no openlive-0\.1\.5/);
+    expect(() =>
+      androidAsset(androidRelease({ assets: androidRelease().assets.slice(0, 1) }), REPO),
+    ).toThrow(/no SHA256SUMS/);
+    expect(() => androidAsset(release(), REPO)).toThrow(/not an android-v/);
   });
 
   it('reads sha256sum output, text and binary mode', () => {
@@ -215,92 +269,146 @@ describe('the files of a release', () => {
 });
 
 describe('publishFromRelease', () => {
-  it('dry run: prints the plan from the release metadata, downloads no helper file', async () => {
-    const r = await run(['--from-release', '0.2.0', '--dry-run']);
+  it('dry run: prints the plan from the release metadata, stages and uploads nothing', async () => {
+    const r = await run([
+      '--from-release',
+      '0.2.0',
+      '--android-from-release',
+      '0.1.5',
+      '--dry-run',
+    ]);
     await r.result;
     expect(r.uploads).toEqual([]);
-    expect(r.calls.filter((u) => u.endsWith('.tar.gz') || u.endsWith('.dmg'))).toEqual([]);
+    expect(
+      r.calls.filter((u) => u.endsWith('.tar.gz') || u.endsWith('.dmg') || u.endsWith('.apk')),
+    ).toEqual([]);
+    expect(existsSync(join(r.root, 'build'))).toBe(false);
     const text = r.log();
     expect(text).toContain(
-      'Publish openlive-helper 0.2.0 from the release helper-v0.2.0 of github.com/henriquefps/openlive to https://live.example.com',
+      'Point https://live.example.com at the public releases of github.com/henriquefps/openlive',
     );
-    expect(text).toContain('openlive-helper-0.2.0-macos.dmg (dmg,');
-    expect(text).toContain('protocol 1.12');
-    expect(text.indexOf('helper/latest.json')).toBeGreaterThan(
-      text.indexOf('helper/0.2.0/SHA256SUMS'),
-    );
-    expect(text).toContain('Dry run: nothing was downloaded or uploaded.');
+    expect(text).toContain(`${DL}/openlive-helper-0.2.0-macos.dmg`);
+    expect(text).toContain(`sha256 ${sha('dmg')}`);
+    expect(text).toContain('Protocol 1.12');
+    expect(text).toContain(`${ADL}/${APK}`);
+    expect(text).toContain(`sha256 ${apkSha}`);
+    expect(text).toContain('helper/latest.json');
+    expect(text).toContain('helper/android.json');
+    expect(text).toContain('Dry run: nothing was staged or uploaded.');
   });
 
-  it('downloads, checks and uploads every file, latest.json last, in the Worker format', async () => {
-    const r = await run(['--from-release', '0.2.0']);
+  it('uploads only the two manifests, in the Worker format, with GitHub URLs and no binary', async () => {
+    const r = await run(['--from-release', '0.2.0', '--android-from-release', '0.1.5']);
     await r.result;
     expect(r.uploads.map((c) => c[4])).toEqual([
-      'openlive-thumbnails/helper/0.2.0/openlive-helper-0.2.0-linux-amd64.tar.gz',
-      'openlive-thumbnails/helper/0.2.0/openlive-helper-0.2.0.flatpak',
-      'openlive-thumbnails/helper/0.2.0/openlive-helper-0.2.0-macos.dmg',
-      'openlive-thumbnails/helper/0.2.0/SHA256SUMS',
       'openlive-thumbnails/helper/latest.json',
+      'openlive-thumbnails/helper/android.json',
     ]);
     expect(r.uploads[0]).toEqual([
       'wrangler',
       'r2',
       'object',
       'put',
-      'openlive-thumbnails/helper/0.2.0/openlive-helper-0.2.0-linux-amd64.tar.gz',
+      'openlive-thumbnails/helper/latest.json',
       '--file',
-      '../../build/helper-publish/0.2.0/release/openlive-helper-0.2.0-linux-amd64.tar.gz',
+      '../../build/helper-publish/0.2.0/latest.json',
       '--content-type',
-      'application/gzip',
+      'application/json',
       '--remote',
       '--config',
       'wrangler.production.generated.jsonc',
       '--env',
       'production',
     ]);
-    const staged = join(r.root, 'build/helper-publish/0.2.0');
-    expect(readFileSync(join(staged, 'SHA256SUMS'), 'utf8')).toBe(sums());
-    const manifest = parseHelperManifest(readFileSync(join(staged, 'latest.json'), 'utf8'));
+    expect(r.calls.some((u) => /\.(tar\.gz|flatpak|dmg|apk)$/.test(u))).toBe(false);
+    const manifest = parseHelperManifest(
+      readFileSync(join(r.root, 'build/helper-publish/0.2.0/latest.json'), 'utf8'),
+    );
+    expect(manifest).not.toBeNull();
     expect(manifest?.protocol).toEqual({ major: 1, minor: 12 });
     expect(manifest?.releaseNotesUrl).toBe(
       'https://github.com/henriquefps/openlive/releases/tag/helper-v0.2.0',
     );
-    expect(manifest?.files.map((f) => [f.kind, f.os, f.arch, f.size, f.sha256])).toEqual([
-      ['tarball', 'linux', 'amd64', 13, sha(files['openlive-helper-0.2.0-linux-amd64.tar.gz'])],
-      ['flatpak', 'linux', 'amd64', 14, sha(files['openlive-helper-0.2.0.flatpak'])],
-      ['dmg', 'macos', 'universal', 3, sha(files['openlive-helper-0.2.0-macos.dmg'])],
+    expect(manifest?.files.map((f) => [f.kind, f.size, f.sha256, f.url])).toEqual([
+      [
+        'tarball',
+        13,
+        sha(files['openlive-helper-0.2.0-linux-amd64.tar.gz']),
+        `${DL}/openlive-helper-0.2.0-linux-amd64.tar.gz`,
+      ],
+      [
+        'flatpak',
+        14,
+        sha(files['openlive-helper-0.2.0.flatpak']),
+        `${DL}/openlive-helper-0.2.0.flatpak`,
+      ],
+      [
+        'dmg',
+        3,
+        sha(files['openlive-helper-0.2.0-macos.dmg']),
+        `${DL}/openlive-helper-0.2.0-macos.dmg`,
+      ],
     ]);
+    const android = parseAndroidManifest(
+      readFileSync(join(r.root, 'build/helper-publish/android-0.1.5/android.json'), 'utf8'),
+    );
+    expect(android).toMatchObject({
+      version: '0.1.5',
+      name: APK,
+      size: 9,
+      sha256: apkSha,
+      url: `${ADL}/${APK}`,
+    });
   });
 
-  it('aborts on a checksum mismatch before any upload', async () => {
+  it('--android-from-release alone leaves the helper manifest alone', async () => {
+    const r = await run(['--android-from-release', 'android-v0.1.5']);
+    await r.result;
+    expect(r.uploads.map((c) => c[4])).toEqual(['openlive-thumbnails/helper/android.json']);
+    expect(r.calls.some((u) => u.includes('helper-v'))).toBe(false);
+  });
+
+  it('--from-release alone does not touch the Android entry', async () => {
+    const r = await run(['--from-release', '0.2.0']);
+    await r.result;
+    expect(r.uploads.map((c) => c[4])).toEqual(['openlive-thumbnails/helper/latest.json']);
+  });
+
+  it('uses the repository given and the version latest resolves to', async () => {
+    const other = 'me/fork';
+    const odl = `https://github.com/${other}/releases/download/helper-v0.2.0`;
     const r = await run(
-      ['--from-release', '0.2.0'],
+      ['--from-release', 'latest', '--release-repo', other],
       table({
-        [`${DL}/SHA256SUMS`]: sums({ 'openlive-helper-0.2.0-macos.dmg': 'f'.repeat(64) }),
+        [`https://api.github.com/repos/${other}/releases?per_page=100`]: [release()],
+        [`https://raw.githubusercontent.com/${other}/helper-v0.2.0/helper/internal/api/room.go`]:
+          room,
       }),
     );
-    await expect(r.result).rejects.toThrow(
-      /openlive-helper-0\.2\.0-macos\.dmg does not match the release: SHA-256 .* Nothing was uploaded/,
+    await r.result;
+    const manifest = parseHelperManifest(
+      readFileSync(join(r.root, 'build/helper-publish/0.2.0/latest.json'), 'utf8'),
+      other,
     );
-    expect(r.uploads).toEqual([]);
-    expect(
-      existsSync(
-        join(r.root, 'build/helper-publish/0.2.0/release/openlive-helper-0.2.0-macos.dmg'),
-      ),
-    ).toBe(false);
+    expect(manifest?.version).toBe('0.2.0');
+    expect(manifest?.files[0]?.url).toBe(`${odl}/openlive-helper-0.2.0-linux-amd64.tar.gz`);
   });
 
-  it('aborts on a size mismatch, and on a file SHA256SUMS does not list', async () => {
-    const short = await run(
-      ['--from-release', '0.2.0'],
-      table({ [`${DL}/openlive-helper-0.2.0.flatpak`]: 'flatpak' }),
-    );
-    await expect(short.result).rejects.toThrow(/bytes, GitHub lists 14/);
-    expect(short.uploads).toEqual([]);
+  it('stops before any upload when SHA256SUMS does not list a file or the release is missing', async () => {
     const unlisted = await run(
-      ['--from-release', '0.2.0', '--dry-run'],
+      ['--from-release', '0.2.0'],
       table({ [`${DL}/SHA256SUMS`]: `${sha('dmg')}  openlive-helper-0.2.0-macos.dmg\n` }),
     );
     await expect(unlisted.result).rejects.toThrow(/does not list openlive-helper-0\.2\.0-linux/);
+    expect(unlisted.uploads).toEqual([]);
+    const noApk = await run(['--android-from-release', '0.1.4']);
+    await expect(noApk.result).rejects.toThrow(/has no published release android-v0\.1\.4/);
+    expect(noApk.uploads).toEqual([]);
+    const badSum = await run(
+      ['--from-release', '0.2.0', '--android-from-release', '0.1.5'],
+      table({ [`${ADL}/SHA256SUMS`]: `${apkSha}  other.apk\n` }),
+    );
+    await expect(badSum.result).rejects.toThrow(/does not list openlive-0\.1\.5-android\.apk/);
+    expect(badSum.uploads).toEqual([]);
   });
 });

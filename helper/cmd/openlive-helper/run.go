@@ -35,6 +35,7 @@ func runHub(args []string) error {
 	gop := fs.Duration("gop", 10*time.Second, "fallback keyframe interval (keyframes normally come on PLI/FIR)")
 	vbv := fs.Duration("vbv", media.DefaultVBV, vbvUsage)
 	testSource := fs.Bool("test-source", false, "also offer the synthetic test pattern (always offered without the Linux backend)")
+	testImage, testLabel := testImageFlags(fs)
 	capturePath := fs.String("capture-path", "auto", "auto, gl (GPU scaling) or cpu (software; does not hold 1080p60)")
 	hideCursor := fs.Bool("hide-cursor", false, "leave the mouse cursor out of the picture")
 	testPattern := fs.String("test-pattern", "", "development: the Linux backend captures a videotestsrc pattern (e.g. ball) instead of the portal; on macOS any value shows the sidecar's moving test window")
@@ -103,9 +104,12 @@ func runHub(args []string) error {
 		}
 	}
 	if *testSource || sources.screen == nil {
-		if sources.test, err = media.NewTestBackend(); err != nil {
+		test, err := media.NewTestBackend()
+		if err != nil {
 			return fmt.Errorf("test source: %w (build without the nogst tag and install GStreamer)", err)
 		}
+		test.Image, test.Label = *testImage, *testLabel
+		sources.test, sources.testImage = test, *testImage
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -208,6 +212,8 @@ type sourceBackends struct {
 	// thumbs grabs stills of the screen backend's sources (macOS; the portal cannot).
 	thumbs media.Thumbnailer
 	test   media.MediaBackend
+	// testImage is the test source's --test-image, for its picker preview.
+	testImage string
 }
 
 func (b *sourceBackends) ListSources(ctx context.Context) ([]media.Source, error) {
@@ -235,6 +241,9 @@ func (b *sourceBackends) ListSources(ctx context.Context) ([]media.Source, error
 // them, the drawn test pattern for the test source.
 func (b *sourceBackends) Thumbnail(ctx context.Context, src media.Source, maxWidth, maxHeight int) (media.Thumbnail, error) {
 	if src.Kind == media.SourceTest {
+		if b.testImage != "" {
+			return imageThumbnail(b.testImage, maxWidth, maxHeight)
+		}
 		return testPatternThumbnail(maxWidth, maxHeight)
 	}
 	if b.thumbs == nil {

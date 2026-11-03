@@ -40,7 +40,9 @@ own app's audio), the last screen and window shared ("Last: <output or window ti
 by the portal without the dialog), and, with `--test-source` or in builds without the Linux
 backend, the test pattern (with a colour-bar thumbnail). `--test-pattern ball` makes the Linux
 backend capture a videotestsrc instead of the portal (development, no dialog), `--test-size
-1913x1047` at a window's size instead of the preset's.
+1913x1047` at a window's size instead of the preset's. `--test-image still.jpg` (on `run` and
+`test-stream`, development) sends a still PNG or JPEG as the test source instead of the pattern,
+named `--test-label` in the web; the README screenshots use it.
 
 `--vbv` (20ms–2s, default 250ms) sets the encoders' fixed buffer for every stream `run` starts,
 as on `test-stream` and `stream` (see "Encoders" for what it trades). The web's preset does not

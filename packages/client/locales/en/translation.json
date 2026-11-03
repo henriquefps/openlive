@@ -1106,6 +1106,9 @@
       "title": "Android app (beta)",
       "intro": "Watch, chat and talk from your phone. Beta: it is not on the Play Store, you install the APK yourself. Android 7 or later.",
       "action": "Get the Android app",
+      "apk": "Download APK ({{version}})",
+      "allReleases": "All Android releases",
+      "installApk": "Open the .apk on the phone and allow installing from that source. Add the server with an invite link. Obtainium can keep it up to date.",
       "install": "Download the .apk from the latest android-v release, open it on the phone and allow installing from that source. Add the server with an invite link. Obtainium can keep it up to date."
     },
     "os": {

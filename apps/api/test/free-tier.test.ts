@@ -108,8 +108,13 @@ interface Person {
   slotId?: string;
 }
 
-/** Where every scenario's fake clock starts (a Tuesday noon UTC). */
-const START_AT = Date.UTC(2026, 10, 3, 12, 0, 0);
+/**
+ * Where every scenario's fake clock starts (a Tuesday noon UTC). Far in the future on purpose:
+ * workerd fires Durable Object alarms by the wall clock, so a fake clock behind the real one makes
+ * every alarm due at once and the rooms rewrite their rows in a loop (this failed from the
+ * afternoon of the old start date on).
+ */
+const START_AT = Date.UTC(2099, 0, 6, 12, 0, 0);
 
 /**
  * The SpaceDO of the test space outlives a test (its storage is not isolated per test): the

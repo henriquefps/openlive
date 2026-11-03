@@ -53,25 +53,30 @@ instead (`go mod vendor`, plus a `go-modules` source list).
 
 ## Publish to an instance
 
-Members do not download from GitHub: each instance serves the helper itself from its private R2
-bucket, to signed-in members of any space and the platform admin (the Download page,
-`GET /api/helper/latest`, `GET /api/helper/download/...`). The usual way fills the bucket from an
-official release (the public repository's GitHub Releases; [../RELEASING.md](../RELEASING.md)):
+The official builds are public in the GitHub Releases of the project, so an instance does not
+copy them: it keeps a manifest (`helper/latest.json` in its private R2 bucket) that pins the
+version it offers and names the GitHub URL and SHA-256 of each file. Signed-in members of any
+space and the platform admin read it (the Download page, `GET /api/helper/latest`) and the browser
+downloads from GitHub; no byte goes through the Worker. The release is never "latest" on GitHub:
+the manifest names one version, the one whose protocol the server speaks
+([../RELEASING.md](../RELEASING.md)):
 
 ```sh
-pnpm run helper:publish -- --env production --from-release latest --dry-run   # print the plan
-pnpm run helper:publish -- --env production --from-release latest             # or a version: 0.2.0
+pnpm run helper:publish -- --env production --from-release 0.2.0 --dry-run   # print the plan
+pnpm run helper:publish -- --env production --from-release 0.2.0             # or latest: resolved to a version
+pnpm run helper:publish -- --env production --android-from-release 0.1.5     # the Android APK, helper/android.json
 ```
 
-It reads the release from the GitHub REST API (no `gh`, no token), downloads the tarball, the
-Flatpak and the macOS disk image (whichever the release has) over HTTPS into
-`build/helper-publish/<version>/release/`, checks each against the release's `SHA256SUMS` and its
-size, and stops before any upload when one does not match. The protocol version comes from
-`helper/internal/api/room.go` at the release's tag, the release notes link defaults to the release
-page. `--release-repo owner/name` reads another repository (a fork with its own releases); a draft
-is never taken, a prerelease only with `--allow-prerelease`.
+It reads the release from the GitHub REST API (no `gh`, no token), checks that the tarball, the
+Flatpak and the macOS disk image (whichever the release has) exist and are listed in the release's
+`SHA256SUMS`, and writes `build/helper-publish/<version>/latest.json`, the only upload. The protocol
+version comes from `helper/internal/api/room.go` at the release's tag, the release notes link
+defaults to the release page. `--release-repo owner/name` reads another repository (a fork with its
+own releases; set the Worker's `HELPER_RELEASE_REPO` var to the same, since the Worker only accepts
+GitHub URLs of that repository); a draft is never taken, a prerelease only with `--allow-prerelease`.
 
-To build it yourself instead (an unreleased version, or your own build):
+To build it yourself instead (an unreleased version, or your own build), the files go to your
+bucket and the Worker serves them to members:
 
 ```sh
 pnpm run helper:publish -- --env production --version 0.2.0 --dry-run   # print the plan
@@ -83,7 +88,7 @@ The script (`scripts/setup/src/helper-publish.ts`) then builds with the scripts 
 or `flatpak-builder` is installed; `--no-flatpak` leaves it out, `--skip-build` publishes what is in
 `dist/`), writes `SHA256SUMS` and `latest.json` into `build/helper-publish/<version>/`, and uploads
 with the pinned wrangler and the instance's generated config (`wrangler r2 object put --remote`).
-Without `--version` it takes the latest `helper-v*` tag. Both ways write the same layout in the
+Without `--version` it takes the latest `helper-v*` tag. A build writes this layout in the
 bucket (the `THUMBNAILS` binding, the instance's only bucket; thumbnails live under `thumbnails/`):
 
 | Key                                                             | What                                                       |
@@ -93,6 +98,7 @@ bucket (the `THUMBNAILS` binding, the instance's only bucket; thumbnails live un
 | `helper/<version>/openlive-helper-<version>-macos.dmg`          | The macOS disk image (when there is one)                   |
 | `helper/<version>/SHA256SUMS`                                   | `sha256sum -c` format                                      |
 | `helper/latest.json`                                            | Written last: what the Download page offers (format below) |
+| `helper/android.json`                                           | The Android APK on GitHub (`--android-from-release`)       |
 
 ```json
 {
@@ -115,10 +121,17 @@ bucket (the `THUMBNAILS` binding, the instance's only bucket; thumbnails live un
 }
 ```
 
+With `--from-release` there are no `helper/<version>/` objects: each file instead carries
+`"url": "https://github.com/<owner>/<repo>/releases/download/helper-v<version>/<name>"`, which the
+Worker accepts only in exactly that shape (https, the configured repository, that version's tag,
+the file's own name) and passes to the page as it is; a file without `url` is served from R2 as
+before. `helper/android.json` is `{ "schema": 1, "version", "publishedAt", "name", "url", "size",
+"sha256" }` with the `android-v<version>` asset URL, served by `GET /api/helper/android`.
+
 `protocol` is the protocol version the build speaks (`helper/internal/api/room.go`).
 `signature` is reserved for the signed auto-update (a signature over this file,
 checked with a public key built into the helper); it stays `null`, and the helper does not check
-for updates yet. The Worker validates the file (`apps/api/src/helper/release.ts`) and serves only
+for updates yet. The Worker validates the file (`apps/api/src/helper/release.ts`) and serves from R2 only
 the file names of a release, with `Content-Disposition: attachment`, `Cache-Control: private` and
 a limit of 20 downloads per person per hour.
 

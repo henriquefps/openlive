@@ -10,7 +10,9 @@ import (
 	"image"
 	"image/color"
 	"image/jpeg"
+	_ "image/png" // --test-image
 	"log/slog"
+	"os"
 	"slices"
 	"sync"
 	"time"
@@ -24,6 +26,7 @@ import (
 	"github.com/henriquefps/openlive/helper/internal/rtc"
 	"github.com/henriquefps/openlive/helper/internal/thumbnail"
 	protocol "github.com/henriquefps/openlive/packages/protocol/go"
+	xdraw "golang.org/x/image/draw"
 )
 
 // liveConfig is what every stream started from the web shares (the run command's flags).
@@ -867,6 +870,32 @@ func testPatternThumbnail(w, h int) (media.Thumbnail, error) {
 	}
 	var buf bytes.Buffer
 	if err := jpeg.Encode(&buf, img, &jpeg.Options{Quality: 70}); err != nil {
+		return media.Thumbnail{}, err
+	}
+	return media.Thumbnail{MimeType: "image/jpeg", Width: w, Height: h, Data: buf.Bytes()}, nil
+}
+
+// imageThumbnail is the picker's preview of a --test-image: the image fitted into w x h.
+func imageThumbnail(path string, w, h int) (media.Thumbnail, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return media.Thumbnail{}, err
+	}
+	defer func() { _ = f.Close() }()
+	src, _, err := image.Decode(f)
+	if err != nil {
+		return media.Thumbnail{}, fmt.Errorf("%s: %w", path, err)
+	}
+	b := src.Bounds()
+	if b.Dx()*h > b.Dy()*w {
+		h = max(2, w*b.Dy()/b.Dx())
+	} else {
+		w = max(2, h*b.Dx()/b.Dy())
+	}
+	dst := image.NewRGBA(image.Rect(0, 0, w, h))
+	xdraw.CatmullRom.Scale(dst, dst.Bounds(), src, b, xdraw.Src, nil)
+	var buf bytes.Buffer
+	if err := jpeg.Encode(&buf, dst, &jpeg.Options{Quality: 80}); err != nil {
 		return media.Thumbnail{}, err
 	}
 	return media.Thumbnail{MimeType: "image/jpeg", Width: w, Height: h, Data: buf.Bytes()}, nil

@@ -24,22 +24,30 @@ import {
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { meQuery } from '../api/auth.ts';
-import { type HelperFile, type HelperRelease, helperReleaseQuery } from '../api/helper.ts';
+import {
+  type AndroidRelease,
+  androidReleaseQuery,
+  type HelperFile,
+  type HelperRelease,
+  helperReleaseQuery,
+} from '../api/helper.ts';
 import { Page } from '../components/Page.tsx';
 import { QueryError } from '../components/QueryError.tsx';
 import { formatDate, formatMB } from '../i18n/format.ts';
 import { ANDROID_RELEASES_URL } from '../lib/android-app.ts';
 import { DESKTOP_OSES, detectDesktopOs } from '../lib/os.ts';
 
-// The helper download. Linux and macOS are served from the instance's
-// private bucket (GET /api/helper/latest, published with `pnpm run helper:publish`). The macOS
-// disk image is built and notarized on a Mac. Windows comes later.
+// The helper download. The page asks the instance which version it
+// offers (GET /api/helper/latest, published with `pnpm run helper:publish`) and links straight to
+// the public GitHub release files; a build the instance serves itself comes from its own bucket.
+// The macOS disk image is built and notarized on a Mac. The Android card links the APK
+// of android.json (GET /api/helper/android) and always the releases page. Windows comes later.
 
 /** The encoder notes and `doctor` (helper/README.md, "Encoders"). */
 const ENCODER_NOTES = 'https://github.com/henriquefps/openlive/blob/main/helper/README.md#encoders';
 const FLATPAK_APP = 'dev.hfps.OpenliveHelper';
 /** From the official GitHub release, with the macOS disk image when it has one (packaging/RELEASING.md). */
-const PUBLISH_COMMAND = 'pnpm run helper:publish -- --env production --from-release latest';
+const PUBLISH_COMMAND = 'pnpm run helper:publish -- --env production --from-release <version>';
 /** A build from source with a disk image made on a Mac, for a release that has none. */
 const MAC_PUBLISH_COMMAND =
   'pnpm run helper:publish -- --env production --mac-dmg dist/openlive-helper-<version>-macos.dmg';
@@ -119,17 +127,7 @@ export function DownloadPage() {
             )}
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            <div>
-              <Button asChild>
-                <a href={ANDROID_RELEASES_URL} target="_blank" rel="noreferrer">
-                  <DownloadSimpleIcon data-icon="inline-start" />
-                  {t('download.android.action')}
-                </a>
-              </Button>
-            </div>
-            <p className="text-[0.8125rem] text-muted-foreground">
-              {t('download.android.install')}
-            </p>
+            <AndroidDownload />
           </CardContent>
         </Card>
         <ul className="grid gap-4 md:grid-cols-2">
@@ -371,12 +369,13 @@ function useCopy() {
 function FileDownload({ file }: { file: HelperFile }) {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? i18n.language;
-  const copy = useCopy();
+  // A GitHub asset is on another origin, where the `download` attribute is ignored: the release
+  // serves it as an attachment anyway.
   return (
     <>
       <div className="flex flex-wrap items-center gap-3">
         <Button asChild>
-          <a href={file.url} download={file.name}>
+          <a href={file.url} download={file.name} rel="noreferrer">
             <DownloadSimpleIcon data-icon="inline-start" />
             {t('download.action')}
           </a>
@@ -385,21 +384,73 @@ function FileDownload({ file }: { file: HelperFile }) {
           {file.name} · {formatMB(file.size, locale)}
         </span>
       </div>
+      <Checksum sha256={file.sha256} name={file.name} />
+    </>
+  );
+}
+
+/** A file's SHA-256, selectable, with a button that copies it; `size` adds the file's size. */
+function Checksum({ name, sha256, size }: { name: string; sha256: string; size?: number }) {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.resolvedLanguage ?? i18n.language;
+  const copy = useCopy();
+  return (
+    <div className="flex flex-col gap-1">
+      {size !== undefined && (
+        <span className="text-[0.8125rem] text-muted-foreground">
+          {name} · {formatMB(size, locale)}
+        </span>
+      )}
       <div className="flex items-start gap-1">
         <p className="min-w-0 flex-1 text-[0.8125rem]">
           <span className="text-muted-foreground">{t('download.sha256')} </span>
-          <span className="font-mono break-all select-all">{file.sha256}</span>
+          <span className="font-mono break-all select-all">{sha256}</span>
         </p>
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={t('download.copySha', { name: file.name })}
-          title={t('download.copySha', { name: file.name })}
-          onClick={() => void copy(file.sha256, t('download.copied'))}
+          aria-label={t('download.copySha', { name })}
+          title={t('download.copySha', { name })}
+          onClick={() => void copy(sha256, t('download.copied'))}
         >
           <CopyIcon />
         </Button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * The Android card's body: the APK of the release this instance links to, with its SHA-256, when
+ * there is one, and always the list of all Android releases.
+ */
+function AndroidDownload() {
+  const { t } = useTranslation();
+  const android = useQuery(androidReleaseQuery);
+  if (android.isPending) return <Skeleton className="h-16 w-full" />;
+  const apk: AndroidRelease | null = android.data ?? null;
+  return (
+    <>
+      <div className="flex flex-wrap items-center gap-3">
+        {apk && (
+          <Button asChild>
+            <a href={apk.url} rel="noreferrer">
+              <DownloadSimpleIcon data-icon="inline-start" />
+              {t('download.android.apk', { version: apk.version })}
+            </a>
+          </Button>
+        )}
+        <Button asChild variant={apk ? 'outline' : 'default'}>
+          <a href={ANDROID_RELEASES_URL} target="_blank" rel="noreferrer">
+            {!apk && <DownloadSimpleIcon data-icon="inline-start" />}
+            {apk ? t('download.android.allReleases') : t('download.android.action')}
+          </a>
+        </Button>
+      </div>
+      {apk && <Checksum name={apk.name} size={apk.size} sha256={apk.sha256} />}
+      <p className="text-[0.8125rem] text-muted-foreground">
+        {t(apk ? 'download.android.installApk' : 'download.android.install')}
+      </p>
     </>
   );
 }

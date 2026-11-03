@@ -24,13 +24,19 @@ export interface PublishArgs {
    */
   macDmg: string | undefined;
   /**
-   * Publish the files of a GitHub release (a version, or `latest`) instead of building them:
-   * helper-from-release.ts. Excludes the build flags and --mac-dmg.
+   * Point the instance at the files of a GitHub release (a version, or `latest`) instead of
+   * building and uploading them: helper-from-release.ts writes only the manifest. Excludes the
+   * build flags and --mac-dmg.
    */
   fromRelease: string | undefined;
-  /** owner/name of the repository whose releases --from-release reads. */
+  /**
+   * Point the Download page's Android card at the APK of the release android-v<version>
+   * (helper/android.json). Alone or with --from-release; a build has no part in it.
+   */
+  androidFromRelease: string | undefined;
+  /** owner/name of the repository whose releases --from-release and --android-from-release read. */
   releaseRepo: string;
-  /** Let --from-release take a prerelease. */
+  /** Let --from-release take a prerelease (Android releases are betas and always may be). */
   allowPrerelease: boolean;
   help: boolean;
 }
@@ -44,21 +50,24 @@ const VERSION_SOURCE_LABEL = {
   project: 'project version in package.json',
 } as const;
 
-export const PUBLISH_USAGE = `Usage: pnpm run helper:publish -- [--env <name>] --from-release <x.y.z|latest> [--dry-run]
-                                [--release-repo <owner/name>] [--allow-prerelease] [--notes-url <url>]
+export const PUBLISH_USAGE = `Usage: pnpm run helper:publish -- [--env <name>] [--from-release <x.y.z|latest>] [--android-from-release <x.y.z>]
+                                [--dry-run] [--release-repo <owner/name>] [--allow-prerelease] [--notes-url <url>]
        pnpm run helper:publish -- [--env <name>] [--version <x.y.z>] [--dry-run]
                                 [--skip-build] [--no-flatpak] [--mac-dmg <path>] [--notes-url <url>]
 
-With --from-release, downloads the official build of a GitHub release (the Linux tarball, the
-Flatpak and the macOS disk image, whichever the release has) over HTTPS, checks each file against
-the release's SHA256SUMS, and uploads them like a local build. Nothing is built: no Flatpak SDK,
-no Mac. See packaging/RELEASING.md.
+With --from-release / --android-from-release, points the instance at the official builds of the
+public GitHub releases helper-v<x.y.z> and android-v<x.y.z>. Nothing is built, downloaded or copied:
+the script checks that each asset exists and is listed in the release's SHA256SUMS, and uploads only
+the manifest (helper/latest.json, helper/android.json) with the GitHub URLs and hashes. The Download
+page links the browser to GitHub; the instance still offers exactly the version you pinned here.
+See packaging/RELEASING.md.
 
-Without it, builds the Linux helper (the tarball, and the Flatpak bundle when flatpak-builder is installed)
+Without them, builds the Linux helper (the tarball, and the Flatpak bundle when flatpak-builder is installed)
 in the Flatpak SDK, adds the macOS disk image given with --mac-dmg, computes the SHA-256 of each
 file and uploads them to the instance's private R2 bucket with wrangler, using the config the
-setup generated. helper/latest.json goes last, so the Download page never offers a file that is
-not there yet. See packaging/linux/README.md and packaging/macos/README.md.
+setup generated: for a custom build the Worker serves from R2. helper/latest.json goes last, so the
+Download page never offers a file that is not there yet. See packaging/linux/README.md and
+packaging/macos/README.md.
 
   --env <name>        the instance (default: production), as set up by \`pnpm run setup\`
   --version <x.y.z>   the version to build and publish (default: the latest helper-v* tag, else the project version)
@@ -70,12 +79,17 @@ not there yet. See packaging/linux/README.md and packaging/macos/README.md.
   --notes-url <url>   a release notes link for the Download page (--from-release: default the release page)
 
   --from-release <x.y.z|latest>
-                      publish the files of the release helper-v<x.y.z> (or the newest helper-v*
-                      release) instead of building; not with --version, --mac-dmg, --skip-build
+                      link the Linux tarball, the Flatpak and the macOS disk image (whichever the
+                      release has) of helper-v<x.y.z> (or the newest helper-v* release); the manifest
+                      always names the resolved version. Not with --version, --mac-dmg, --skip-build
                       or --no-flatpak
+  --android-from-release <x.y.z>
+                      link the APK of android-v<x.y.z> as the Android download; alone it leaves the
+                      helper manifest as it is
   --release-repo <owner/name>
-                      the GitHub repository of the release (default: ${DEFAULT_RELEASE_REPO})
-  --allow-prerelease  accept a release marked as a prerelease`;
+                      the GitHub repository of the releases (default: ${DEFAULT_RELEASE_REPO}); the
+                      instance's HELPER_RELEASE_REPO var must name the same one
+  --allow-prerelease  accept a helper release marked as a prerelease`;
 
 export class PublishArgsError extends Error {}
 
@@ -98,6 +112,7 @@ export function parsePublishArgs(argv: string[]): PublishArgs {
         'notes-url': { type: 'string' },
         'mac-dmg': { type: 'string' },
         'from-release': { type: 'string' },
+        'android-from-release': { type: 'string' },
         'release-repo': { type: 'string' },
         'allow-prerelease': { type: 'boolean', default: false },
         help: { type: 'boolean', short: 'h', default: false },
@@ -117,6 +132,7 @@ export function parsePublishArgs(argv: string[]): PublishArgs {
     macDmg: values['mac-dmg']?.trim() || undefined,
     fromRelease: values['from-release']?.trim().replace(/^(helper-)?v/, ''),
     releaseRepo: values['release-repo']?.trim() ?? DEFAULT_RELEASE_REPO,
+    androidFromRelease: values['android-from-release']?.trim().replace(/^(android-)?v/, ''),
     allowPrerelease: values['allow-prerelease'],
     help: values.help,
   };
@@ -134,12 +150,19 @@ export function parsePublishArgs(argv: string[]): PublishArgs {
   if (parsed.macDmg !== undefined && !parsed.macDmg.endsWith('-macos.dmg')) {
     throw new PublishArgsError('--mac-dmg must be an openlive-helper-<version>-macos.dmg');
   }
+  if (parsed.androidFromRelease !== undefined && !validAndroidVersion(parsed.androidFromRelease)) {
+    throw new PublishArgsError(
+      `--android-from-release ${parsed.androidFromRelease} is not a version like 0.1.5`,
+    );
+  }
   if (parsed.fromRelease !== undefined) {
     if (parsed.fromRelease !== 'latest' && !validVersion(parsed.fromRelease)) {
       throw new PublishArgsError(
         `--from-release ${parsed.fromRelease} is not a version like 0.2.0, or latest`,
       );
     }
+  }
+  if (parsed.fromRelease !== undefined || parsed.androidFromRelease !== undefined) {
     const clash = (
       [
         ['--version', parsed.version !== undefined],
@@ -150,11 +173,13 @@ export function parsePublishArgs(argv: string[]): PublishArgs {
     ).find(([, set]) => set);
     if (clash) {
       throw new PublishArgsError(
-        `--from-release publishes the release as it is: leave out ${clash[0]}`,
+        `--from-release and --android-from-release link the releases as they are: leave out ${clash[0]}`,
       );
     }
   } else if (values['release-repo'] !== undefined || parsed.allowPrerelease) {
-    throw new PublishArgsError('--release-repo and --allow-prerelease go with --from-release');
+    throw new PublishArgsError(
+      '--release-repo and --allow-prerelease go with --from-release or --android-from-release',
+    );
   }
   if (!/^[\w.-]+\/[\w.-]+$/.test(parsed.releaseRepo)) {
     throw new PublishArgsError('--release-repo must be owner/name, as in github.com/owner/name');
@@ -163,6 +188,8 @@ export function parsePublishArgs(argv: string[]): PublishArgs {
 }
 
 export const validVersion = (v: string): boolean => HELPER_VERSION.test(v) && v.length <= 64;
+/** The Android app's versions are plain x.y.z (apps/api/src/helper/release.ts). */
+export const validAndroidVersion = (v: string): boolean => /^[0-9]+\.[0-9]+\.[0-9]+$/.test(v);
 
 /** `helper-v0.2.0-3-gabc123` (git describe) → 0.2.0-3-gabc123; null without a tag. */
 export function versionFromDescribe(describe: string): string | null {
@@ -183,6 +210,8 @@ export function helperProtocol(goSource: string): { major: number; minor: number
 // this package parse the manifest with the Worker's own checks).
 export const HELPER_PREFIX = 'helper/';
 export const LATEST_KEY = `${HELPER_PREFIX}latest.json`;
+export const ANDROID_KEY = `${HELPER_PREFIX}android.json`;
+export const androidApkName = (v: string) => `openlive-${v}-android.apk`;
 export const tarballName = (v: string) => `openlive-helper-${v}-linux-amd64.tar.gz`;
 export const flatpakName = (v: string) => `openlive-helper-${v}.flatpak`;
 export const dmgName = (v: string) => `openlive-helper-${v}-macos.dmg`;
@@ -435,7 +464,8 @@ export function buildManifest(input: {
   publishedAt: Date;
   protocol: { major: number; minor: number };
   releaseNotesUrl: string | null;
-  files: HashedFile[];
+  /** A file with a `url` is hosted there (a GitHub release asset) instead of in R2. */
+  files: (HashedFile & { url?: string })[];
 }) {
   return {
     schema: 1,
@@ -449,7 +479,28 @@ export function buildManifest(input: {
       ...PLATFORMS[f.kind],
       size: f.size,
       sha256: f.sha256,
+      ...(f.url === undefined ? {} : { url: f.url }),
     })),
     signature: null,
+  };
+}
+
+/** helper/android.json (apps/api/src/helper/release.ts): the APK of an android-v<version> release. */
+export function buildAndroidManifest(input: {
+  version: string;
+  publishedAt: Date;
+  name: string;
+  url: string;
+  size: number;
+  sha256: string;
+}) {
+  return {
+    schema: 1,
+    version: input.version,
+    publishedAt: input.publishedAt.toISOString(),
+    name: input.name,
+    url: input.url,
+    size: input.size,
+    sha256: input.sha256,
   };
 }

@@ -4,11 +4,16 @@ import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { DEV_USER_HEADER } from '../src/room/identity';
 import { DOWNLOADS_PER_HOUR } from '../src/api/helper';
 import {
+  ANDROID_KEY,
+  androidApkName,
   helperFileKey,
   helperFileName,
   helperFileOf,
   LATEST_KEY,
+  isReleaseAssetUrl,
+  parseAndroidManifest,
   parseHelperManifest,
+  releaseRepoOf,
 } from '../src/helper/release';
 import { addMember, call, migrate, newUser, world } from './api-helpers';
 
@@ -166,6 +171,123 @@ describe('parseHelperManifest', () => {
     expect(parse(manifest({ files: [{ ...tar, name: FLATPAK }] }))).toBeNull();
     expect(parse(manifest({ files: [{ ...flat, size: -1 }] }))).toBeNull();
     expect(parseHelperManifest('')).toBeNull();
+  });
+});
+
+const GH = (tag: string, name: string, repo = 'henriquefps/openlive') =>
+  `https://github.com/${repo}/releases/download/${tag}/${name}`;
+
+describe('manifest files hosted on GitHub', () => {
+  const external = () => {
+    const [tar, flat] = manifest().files as { name: string }[];
+    return manifest({
+      files: [
+        { ...tar, url: GH(`helper-v${VERSION}`, tar?.name ?? '') },
+        { ...flat, url: GH(`helper-v${VERSION}`, flat?.name ?? '') },
+      ],
+    });
+  };
+  const parse = (m: unknown, repo?: string) => parseHelperManifest(JSON.stringify(m), repo);
+
+  it('accepts the release assets of the configured repository', () => {
+    expect(parse(external())?.files[0]?.url).toBe(GH(`helper-v${VERSION}`, TARBALL));
+    expect(parse(external(), 'someone/fork')).toBeNull();
+    const fork = JSON.parse(JSON.stringify(external())) as {
+      files: { name: string; url: string }[];
+    };
+    for (const f of fork.files) f.url = GH(`helper-v${VERSION}`, f.name, 'a/b');
+    expect(parse(fork, 'a/b')).not.toBeNull();
+  });
+
+  it('refuses any other URL', () => {
+    const [tar] = manifest().files;
+    const bad = (url: string) => parse(manifest({ files: [{ ...tar, url }] }));
+    const ok = GH(`helper-v${VERSION}`, TARBALL);
+    expect(bad(ok)).not.toBeNull();
+    expect(bad(ok.replace('https:', 'http:'))).toBeNull();
+    expect(bad(ok.replace('github.com', 'evil.example'))).toBeNull();
+    expect(bad(ok.replace('https://github.com', 'https://github.com.evil.example'))).toBeNull();
+    expect(bad(ok.replace('https://', 'https://user:pw@'))).toBeNull();
+    expect(bad(`${ok}?x=1`)).toBeNull();
+    expect(bad(`${ok}#x`)).toBeNull();
+    expect(bad(GH('helper-v9.9.9', TARBALL))).toBeNull();
+    expect(bad(GH('latest', TARBALL))).toBeNull();
+    expect(bad(GH(`helper-v${VERSION}`, FLATPAK))).toBeNull();
+    expect(bad(ok.replace('/openlive/', '/other/'))).toBeNull();
+    expect(bad('javascript:alert(1)')).toBeNull();
+    expect(bad('/api/helper/download/x')).toBeNull();
+  });
+
+  it('GET /api/helper/latest keeps GitHub URLs and gives R2 files a download path', async () => {
+    const [tar, flat] = manifest().files as { name: string }[];
+    await publish(
+      manifest({ files: [{ ...tar, url: GH(`helper-v${VERSION}`, tar?.name ?? '') }, flat] }),
+    );
+    const w = await world();
+    const res = await call('GET', '/helper/latest', w.member);
+    const files = (res.body as { files: { name: string; url: string }[] }).files;
+    expect(files[0]?.url).toBe(GH(`helper-v${VERSION}`, TARBALL));
+    expect(files[1]?.url).toBe(`/api/helper/download/${VERSION}/${FLATPAK}`);
+  });
+
+  it('answers 500 when a URL leaves the release repository', async () => {
+    const [tar] = manifest().files;
+    await publish(manifest({ files: [{ ...tar, url: 'https://evil.example/x.tar.gz' }] }));
+    const w = await world();
+    expect((await call('GET', '/helper/latest', w.member)).status).toBe(500);
+  });
+
+  it('isReleaseAssetUrl and releaseRepoOf', () => {
+    expect(isReleaseAssetUrl(GH('t', 'a'), 'henriquefps/openlive', 't', 'a')).toBe(true);
+    expect(isReleaseAssetUrl(GH('t', 'a'), 'henriquefps/openlive', 't', 'b')).toBe(false);
+    expect(releaseRepoOf(undefined)).toBe('henriquefps/openlive');
+    expect(releaseRepoOf('  a/b ')).toBe('a/b');
+    expect(releaseRepoOf('not a repo')).toBe('henriquefps/openlive');
+  });
+});
+
+describe('helper/android.json', () => {
+  const V = '0.1.5';
+  const android = (over: Record<string, unknown> = {}) => ({
+    schema: 1,
+    version: V,
+    publishedAt: '2026-11-03T12:00:00.000Z',
+    name: androidApkName(V),
+    url: GH(`android-v${V}`, androidApkName(V)),
+    size: 60_000_000,
+    sha256: 'd'.repeat(64),
+    ...over,
+  });
+  const parse = (m: unknown) => parseAndroidManifest(JSON.stringify(m));
+
+  it('parses the APK of its own release only', () => {
+    expect(parse(android())?.version).toBe(V);
+    expect(parse(android({ url: GH('android-v0.1.4', androidApkName(V)) }))).toBeNull();
+    expect(parse(android({ url: GH(`android-v${V}`, 'x.apk') }))).toBeNull();
+    expect(parse(android({ url: 'http://github.com/x' }))).toBeNull();
+    expect(parse(android({ version: '1.0.0-beta' }))).toBeNull();
+    expect(parse(android({ name: 'x.apk' }))).toBeNull();
+    expect(parse(android({ sha256: 'D'.repeat(64) }))).toBeNull();
+    expect(parseAndroidManifest('nope')).toBeNull();
+  });
+
+  it('GET /api/helper/android: members only, 404 before it is published, 500 when invalid', async () => {
+    const w = await world();
+    await env.THUMBNAILS.delete(ANDROID_KEY);
+    expect((await call('GET', '/helper/android')).status).toBe(401);
+    expect((await call('GET', '/helper/android', w.outsider)).status).toBe(403);
+    expect((await call('GET', '/helper/android', w.member)).status).toBe(404);
+    await env.THUMBNAILS.put(ANDROID_KEY, JSON.stringify(android()));
+    expect(await call('GET', '/helper/android', w.member)).toEqual({
+      status: 200,
+      body: android(),
+    });
+    await env.THUMBNAILS.put(
+      ANDROID_KEY,
+      JSON.stringify(android({ url: 'https://evil.example/a' })),
+    );
+    expect((await call('GET', '/helper/android', w.member)).status).toBe(500);
+    await env.THUMBNAILS.delete(ANDROID_KEY);
   });
 });
 

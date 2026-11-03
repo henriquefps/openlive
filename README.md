@@ -53,11 +53,13 @@ side-by-side test against Discord.
 
 All taken from the real app on a local instance with made-up people (`pnpm screenshots`, see
 [scripts/screenshots](scripts/screenshots/README.md)). They follow your GitHub theme; voice and
-cameras use Chrome's fake microphone and camera.
+cameras show made-up people (AI-generated pictures in
+[scripts/screenshots/assets](scripts/screenshots/assets/README.md)), and the streams are stills sent
+by the real helper.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/player-dark.png">
-  <img src="docs/img/screens/player-light.png" alt="The player in a room, with stats for nerds open over a live test pattern">
+  <img src="docs/img/screens/player-light.png" alt="Watching a movie in a room: the player with its quality menu open, the others' cameras in a strip below">
 </picture>
 
 <table>
@@ -65,25 +67,25 @@ cameras use Chrome's fake microphone and camera.
     <td width="50%">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/room-dark.png">
-        <img src="docs/img/screens/room-light.png" alt="A room with two live streams and three people in voice as tiles, the chat on the right">
+        <img src="docs/img/screens/room-light.png" alt="A room as a video call: the live movie and four cameras on the stage, two people in voice only in a strip, the chat on the right">
       </picture>
-      <p align="center">Watch together: live streams and people in voice as tiles, the chat beside</p>
+      <p align="center">Watch together: the stream and the cameras on one stage, the chat beside</p>
     </td>
     <td width="50%">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/go-live-dark.png">
-        <img src="docs/img/screens/go-live-light.png" alt="The Go live panel with the quality presets and the sound source">
+        <img src="docs/img/screens/go-live-light.png" alt="The Go live panel listing the helper's screen with a live preview">
       </picture>
-      <p align="center">Go live from the web: source, quality and sound</p>
+      <p align="center">Go live from the web: pick a screen, then quality and sound</p>
     </td>
   </tr>
   <tr>
     <td>
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/room-voice-dark.png">
-        <img src="docs/img/screens/room-voice-light.png" alt="A voice channel with three people as tiles, one on camera">
+        <img src="docs/img/screens/room-voice-light.png" alt="A voice channel with six people, five on camera, the one speaking ringed">
       </picture>
-      <p align="center">A voice channel, with cameras</p>
+      <p align="center">A voice channel: a video call with whoever is speaking ringed</p>
     </td>
     <td>
       <picture>
@@ -144,17 +146,37 @@ cameras use Chrome's fake microphone and camera.
   <tr>
     <td>
       <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/download-dark.png">
+        <img src="docs/img/screens/download-light.png" alt="The Download page with the Linux, macOS and Android files from the GitHub releases">
+      </picture>
+      <p align="center">Download the helper and the Android app</p>
+    </td>
+    <td>
+      <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/sign-in-dark.png">
         <img src="docs/img/screens/sign-in-light.png" alt="The home page with Discord and e-mail sign-in">
       </picture>
       <p align="center">Sign in with Discord or an e-mail link</p>
     </td>
+  </tr>
+  <tr>
     <td>
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/tutorial-dark.png">
         <img src="docs/img/screens/tutorial-light.png" alt="A step of the interactive tutorial pointing at the rooms tab">
       </picture>
       <p align="center">A short tutorial on each screen's first visit</p>
+    </td>
+    <td>
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/admin-users-mobile-dark.png">
+        <img src="docs/img/screens/admin-users-mobile-light.png" width="50%" alt="The list of accounts as cards on a phone">
+      </picture>
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/room-create-sheet-mobile-dark.png">
+        <img src="docs/img/screens/room-create-sheet-mobile-light.png" width="45%" alt="Creating a room in a bottom sheet on a phone">
+      </picture>
+      <p align="center">On a phone: tables as cards, dialogs as bottom sheets</p>
     </td>
   </tr>
 </table>
@@ -164,25 +186,25 @@ cameras use Chrome's fake microphone and camera.
     <td width="25%">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/room-mobile-dark.png">
-        <img src="docs/img/screens/room-mobile-light.png" alt="A room on a phone: streams and people as tiles, the controls at the bottom">
+        <img src="docs/img/screens/room-mobile-light.png" alt="A room on a phone: the stream and the cameras on the stage, your own camera small, the controls at the bottom">
       </picture>
     </td>
     <td width="25%">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/room-chat-sheet-mobile-dark.png">
-        <img src="docs/img/screens/room-chat-sheet-mobile-light.png" alt="The chat open over the room on a phone">
+        <img src="docs/img/screens/room-chat-sheet-mobile-light.png" alt="The chat as a bottom sheet over the room on a phone">
       </picture>
     </td>
     <td width="25%">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/player-mobile-dark.png">
-        <img src="docs/img/screens/player-mobile-light.png" alt="Watching a stream on a phone, the other tiles below">
+        <img src="docs/img/screens/player-mobile-light.png" alt="Watching the movie on a phone, the cameras in a strip below">
       </picture>
     </td>
     <td width="25%">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/img/screens/room-voice-mobile-dark.png">
-        <img src="docs/img/screens/room-voice-mobile-light.png" alt="A voice channel on a phone">
+        <img src="docs/img/screens/room-voice-mobile-light.png" alt="A voice channel on a phone, the cameras filling the screen">
       </picture>
     </td>
   </tr>
@@ -299,7 +321,8 @@ Viewers need only the browser; whoever streams installs the helper. Releases shi
 [packaging/macos/README.md](packaging/macos/README.md). The official builds are on
 [GitHub Releases](https://github.com/henriquefps/openlive/releases); a self-hosted instance serves
 them to its members from `/download` after
-`pnpm run helper:publish -- --env production --from-release latest` (nothing to build;
+`pnpm run helper:publish -- --env production --from-release <version>` (nothing to build or copy:
+the page links to the release files on GitHub;
 [docs/self-host.md](docs/self-host.md#6-install-the-helper-and-stream)). Then pair it with your
 instance and start it from the menu:
 

@@ -10,17 +10,32 @@ What it does, in order (`src/main.ts`):
    **:8799** (with `DEV_AUTH=1` and a random `SESSION_SECRET`) and Vite on **:5188** (or
    `SHOTS_API_PORT`, `SHOTS_WEB_PORT`). It stops if
    either port is taken, and stops both (and everything else it started) at the end.
-2. Seeds made-up users (Ana, the platform admin; Bruno; Carla; Diego) straight into the local D1,
-   then the space "Friends" with the rooms "Movie night" (stream, voice, cameras, text), "Games"
-   (stream), "Hangout" (voice with cameras) and "General" (text), the invites, a second space and
-   a month of estimated usage through the API as those users.
+2. Seeds made-up users (Ana, the platform admin; Bruno; Carla; Diego; Eva; Felipe) straight into
+   the local D1 and uploads each one's profile photo through `PUT /api/me/avatar`, then the space
+   "Friends" with the rooms "Movie night" (stream, voice, cameras, text), "Games" (stream),
+   "Hangout" (voice with cameras) and "General" (text), the invites, a second space, a month of
+   estimated usage through the API as those users, and a helper and Android release published from
+   GitHub (the local bucket's `helper/latest.json` and `helper/android.json`) for the Download page.
 3. With the dev Realtime credentials, builds the helper, pairs two copies, and has Bruno publish
-   the synthetic test pattern (`test-stream`) while Ana's waits for **Go live** (`run
---test-source`). Without them, the room, player and Go live shots are skipped.
-4. Drives headless Chrome (`playwright-core` with the installed Google Chrome, with its fake
-   microphone and camera) through each screen in light and dark at 1440 px, and a few at 390 px,
-   and writes palette PNGs with `sharp`. In the rooms, Bruno and Diego join voice (Bruno on
-   camera) and write in the chat; Carla, in voice too, is the one on screen.
+   `stream-movie` into "Movie night" (`test-stream --test-image`) while Ana's waits for **Go live**
+   with `stream-game` (`run --test-source --test-image`), which she starts in "Games". Without
+   them, the room, player and Go live shots are skipped.
+4. Drives headless Chrome (`playwright-core` with the installed Google Chrome) through each screen
+   in light and dark at 1440 px, and a few at 390 px, and writes palette PNGs with `sharp`. Every
+   signed-in page gets a fake camera and microphone (an init script over `getUserMedia`): the
+   camera is that person's `cam-<name>` picture on a canvas with a slow zoom and pan, sent as a real
+   video track; the microphone is a tone that only the person set to speak makes audible, so the
+   speaking ring lands on one tile. Carla is the one on screen; in "Movie night" Bruno, Diego and
+   Eva are on camera and Ana and Felipe in voice only (Diego speaking), in "Hangout" everyone but
+   Ana is on camera (Eva speaking).
+
+## Pictures
+
+`assets/` holds the committed pictures (JPEG, AI-generated made-up people; see
+[assets/README.md](assets/README.md)): `avatar-<name>.jpg`, `cam-<name>.jpg` for each of the six
+people, and `stream-game.jpg`, `stream-movie.jpg`, `stream-desktop.jpg` (spare: no shot uses it yet). A missing one is drawn
+as a neutral stand-in (a gradient with initials, or a simple scene) in the git-ignored
+`.provisional/`, and the run logs which, so never commit a gallery made with stand-ins.
 
 The dev Realtime credentials come from `OPENLIVE_DEV_VARS`, or `.dev.vars` at the root of the main
 checkout. Wrangler reads them with `--env-file`; the script never reads or copies them.

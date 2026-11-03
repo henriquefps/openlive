@@ -4,19 +4,24 @@ import { can } from '../auth/can';
 import { consume } from '../auth/rate-limit';
 import { ApiError } from '../errors';
 import {
+  ANDROID_KEY,
+  type AndroidManifest,
   type HelperManifest,
   helperFileKey,
   helperFileOf,
   LATEST_KEY,
+  parseAndroidManifest,
   parseHelperManifest,
+  releaseRepoOf,
 } from '../helper/release';
 import type { User } from '../db/users';
 import { type AppEnv, authenticate, type Ctx } from './context';
 
-// Downloading the helper from the instance (src/helper/release.ts). The files sit in
-// the instance's private bucket and only signed-in people with a reason to stream get them:
-// members of any space and the platform admin (can(helper.download)). Nothing is public; the
-// download is the Worker reading R2, so every byte goes through this check.
+// Downloading the helper from the instance (src/helper/release.ts). The manifest is
+// read only by signed-in people with a reason to download: members of any space and the platform
+// admin (can(helper.download)). Its files are either public GitHub release assets (the default:
+// the browser downloads them from GitHub) or, for a fork that uploads its own builds, objects in the
+// instance's private bucket that the Worker streams after this check.
 
 export const helper = new Hono<AppEnv>();
 
@@ -57,17 +62,43 @@ helper.get('/helper/latest', async (c) => {
   await requireDownloader(c);
   const object = await c.env.THUMBNAILS.get(LATEST_KEY);
   if (!object) throw new ApiError(404, 'not_found');
-  const manifest = parseHelperManifest(await object.text());
+  const manifest = parseHelperManifest(
+    await object.text(),
+    releaseRepoOf(c.env.HELPER_RELEASE_REPO),
+  );
   if (!manifest) {
     console.error(`${LATEST_KEY} is not a valid helper manifest; publish it again`);
     throw new ApiError(500, 'internal_error');
   }
   const body: HelperManifest & { files: { url: string }[] } = {
     ...manifest,
-    files: manifest.files.map((f) => ({ ...f, url: downloadPath(manifest.version, f.name) })),
+    files: manifest.files.map((f) => ({
+      ...f,
+      url: f.url ?? downloadPath(manifest.version, f.name),
+    })),
   };
   c.header('Cache-Control', 'private, no-cache');
   return c.json(body);
+});
+
+/**
+ * GET /api/helper/android: helper/android.json, the APK of an Android release on GitHub, or 404
+ * when none was published (the page then links to the releases). Same permission as the helper.
+ */
+helper.get('/helper/android', async (c) => {
+  await requireDownloader(c);
+  const object = await c.env.THUMBNAILS.get(ANDROID_KEY);
+  if (!object) throw new ApiError(404, 'not_found');
+  const android: AndroidManifest | null = parseAndroidManifest(
+    await object.text(),
+    releaseRepoOf(c.env.HELPER_RELEASE_REPO),
+  );
+  if (!android) {
+    console.error(`${ANDROID_KEY} is not a valid Android manifest; publish it again`);
+    throw new ApiError(500, 'internal_error');
+  }
+  c.header('Cache-Control', 'private, no-cache');
+  return c.json(android);
 });
 
 /**

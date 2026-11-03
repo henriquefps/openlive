@@ -32,19 +32,24 @@ func HasElement(name string) bool {
 }
 
 // TestBackend is the synthetic source: no capture, a generated pattern with a clock
-// (row "Teste/CI").
-type TestBackend struct{}
+// (row "Teste/CI"), or a still image (Image; development).
+type TestBackend struct {
+	// Image, when set, is a PNG or JPEG sent instead of the pattern (the README screenshots).
+	Image string
+	// Label is the source's name in the web's picker (default "Test pattern").
+	Label string
+}
 
 // NewTestBackend returns the test backend.
 func NewTestBackend() (*TestBackend, error) { return &TestBackend{}, nil }
 
 // ListSources returns the one test pattern.
-func (*TestBackend) ListSources(context.Context) ([]Source, error) {
-	return []Source{{ID: "test", Kind: SourceTest, Label: "Test pattern"}}, nil
+func (b *TestBackend) ListSources(context.Context) ([]Source, error) {
+	return []Source{{ID: "test", Kind: SourceTest, Label: b.SourceLabel()}}, nil
 }
 
 // Start builds and plays the test pipeline.
-func (*TestBackend) Start(_ context.Context, _ Source, p Profile) (Stream, error) {
+func (b *TestBackend) Start(_ context.Context, _ Source, p Profile) (Stream, error) {
 	initGst()
 	enc, err := ResolveEncoder(p.Encoder, HasElement)
 	if err != nil {
@@ -55,7 +60,7 @@ func (*TestBackend) Start(_ context.Context, _ Source, p Profile) (Stream, error
 			return nil, err
 		}
 	}
-	desc, err := testPipelineDescription(p.Layers, enc, p.GOP, p.Audio)
+	desc, err := testPipelineDescription(p.Layers, enc, p.GOP, p.Audio, b.Image)
 	if err != nil {
 		return nil, err
 	}

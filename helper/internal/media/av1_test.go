@@ -190,7 +190,7 @@ func TestAV1Pipelines(t *testing.T) {
 	if strings.Count(desc, "cudaupload") != 4 || strings.Count(desc, "h264parse") != 3 || strings.Count(desc, "nvh264enc") != 3 {
 		t.Errorf("want 4 CUDA uploads, 3 H.264 encoders and parsers: %s", desc)
 	}
-	test, err := testPipelineDescription(layers, EncoderNVENC, 10*time.Second, false)
+	test, err := testPipelineDescription(layers, EncoderNVENC, 10*time.Second, false, "")
 	if err != nil {
 		t.Fatal(err)
 	}

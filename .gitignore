@@ -91,3 +91,4 @@ apps/web/screenshots/
 # Helper packaging: the version the release workflow stamps into the Flatpak build
 packaging/linux/.version
 .flatpak-builder/
+scripts/screenshots/.provisional/

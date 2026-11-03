@@ -56,28 +56,43 @@ const ClockFormat = "15:04:05.000"
 //
 // The source runs at the top layer's size and rate. The counter and the clock are drawn
 // before the tee, so every layer shows the same frame number.
-func testPipelineDescription(layers []Layer, enc Encoder, gop time.Duration, audio bool) (string, error) {
+//
+// With image (development: the README screenshots), a still PNG or JPEG scaled to the top
+// layer and repeated as a live source stands in for the pattern, with no counter, clock or
+// layer labels drawn over it.
+func testPipelineDescription(layers []Layer, enc Encoder, gop time.Duration, audio bool, image string) (string, error) {
 	if len(layers) == 0 {
 		return "", fmt.Errorf("no layers")
 	}
 	top := layers[0]
 	var b strings.Builder
-	fmt.Fprintf(&b, "videotestsrc is-live=true pattern=smpte horizontal-speed=4 "+
-		"! video/x-raw,width=%d,height=%d,framerate=%d/1 "+
-		"! timeoverlay time-mode=buffer-count halignment=left valignment=top font-desc=\"Sans 48\" shaded-background=true "+
-		"! textoverlay name=%s text=\"\" halignment=right valignment=top font-desc=\"Monospace 48\" shaded-background=true "+
-		"! tee name=t ", top.Width, top.Height, top.FPS, clockOverlayName)
+	if image != "" {
+		fmt.Fprintf(&b, "filesrc location=%s ! decodebin ! videoconvert ! videoscale add-borders=true "+
+			"! video/x-raw,format=I420,width=%d,height=%d,pixel-aspect-ratio=1/1 "+
+			"! imagefreeze is-live=true ! video/x-raw,framerate=%d/1 ! tee name=t ",
+			quoteGst(image), top.Width, top.Height, top.FPS)
+	} else {
+		fmt.Fprintf(&b, "videotestsrc is-live=true pattern=smpte horizontal-speed=4 "+
+			"! video/x-raw,width=%d,height=%d,framerate=%d/1 "+
+			"! timeoverlay time-mode=buffer-count halignment=left valignment=top font-desc=\"Sans 48\" shaded-background=true "+
+			"! textoverlay name=%s text=\"\" halignment=right valignment=top font-desc=\"Monospace 48\" shaded-background=true "+
+			"! tee name=t ", top.Width, top.Height, top.FPS, clockOverlayName)
+	}
 	for _, l := range layers {
 		encDesc, err := encoderElement(enc, l, gop)
 		if err != nil {
 			return "", err
 		}
+		label := ""
+		if image == "" {
+			label = fmt.Sprintf("! textoverlay text=\"layer %s  %dx%d@%d\" halignment=center valignment=bottom font-desc=\"Sans 36\" shaded-background=true ",
+				l.RID, l.Width, l.Height, l.FPS)
+		}
 		fmt.Fprintf(&b, "t. ! queue max-size-buffers=2 leaky=downstream "+
 			"! videoscale ! videorate ! video/x-raw,width=%d,height=%d,framerate=%d/1 "+
-			"! textoverlay text=\"layer %s  %dx%d@%d\" halignment=center valignment=bottom font-desc=\"Sans 36\" shaded-background=true "+
-			"! videoconvert ! %s ! %s "+
+			"%s! videoconvert ! %s ! %s "+
 			"! appsink name=%s emit-signals=true sync=false max-buffers=4 drop=false ",
-			l.Width, l.Height, l.FPS, l.RID, l.Width, l.Height, l.FPS, encDesc, parserElement(l), videoSinkName(l.RID))
+			l.Width, l.Height, l.FPS, label, encDesc, parserElement(l), videoSinkName(l.RID))
 	}
 	b.WriteString(rawThumbBranch(top.Width, top.Height))
 	if audio {
@@ -88,4 +103,17 @@ func testPipelineDescription(layers []Layer, enc Encoder, gop time.Duration, aud
 			"! appsink name=%s emit-signals=true sync=false max-buffers=16 drop=false ", toneName, audioSinkName)
 	}
 	return strings.TrimSpace(b.String()), nil
+}
+
+// quoteGst quotes a value (a file path) for a gst-launch description.
+func quoteGst(v string) string {
+	return `"` + strings.NewReplacer(`\`, `\\`, `"`, `\"`).Replace(v) + `"`
+}
+
+// SourceLabel is the test source's name: Label, or "Test pattern".
+func (b *TestBackend) SourceLabel() string {
+	if b == nil || b.Label == "" {
+		return "Test pattern"
+	}
+	return b.Label
 }

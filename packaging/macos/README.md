@@ -90,7 +90,8 @@ which `helper:publish --from-release` checks every file against. Then publish th
 
 ## Publish to an instance
 
-From a release (what self-hosters do; no Mac needed): the disk image comes with the Linux files.
+From a release (what self-hosters do; no Mac needed): the instance links to the disk image on
+GitHub, next to the Linux files.
 
 ```sh
 pnpm run helper:publish -- --env production --from-release <version> --dry-run
@@ -106,8 +107,8 @@ pnpm run helper:publish -- --env production --mac-dmg dist/openlive-helper-<vers
 ```
 
 The name must carry the version being published (the Linux files are built for the same one).
-Either way the image is uploaded next to the Linux files, listed in `SHA256SUMS` and in
-`helper/latest.json` (`kind: dmg`, `os: macos`, `arch: universal`, with its size and SHA-256), and
+From a release the manifest names the image's GitHub URL; from your own build it is uploaded next
+to the Linux files and listed in `SHA256SUMS`. Either way it is in `helper/latest.json` (`kind: dmg`, `os: macos`, `arch: universal`, with its size and SHA-256), and
 `/download` shows the macOS card with the install steps.
 
 ## What the app does when opened

@@ -176,6 +176,7 @@ describe('renderInstanceConfig', () => {
     expect(env).toMatchObject({ name: 'openlive-test', workers_dev: true });
     expect(env.vars).toEqual({
       APP_ORIGIN: 'https://openlive-test.acme.workers.dev',
+      HELPER_RELEASE_REPO: 'henriquefps/openlive',
       LOG_SAMPLING_RATE: '0.1',
     });
     expect(env.d1_databases[0]).toMatchObject({

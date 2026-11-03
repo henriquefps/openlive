@@ -211,7 +211,7 @@ describe('/download', () => {
     renderApp('/download');
     expect(await screen.findByText('No helper published yet')).toBeInTheDocument();
     expect(
-      screen.getByText('pnpm run helper:publish -- --env production --from-release latest'),
+      screen.getByText('pnpm run helper:publish -- --env production --from-release <version>'),
     ).toBeInTheDocument();
   });
 
@@ -228,6 +228,76 @@ describe('/download', () => {
       ),
     ).toBeInTheDocument();
     expect(screen.queryByText(/helper:publish/)).toBeNull();
+  });
+
+  it('links straight to the GitHub files when the manifest names them', async () => {
+    asSystem(LINUX);
+    const gh = (name: string) =>
+      `https://github.com/henriquefps/openlive/releases/download/helper-v0.2.0/${name}`;
+    fakeApi({
+      'GET /api/me': signedIn(),
+      'GET /api/helper/latest': () =>
+        Response.json({
+          ...RELEASE,
+          files: RELEASE.files.map((f) => ({ ...f, url: gh(f.name) })),
+        }),
+    });
+    renderApp('/download');
+    const tarball = await screen.findByRole('region', { name: 'Tarball' });
+    expect(within(tarball).getByRole('link', { name: 'Download' })).toHaveAttribute(
+      'href',
+      gh(TARBALL),
+    );
+    expect(within(tarball).getByText('a'.repeat(64))).toBeInTheDocument();
+    expect(
+      within(tarball).getByRole('button', { name: `Copy the SHA-256 of ${TARBALL}` }),
+    ).toBeInTheDocument();
+  });
+
+  describe('Android card', () => {
+    const APK = 'openlive-0.1.5-android.apk';
+    const ANDROID = {
+      schema: 1,
+      version: '0.1.5',
+      publishedAt: '2026-11-03T12:00:00.000Z',
+      name: APK,
+      url: `https://github.com/henriquefps/openlive/releases/download/android-v0.1.5/${APK}`,
+      size: 73_000_000,
+      sha256: 'd'.repeat(64),
+    };
+
+    it('offers the APK with its hash and the list of releases', async () => {
+      asSystem(LINUX);
+      fakeApi({
+        'GET /api/me': signedIn(),
+        'GET /api/helper/latest': () => Response.json(RELEASE),
+        'GET /api/helper/android': () => Response.json(ANDROID),
+      });
+      renderApp('/download');
+      const apk = await screen.findByRole('link', { name: 'Download APK (0.1.5)' });
+      expect(apk).toHaveAttribute('href', ANDROID.url);
+      expect(screen.getByText('d'.repeat(64))).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'All Android releases' })).toHaveAttribute(
+        'href',
+        expect.stringContaining('/releases'),
+      );
+      expect(screen.queryByRole('link', { name: 'Get the Android app' })).toBeNull();
+    });
+
+    it.each([404, 401, 403])('only links to the releases when the answer is %i', async (status) => {
+      asSystem(LINUX);
+      fakeApi({
+        'GET /api/me': signedIn(),
+        'GET /api/helper/latest': () => Response.json(RELEASE),
+        'GET /api/helper/android': () => Response.json({ code: 'x' }, { status }),
+      });
+      renderApp('/download');
+      expect(await screen.findByRole('link', { name: 'Get the Android app' })).toHaveAttribute(
+        'href',
+        expect.stringContaining('/releases'),
+      );
+      expect(screen.queryByRole('link', { name: /Download APK/ })).toBeNull();
+    });
   });
 
   it('asks a visitor to sign in', async () => {

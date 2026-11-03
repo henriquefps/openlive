@@ -45,6 +45,8 @@
     // The build reported by /api/health. The setup overwrites both in the generated config.
     "APP_COMMIT": "dev",
     "APP_BUILT_AT": "",
+    // The public repository whose GitHub releases the Download page may link to (owner/name).
+    "HELPER_RELEASE_REPO": "henriquefps/openlive",
   },
   "dev": { "port": 8790 },
   "env": {
@@ -94,6 +96,8 @@
       "vars": {
         "APP_ORIGIN": "https://openlive.example.com",
         "EMAIL_FROM": "Openlive <login@openlive.example.com>",
+        // Forks that publish their own releases change this (docs/self-host.md).
+        "HELPER_RELEASE_REPO": "henriquefps/openlive",
       },
     },
   },

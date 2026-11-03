@@ -12,11 +12,50 @@
 //   helper/<version>/openlive-helper-<version>-macos.dmg   (universal, notarized)
 //   helper/<version>/SHA256SUMS
 //   helper/latest.json   (written last, so it never names a file that is not there yet)
+//   helper/android.json  (the Android app's APK; optional, published on its own)
+//
+// A manifest file may instead point at an absolute https URL: the asset of a public GitHub release
+// (`pnpm run helper:publish -- --from-release X.Y.Z`). Then nothing of that version sits in R2 and
+// the browser downloads it from GitHub; the manifest keeps the per-server version pin. The URL is
+// checked against the release repository (HELPER_RELEASE_REPO, default the official public one).
 
 import { z } from 'zod';
 
 export const HELPER_PREFIX = 'helper/';
 export const LATEST_KEY = `${HELPER_PREFIX}latest.json`;
+export const ANDROID_KEY = `${HELPER_PREFIX}android.json`;
+/** The public repository whose releases an instance links to unless HELPER_RELEASE_REPO says otherwise. */
+export const DEFAULT_RELEASE_REPO = 'henriquefps/openlive';
+const REPO_PATTERN = /^[\w.-]+\/[\w.-]+$/;
+
+/** The configured release repository (owner/name), or the default when unset or malformed. */
+export function releaseRepoOf(configured: string | undefined): string {
+  const repo = configured?.trim();
+  return repo && REPO_PATTERN.test(repo) ? repo : DEFAULT_RELEASE_REPO;
+}
+
+/**
+ * True for `https://github.com/<repo>/releases/download/<tag>/<name>` and nothing else: no
+ * credentials, port, query or fragment, and the tag and name must be the exact ones given.
+ */
+export function isReleaseAssetUrl(url: string, repo: string, tag: string, name: string): boolean {
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    return false;
+  }
+  return (
+    u.protocol === 'https:' &&
+    u.host === 'github.com' &&
+    u.username === '' &&
+    u.password === '' &&
+    u.search === '' &&
+    u.hash === '' &&
+    u.pathname ===
+      `/${repo}/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(name)}`
+  );
+}
 /** The format of latest.json; the publish script writes the same number. */
 export const MANIFEST_SCHEMA = 1;
 
@@ -77,6 +116,8 @@ const PLATFORM = {
 const manifestFile = z
   .object({
     name: z.string().min(1).max(128),
+    /** Absolute URL of a GitHub release asset; absent for a file in R2 (checked by parseHelperManifest). */
+    url: z.url().max(512).optional(),
     kind: z.enum(['tarball', 'flatpak', 'dmg']),
     os: z.enum(['linux', 'macos']),
     arch: z.enum(['amd64', 'universal']),
@@ -109,8 +150,14 @@ export const helperManifest = z
 
 export type HelperManifest = z.output<typeof helperManifest>;
 
-/** The parsed manifest, or null when the text is not one (logged by the caller). */
-export function parseHelperManifest(text: string): HelperManifest | null {
+/**
+ * The parsed manifest, or null when the text is not one (logged by the caller). A file with a
+ * `url` must point at that version's helper-v<version> release asset in `repo`.
+ */
+export function parseHelperManifest(
+  text: string,
+  repo: string = DEFAULT_RELEASE_REPO,
+): HelperManifest | null {
   let raw: unknown;
   try {
     raw = JSON.parse(text);
@@ -118,5 +165,47 @@ export function parseHelperManifest(text: string): HelperManifest | null {
     return null;
   }
   const parsed = helperManifest.safeParse(raw);
-  return parsed.success ? parsed.data : null;
+  if (!parsed.success) return null;
+  const m = parsed.data;
+  const tag = `helper-v${m.version}`;
+  return m.files.every((f) => f.url === undefined || isReleaseAssetUrl(f.url, repo, tag, f.name))
+    ? m
+    : null;
+}
+
+/** The version of the Android app (SemVer without a suffix, as scripts/release/android-release.sh tags it). */
+export const ANDROID_VERSION = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+export const androidApkName = (version: string): string => `openlive-${version}-android.apk`;
+
+/** helper/android.json: the APK of an `android-v<version>` release, linked from the Download page. */
+export const androidManifest = z.object({
+  schema: z.literal(MANIFEST_SCHEMA),
+  version: z.string().regex(ANDROID_VERSION).max(64),
+  publishedAt: z.iso.datetime(),
+  name: z.string().min(1).max(128),
+  url: z.url().max(512),
+  size: z.number().int().min(0),
+  sha256,
+});
+
+export type AndroidManifest = z.output<typeof androidManifest>;
+
+/** The parsed Android entry, or null when the text is not one or its URL is not the release's APK. */
+export function parseAndroidManifest(
+  text: string,
+  repo: string = DEFAULT_RELEASE_REPO,
+): AndroidManifest | null {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  const parsed = androidManifest.safeParse(raw);
+  if (!parsed.success) return null;
+  const a = parsed.data;
+  return a.name === androidApkName(a.version) &&
+    isReleaseAssetUrl(a.url, repo, `android-v${a.version}`, a.name)
+    ? a
+    : null;
 }

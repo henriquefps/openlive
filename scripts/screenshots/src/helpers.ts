@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-// The native helper, built from helper/ and paired as a dev user, publishing the synthetic test
-// pattern: `test-stream` straight into a room, or `run --test-source` so "Go live" in the web
-// finds it through the user hub. Its config and device token live in a throwaway directory.
+// The native helper, built from helper/ and paired as a dev user, publishing a still picture as
+// its test source (`--test-image`, a development flag): `test-stream` straight into a room, or
+// `run --test-source` so "Go live" in the web finds it through the user hub. Its config and
+// device token live in a throwaway directory.
 
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -43,11 +44,29 @@ export async function pairHelper(bin: string, user: UserKey, name: string): Prom
   return { bin, common };
 }
 
-/** Publishes the test pattern to a room until the run ends. */
-export function testStream(helper: Helper, roomId: string, preset: string): void {
+/** The test source as a still picture, named `label` in the web. */
+const still = (image: string, label: string) => ['--test-image', image, '--test-label', label];
+
+/** Publishes `image` to a room until the run ends. */
+export function testStream(
+  helper: Helper,
+  roomId: string,
+  preset: string,
+  image: string,
+  label: string,
+): void {
   start(
     helper.bin,
-    ['test-stream', ...helper.common, '--room', roomId, '--preset', preset, '--tone=false'],
+    [
+      'test-stream',
+      ...helper.common,
+      '--room',
+      roomId,
+      '--preset',
+      preset,
+      '--tone=false',
+      ...still(image, label),
+    ],
     {
       cwd: tmpdir(),
       onLine: (line) => process.env['VERBOSE'] && console.log('[test-stream]', line),
@@ -55,9 +74,10 @@ export function testStream(helper: Helper, roomId: string, preset: string): void
   );
 }
 
-/** Keeps the helper connected to the user hub, offering the test pattern as a source. */
-export function runHelper(helper: Helper): void {
-  start(helper.bin, ['run', ...helper.common, '--test-source', '--minimized'], {
+/** Keeps the helper connected to the user hub, offering `image` as a source named `label`. */
+export function runHelper(helper: Helper, image: string, label: string): void {
+  const args = ['run', ...helper.common, '--test-source', '--minimized', ...still(image, label)];
+  start(helper.bin, args, {
     cwd: tmpdir(),
     onLine: (line) => process.env['VERBOSE'] && console.log('[run]', line),
   });

@@ -5,7 +5,7 @@
 
 import { type ChildProcess, execFileSync, spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -111,6 +111,8 @@ export interface Stack {
   /** Whether the dev Realtime credentials were found, so streams can go live. */
   live: boolean;
   d1(sql: string): void;
+  /** Writes `body` (a JSON text) to the local THUMBNAILS bucket under `key`. */
+  r2(key: string, body: string): void;
   cleanup(): void;
 }
 
@@ -162,6 +164,27 @@ export async function startStack(repo: string): Promise<Stack> {
       execFileSync(
         wrangler,
         ['d1', 'execute', 'DB', '--local', '--persist-to', state, '--command', sql],
+        quiet,
+      );
+    },
+    r2(key, body) {
+      const file = join(tempDir('r2'), 'object.json');
+      writeFileSync(file, body);
+      execFileSync(
+        wrangler,
+        [
+          'r2',
+          'object',
+          'put',
+          `openlive-thumbnails-dev/${key}`,
+          '--local',
+          '--persist-to',
+          state,
+          '--file',
+          file,
+          '--content-type',
+          'application/json',
+        ],
         quiet,
       );
     },

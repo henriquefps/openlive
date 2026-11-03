@@ -95,6 +95,7 @@ func runTestStream(args []string) error {
 	fs.BoolVar(&f.noAudio, "no-audio", false, "publish video only")
 	fs.BoolVar(&f.tone, "tone", true, "play the 440 Hz test tone (false sends silence on the audio track)")
 	size := fs.String("size", "", "pretend the source is WxH (e.g. 3440x1440): the layers are fitted to it as for a real monitor")
+	testImage, testLabel := testImageFlags(fs)
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -120,7 +121,8 @@ func runTestStream(args []string) error {
 	if err != nil {
 		return fmt.Errorf("test source: %w (build without the nogst tag and install GStreamer)", err)
 	}
-	src := media.Source{ID: "test", Kind: media.SourceTest, Label: "Test pattern"}
+	backend.Image, backend.Label = *testImage, *testLabel
+	src := media.Source{ID: "test", Kind: media.SourceTest, Label: backend.SourceLabel()}
 	stream, err := backend.Start(ctx, src, media.Profile{Layers: layers, Encoder: enc, Audio: !f.noAudio, GOP: f.gop})
 	if err != nil {
 		return fmt.Errorf("test source: %w", err)
@@ -135,7 +137,7 @@ func runTestStream(args []string) error {
 	}
 	log.Info("test source started", "preset", preset.Name, "encoder", enc, "layers", describeLayers(layers), "audio", !f.noAudio)
 	// The schema has no "test" source kind; the test pattern stands in for a screen.
-	info := protocol.SourceInfo{Kind: protocol.SourceKindScreen, Label: "Test pattern"}
+	info := protocol.SourceInfo{Kind: protocol.SourceKindScreen, Label: backend.SourceLabel()}
 	return publishStream(ctx, &f, log, stream, preset, layers, !f.noAudio, info)
 }
 
@@ -651,4 +653,12 @@ func checkVBV(d time.Duration) error {
 		return fmt.Errorf("--vbv %s is outside 20ms–2s", d)
 	}
 	return nil
+}
+
+// testImageFlags are the development flags that send a still image as the test source (the
+// README screenshots, scripts/screenshots).
+func testImageFlags(fs *flag.FlagSet) (image, label *string) {
+	image = fs.String("test-image", "", "development: the test source sends this PNG or JPEG, scaled to the preset, instead of the pattern")
+	label = fs.String("test-label", "", "development: the test source's name in the web (default \"Test pattern\")")
+	return image, label
 }

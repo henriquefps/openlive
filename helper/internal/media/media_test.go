@@ -205,7 +205,7 @@ func TestVAEncoderElement(t *testing.T) {
 func TestTestPipelineDescription(t *testing.T) {
 	p, _ := FindPreset("1080p60")
 	layers, _ := p.Layers(AllRIDs)
-	desc, err := testPipelineDescription(layers, EncoderNVENC, 10*time.Second, true)
+	desc, err := testPipelineDescription(layers, EncoderNVENC, 10*time.Second, true, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -225,11 +225,24 @@ func TestTestPipelineDescription(t *testing.T) {
 			t.Errorf("pipeline lacks %q:\n%s", want, desc)
 		}
 	}
-	noAudio, _ := testPipelineDescription(layers[:1], EncoderX264, 4*time.Second, false)
+	noAudio, _ := testPipelineDescription(layers[:1], EncoderX264, 4*time.Second, false, "")
 	if strings.Contains(noAudio, "audiotestsrc") || strings.Contains(noAudio, "sink_h") {
 		t.Errorf("pipeline without audio and with one layer:\n%s", noAudio)
 	}
 	if !strings.Contains(noAudio, "x264enc name=enc_f tune=zerolatency speed-preset=ultrafast sliced-threads=true bitrate=8000 vbv-buf-capacity=250 key-int-max=240 bframes=0") {
 		t.Errorf("x264 settings:\n%s", noAudio)
+	}
+	still, _ := testPipelineDescription(layers, EncoderX264, 4*time.Second, false, `/tmp/a "b".png`)
+	for _, want := range []string{
+		`filesrc location="/tmp/a \"b\".png" ! decodebin`,
+		"width=1920,height=1080,pixel-aspect-ratio=1/1 ! imagefreeze is-live=true ! video/x-raw,framerate=60/1 ! tee name=t",
+		"appsink name=sink_q",
+	} {
+		if !strings.Contains(still, want) {
+			t.Errorf("image pipeline lacks %q:\n%s", want, still)
+		}
+	}
+	if strings.Contains(still, "videotestsrc") || strings.Contains(still, "textoverlay") || strings.Contains(still, "timeoverlay") {
+		t.Errorf("image pipeline draws over the image:\n%s", still)
 	}
 }
