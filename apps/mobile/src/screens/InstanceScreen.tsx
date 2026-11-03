@@ -2,8 +2,10 @@
 import type { Space } from '@openlive/client';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import {
+  Avatar,
+  AvatarSourceProvider,
   Body,
   Button,
   Card,
@@ -17,6 +19,7 @@ import { OfflineHint } from '../components/OfflineHint.tsx';
 import { errorText } from '../i18n/errors.ts';
 import { hostOf } from '../lib/host.ts';
 import { FEATURE_INVITE_DEEP_LINK } from '../lib/instance.ts';
+import { useApi, useAuthHeaders } from '../hooks.ts';
 import { useAcceptInvite, useInvitePreview, useSpaces } from '../queries.ts';
 import { useInstances } from '../state.tsx';
 import { font, useTheme } from '../theme.ts';
@@ -33,6 +36,7 @@ export function InstanceScreen({
   onRemoved,
   onInviteDone,
   onOpenSpace,
+  onSettings,
 }: {
   origin: string;
   invite?: string | undefined;
@@ -42,11 +46,14 @@ export function InstanceScreen({
   onRemoved: () => void;
   onInviteDone: () => void;
   onOpenSpace: (space: Space) => void;
+  /** The profile and settings of this server's account. */
+  onSettings: () => void;
 }) {
   const { t } = useTranslation();
   const { instances, signIn, signOut, remove, lost } = useInstances();
   const instance = instances.find((i) => i.origin === origin);
   const spaces = useSpaces(origin);
+  const headers = useAuthHeaders(useApi(origin));
   const [pulling, setPulling] = useState(false);
   const [busy, setBusy] = useState<'signIn' | 'signOut' | 'remove' | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -100,6 +107,20 @@ export function InstanceScreen({
       backLabel={t('common.back')}
       refreshing={pulling}
       onRefresh={signedIn ? pull : undefined}
+      headerRight={
+        instance.user ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('settings.open')}
+            onPress={onSettings}
+            hitSlop={8}
+          >
+            <AvatarSourceProvider origin={origin} headers={headers}>
+              <Avatar name={instance.user.displayName} url={instance.user.avatarUrl} size={40} />
+            </AvatarSourceProvider>
+          </Pressable>
+        ) : undefined
+      }
     >
       <Card>
         <Row>

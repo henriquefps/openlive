@@ -24,6 +24,7 @@ const TABLES = [
   'sessions',
   'space_members',
   'spaces',
+  'stream_starts',
   'usage_daily',
   'usage_real_daily',
   'user_tutorial',

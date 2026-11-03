@@ -9,6 +9,8 @@ export type Route =
   | { name: 'add'; origin?: string; invite?: string }
   | { name: 'scan' }
   | { name: 'voice-debug' }
+  /** The settings of the app, with the profile on `origin` when opened from a server. */
+  | { name: 'settings'; origin?: string }
   | { name: 'instance'; origin: string; invite?: string; expired?: true }
   | { name: 'space'; origin: string; spaceId: string; spaceName: string }
   | { name: 'room'; origin: string; spaceId: string; roomId: string; roomName: string };
@@ -39,6 +41,10 @@ export function roomRoute(
   return { name: 'room', origin, spaceId, roomId, roomName };
 }
 
+export function settingsRoute(origin?: string): Route {
+  return origin ? { name: 'settings', origin } : { name: 'settings' };
+}
+
 export const top = (stack: Stack): Route => stack[stack.length - 1] ?? HOME;
 
 export const push = (stack: Stack, route: Route): Stack => [...stack, route];
@@ -51,19 +57,20 @@ export const reset = (route: Route): Stack => [HOME, route];
 
 /** The origin a route belongs to, when it belongs to one. */
 export function originOf(route: Route): string | undefined {
-  return route.name === 'home' || route.name === 'scan' || route.name === 'voice-debug'
-    ? undefined
-    : route.origin;
+  if (route.name === 'home' || route.name === 'scan' || route.name === 'voice-debug')
+    return undefined;
+  return route.origin;
 }
 
 /**
- * The session on `origin` ended (a 401, a sign-out): the spaces and rooms of that instance
- * cannot stay open, so the stack goes back to its instance screen, which asks to sign in again.
+ * The session on `origin` ended (a 401, a sign-out): the spaces, rooms and settings of that
+ * instance cannot stay open, so the stack goes back to its instance screen, which asks to sign in again.
  * A stack with none of its screens open is returned as it is.
  */
 export function sessionLost(stack: Stack, origin: string): Stack {
   const at = stack.findIndex(
-    (r) => (r.name === 'space' || r.name === 'room') && r.origin === origin,
+    (r) =>
+      (r.name === 'space' || r.name === 'room' || r.name === 'settings') && r.origin === origin,
   );
   if (at === -1) return stack;
   const kept = stack.slice(0, at);

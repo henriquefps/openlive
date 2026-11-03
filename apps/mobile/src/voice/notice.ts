@@ -3,7 +3,7 @@ import type { VoiceEndNotice } from '@openlive/client';
 import type { TFunction } from 'i18next';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'react-native';
+import { toast } from '../notices/notify.ts';
 import { voiceSessions } from './host.ts';
 import { useVoiceSessionsState } from './hooks.ts';
 
@@ -31,7 +31,7 @@ export function useVoiceNotice(): void {
   const { notice } = useVoiceSessionsState();
   useEffect(() => {
     if (!notice) return;
-    Alert.alert(noticeTitle(notice, t), notice.room || undefined);
+    toast(noticeTitle(notice, t), { description: notice.room || undefined, kind: 'warning' });
     voiceSessions.dismissNotice();
   }, [notice, t]);
 }

@@ -19,6 +19,7 @@ import {
   reset as resetStack,
   roomRoute,
   type Route,
+  settingsRoute,
   sessionLost,
   spaceRoute,
   type Stack,
@@ -29,9 +30,16 @@ import { HomeScreen } from './screens/HomeScreen.tsx';
 import { InstanceScreen } from './screens/InstanceScreen.tsx';
 import { RoomScreen } from './screens/RoomScreen.tsx';
 import { ScanScreen } from './screens/ScanScreen.tsx';
+import { SettingsScreen } from './screens/SettingsScreen.tsx';
 import { SpaceScreen } from './screens/SpaceScreen.tsx';
 import { VoiceDebugScreen } from './screens/VoiceDebugScreen.tsx';
+import { Notices } from './notices/watchers.tsx';
+import { ToastHost } from './notices/ToastHost.tsx';
+import { setRoomOpener } from './notices/notify.ts';
+import { SummarySheet } from './summary/SummarySheet.tsx';
+import { useAwaySummary } from './summary/useAwaySummary.ts';
 import { InstancesProvider, useInstances } from './state.tsx';
+import { settingsReady } from './settings.ts';
 import { useTheme } from './theme.ts';
 import { SwitchDialog, VoiceBar } from './voice/ui/VoiceBar.tsx';
 import { useVoiceNotice } from './voice/notice.ts';
@@ -62,11 +70,17 @@ function Navigator() {
   const { dark } = useTheme();
   const { ready, instances } = useInstances();
   const [stack, setStack] = useState<Stack>(INITIAL_STACK);
+  // The saved theme and language are applied before the first screen, so nothing flashes.
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  useEffect(() => {
+    void settingsReady.then(() => setSettingsLoaded(true));
+  }, []);
   const [current, setCurrent] = useState<string | null>(null);
   // Bumped when a room closes: the space behind it reads its unread counts again.
   const [roomsClosed, setRoomsClosed] = useState(0);
   const route = top(stack);
   useVoiceNotice();
+  const { summary, dismiss: dismissSummary } = useAwaySummary();
 
   // What the phone saved is only used for servers and users that are signed in now.
   const restoring = useIsRestoring();
@@ -82,6 +96,15 @@ function Navigator() {
   const pop = useCallback(() => {
     setStack((s) => popStack(s));
     setRoomsClosed((n) => n + 1);
+  }, []);
+  // A tapped toast opens its room.
+  useEffect(() => {
+    setRoomOpener((room) =>
+      setStack((s) =>
+        pushStack(s, roomRoute(room.origin, room.spaceId, room.roomId, room.roomName)),
+      ),
+    );
+    return () => setRoomOpener(null);
   }, []);
   const reset = useCallback((next: Route) => setStack(resetStack(next)), []);
 
@@ -140,7 +163,7 @@ function Navigator() {
     setStack((s) => instanceRemoved(s, origin));
   };
 
-  if (!ready) return null;
+  if (!ready || !settingsLoaded) return null;
 
   let screen;
   switch (route.name) {
@@ -151,6 +174,7 @@ function Navigator() {
           onOpen={open}
           onAdd={() => push(ADD)}
           onVoiceDebug={() => push(VOICE_DEBUG)}
+          onSettings={() => push(settingsRoute())}
         />
       );
       break;
@@ -171,6 +195,17 @@ function Navigator() {
     case 'voice-debug':
       screen = <VoiceDebugScreen onBack={pop} />;
       break;
+    case 'settings':
+      screen = (
+        <SettingsScreen
+          key={route.origin ?? 'app'}
+          origin={route.origin}
+          onBack={pop}
+          // Signing out on purpose: back to the server's screen before its session ends.
+          onSignedOut={(origin) => reset(instanceRoute(origin))}
+        />
+      );
+      break;
     case 'instance':
       screen = (
         <InstanceScreen
@@ -182,6 +217,7 @@ function Navigator() {
           onRemoved={() => removed(route.origin)}
           onInviteDone={() => reset(instanceRoute(route.origin))}
           onOpenSpace={(space) => push(spaceRoute(route.origin, space.id, space.name))}
+          onSettings={() => push(settingsRoute(route.origin))}
         />
       );
       break;
@@ -227,6 +263,16 @@ function Navigator() {
         }
       />
       <SwitchDialog />
+      <Notices />
+      <ToastHost />
+      <SummarySheet
+        summary={summary}
+        onClose={dismissSummary}
+        onOpenRoom={(origin, item) => {
+          dismissSummary();
+          push(roomRoute(origin, item.spaceId, item.roomId, item.roomName));
+        }}
+      />
     </>
   );
 }

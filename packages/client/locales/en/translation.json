@@ -1102,6 +1102,12 @@
     "copyFailed": "Could not copy. Select the text and copy it by hand.",
     "copySha": "Copy the SHA-256 of {{name}}",
     "copyCommands": "Copy the {{name}} commands",
+    "android": {
+      "title": "Android app (beta)",
+      "intro": "Watch, chat and talk from your phone. Beta: it is not on the Play Store, you install the APK yourself. Android 7 or later.",
+      "action": "Get the Android app",
+      "install": "Download the .apk from the latest android-v release, open it on the phone and allow installing from that source. Add the server with an invite link. Obtainium can keep it up to date."
+    },
     "os": {
       "windows": "Windows",
       "macos": "macOS",

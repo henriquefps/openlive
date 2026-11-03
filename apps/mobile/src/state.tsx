@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { revokeAppToken } from '@openlive/client';
-import type { InstanceInfo } from '@openlive/protocol';
+import type { AppUser, InstanceInfo } from '@openlive/protocol';
 import * as Crypto from 'expo-crypto';
 import * as Device from 'expo-device';
 import * as SecureStore from 'expo-secure-store';
@@ -57,6 +57,8 @@ interface InstancesValue {
   remove(origin: string): Promise<void>;
   /** Instances whose session ended (401, revoked) and have not signed in again since. */
   lost: ReadonlySet<string>;
+  /** The name or photo changed: the saved instance shows the new ones. */
+  updateUser(origin: string, user: AppUser): Promise<void>;
   /** A client with the instance's token, or null when signed out. */
   client(origin: string): Promise<ApiClient | null>;
 }
@@ -178,6 +180,13 @@ export function InstancesProvider({ children }: { children: ReactNode }) {
     expiredRef.current = expired;
   }, [expired]);
 
+  const updateUser = useCallback(async (origin: string, user: AppUser) => {
+    const current = (await store.list()).find((i) => i.origin === origin);
+    // A sign-out in the meantime wins; a different user is not this person's profile.
+    if (!current?.user || current.user.userId !== user.userId) return;
+    setInstances(await store.upsert({ ...current, user }));
+  }, []);
+
   const client = useCallback(async (origin: string) => {
     const token = await store.getToken(origin);
     if (!token) return null;
@@ -189,8 +198,8 @@ export function InstancesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ ready, instances, add, signIn, signOut, expired, remove, lost, client }),
-    [ready, instances, add, signIn, signOut, expired, remove, lost, client],
+    () => ({ ready, instances, add, signIn, signOut, expired, remove, lost, updateUser, client }),
+    [ready, instances, add, signIn, signOut, expired, remove, lost, updateUser, client],
   );
   return <InstancesContext.Provider value={value}>{children}</InstancesContext.Provider>;
 }

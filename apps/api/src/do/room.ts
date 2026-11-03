@@ -127,6 +127,9 @@ export const nextTick = (t: number): number => (Math.floor(t / ROOM_TICK_MS) + 1
 export const OFFER_MS = 30_000;
 /** A stream survives its helper's socket for this long. */
 export const HELPER_GRACE_MS = 15_000;
+/** How long a stream's start is kept for the app's summary (PROTOCOL.md 11.7). */
+export const STREAM_STARTS_KEEP_MS = 7 * 24 * 60 * 60 * 1000;
+
 /** Time between POST .../publish and stream.announce before the publication is closed. */
 export const ANNOUNCE_MS = 60_000;
 /** Viewer SFU sessions kept per user per room (tabs); the oldest is forgotten beyond this. */
@@ -750,6 +753,11 @@ export class RoomDO extends DurableObject<Env> {
   /** Unread chat messages for a user, for the space's room list (docs/PROTOCOL.md 7.6). */
   async chatUnread(userId: string): Promise<number> {
     return this.textCapability() ? this.chat.unread(userId) : 0;
+  }
+
+  /** Unread messages and the ones among them that mention the user (PROTOCOL.md 7.6). */
+  async chatCounts(userId: string): Promise<{ unread: number; mentions: number }> {
+    return this.textCapability() ? this.chat.counts(userId) : { unread: 0, mentions: 0 };
   }
 
   /**
@@ -2166,6 +2174,7 @@ export class RoomDO extends DurableObject<Env> {
       grace_until: null,
     });
     this.store.announcePublication(pub.sfu_session_id, streamId);
+    this.ctx.waitUntil(this.recordStreamStart(stream));
     const info = this.streamInfo(stream);
     send(ws, 'stream.started', { stream: info }, id);
     this.broadcast('stream.started', { stream: info }, ws);
@@ -3029,6 +3038,32 @@ export class RoomDO extends DurableObject<Env> {
     )
       .bind(roomId, userId, Date.now())
       .run();
+  }
+
+  /** The stream's start in D1, for the mobile app's "what happened" summary (PROTOCOL.md 11.7). */
+  private async recordStreamStart(stream: RoomStream): Promise<void> {
+    const room = this.store.room();
+    if (!room) return;
+    try {
+      const db = this.env.DB;
+      // The week-old rows go with each new start, a few at a time: no sweep needed.
+      await db.batch([
+        db
+          .prepare(
+            `INSERT OR IGNORE INTO stream_starts (stream_id, space_id, room_id, user_id, started_at)
+             VALUES (?, ?, ?, ?, ?)`,
+          )
+          .bind(stream.streamId, room.spaceId, room.roomId, stream.userId, stream.startedAt),
+        db
+          .prepare(
+            `DELETE FROM stream_starts WHERE rowid IN
+               (SELECT rowid FROM stream_starts WHERE started_at < ? LIMIT 20)`,
+          )
+          .bind(stream.startedAt - STREAM_STARTS_KEEP_MS),
+      ]);
+    } catch (err) {
+      console.error('stream_starts insert failed', err);
+    }
   }
 
   /** The hub notice of a mention (docs/PROTOCOL.md 7.6), to every web tab of the user. */

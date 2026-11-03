@@ -36,6 +36,23 @@ player (below); voice comes next.
 - A request that comes back `401` forgets the token and takes any open space or room back to the
   server's screen, which asks to sign in again.
 
+## Profile and settings
+
+- Open them from the avatar at the top right of a server's screen (the profile of that server), or
+  from the gear on the server list (the settings of this phone only).
+- **Profile**, per server (`GET/PUT /api/me`, `PUT/DELETE /api/me/avatar`, `POST /api/me/avatar/discord`
+  through `@openlive/client`): the name, and the photo from the gallery (the system photo picker) or
+  the camera, cropped square by the system and sent as 256 x 256 WebP (JPEG outside Android), the
+  same limits as the web (`src/lib/avatar.ts`, `src/photo.ts`). A change updates the cached profile
+  and the saved server, and drops the cached room and space snapshots so the next room shows it.
+  An uploaded photo is a path on the server that needs the token: `Avatar` loads it with the
+  app token inside `AvatarSourceProvider`.
+- **This phone**: language (system, English, Portuguese), theme (system, light, dark) under the
+  web's keys `openlive.language` and `openlive.theme`, and the push-to-talk default (the shared
+  voice prefs, `openlive.voice`). They live in `voicePrefsStore` (`src/voice/store.ts`), so other
+  personal prefs (the notices) can use the same store.
+- **Sign out of this server** asks first.
+
 ## Audio
 
 Watching a stream plays as **media**, not as a phone call: the volume keys move the media volume,
@@ -420,8 +437,10 @@ pnpm start
 
 The build needs macOS or Linux with the Android SDK (Android Studio installs it), a JDK 17 or 21
 (Android Studio's bundled JBR works), Node.js 26 and pnpm 12. The steps below build a
-**release-style APK**: the JavaScript bundle is inside, so it runs without Metro, signed with the
-debug key (fine for installing by hand; a store build needs its own keystore).
+**release-style APK**: the JavaScript bundle is inside, so it runs without Metro. The release build
+is signed with our own key (see "Release APK from main" below); without the signing variables it
+fails on purpose, it never uses the debug key. For a quick local APK use `./gradlew assembleDebug`
+(debug key, needs Metro) or set the variables to any keystore of yours.
 
 ```sh
 # Tools (once), if Node 26 and pnpm are not installed: a private copy in the build folder.
@@ -466,6 +485,85 @@ git archive HEAD | ssh <mac> 'mkdir -p ~/openlive-mobile-build && cd ~/openlive-
 ssh <mac>
 cd ~/openlive-mobile-build   # then the steps above
 ```
+
+### Release APK from main
+
+The APK for friends is signed with a private upload key that lives only on the Mac, in
+`~/.openlive-keys/` (`openlive-upload.jks` and `openlive-upload.properties`, mode 600/700, alias
+`openlive-upload`, RSA 4096, valid 10000 days). The Expo plugin `plugins/with-openlive-signing.js`
+adds a `release` signing config to the prebuilt `android/app/build.gradle`; it reads
+`OPENLIVE_UPLOAD_STORE_FILE`, `OPENLIVE_UPLOAD_KEY_ALIAS`, `OPENLIVE_UPLOAD_STORE_PASSWORD` and
+`OPENLIVE_UPLOAD_KEY_PASSWORD` from Gradle properties or the environment, and a release build fails
+with a clear message when one is missing. Nothing secret is in the repository.
+
+From Linux, sync a commit into a folder of its own on the Mac and build it (the build number is the
+commit count, see Versioning):
+
+```sh
+C=origin/main; N=$(git rev-list --count $C)
+git archive $C | ssh <mac> 'mkdir -p ~/openlive-mobile-build-x && cd ~/openlive-mobile-build-x && tar xf -'
+ssh <mac> "cd ~/openlive-mobile-build-x && ln -sfn ~/openlive-mobile-build/.tools .tools && OPENLIVE_BUILD_NUMBER=$N scripts/mobile/build-android-release.sh"
+```
+
+`scripts/mobile/build-android-release.sh` loads the key properties, installs, prebuilds, builds
+arm64-v8a plus armeabi-v7a (older phones), verifies the signature with `apksigner`, refuses a
+build signed with the debug certificate, prints the certificate SHA-256, and copies the result to
+`~/openlive-mobile-build/dist/openlive-<version>-android.apk` with a `.sha256` file.
+
+**Back up `~/.openlive-keys/`** (an encrypted copy outside the Mac). Android only installs an update
+signed with the same key as the installed app: if the key is lost, every friend must uninstall and
+reinstall (and loses the app's saved data). Never commit it or paste the passwords anywhere.
+
+The certificate SHA-256 of the current key, to check an APK (`apksigner verify --print-certs
+openlive-*-android.apk`, lowercase hex without colons there):
+
+```text
+C5:0F:EF:E1:F7:C2:DB:45:CE:34:AD:06:C9:6D:BC:87:29:A6:DE:80:1A:52:76:FF:53:D3:0E:03:5E:DA:9C:16 (keytool)
+c50fefe1f7c2db45ce34ad06c96dbc8729a6de801a5276ff53d30e035eda9c16 (apksigner)
+```
+
+### Publish a release (GitHub)
+
+The APK is distributed as a beta **pre-release** `android-v<version>` on the public repository
+(github.com/henriquefps/openlive), next to the helper's `helper-v` releases. After building (above)
+and exporting the matching commit to the public repository (`pnpm export:public`, see the root
+CLAUDE.md), from Linux:
+
+```sh
+scripts/release/android-release.sh <version> --mac <ssh host of the Mac> --dry-run
+scripts/release/android-release.sh <version> --mac <ssh host of the Mac> [--target <public commit sha>]
+```
+
+It copies the APK and its `.sha256` from the Mac into `dist/`, checks the checksum and that the
+APK is signed with the expected certificate (the constant `EXPECTED_CERT_SHA256` in the script,
+the apksigner value above), then creates a **draft** pre-release with the APK, its `.sha256` and
+`SHA256SUMS`, and release notes from `scripts/release/android-release-notes.md.tmpl` plus the
+"Android app (beta)" part of the version's `CHANGELOG.md` entry. The tag points at `--target`, the
+public commit the build matches (default: the head of the public `main`). The script never
+publishes: look at the draft, then publish it on GitHub. The web's Download page links to the
+releases (`apps/web/src/lib/android-app.ts`).
+
+### Versioning
+
+`versionName` is the `version` in `apps/mobile/package.json` (the release line shared with the
+server and the helper; `app.config.js` copies it to the Expo config, so the in-app version is the
+same). `versionCode` is `(major * 10000 + minor * 100 + patch) * 10000 + build`, where `build` is
+the commit count of the built commit (`OPENLIVE_BUILD_NUMBER`, or `git rev-list --count HEAD` in a
+checkout). A new version always raises the code, and two builds of one version are ordered by
+commit, so updates always install over older ones. Example: 0.1.4 at commit 150 is 1040150.
+
+### Install on Android (sideload)
+
+1. Send the `.apk` to the phone (messaging app, cloud drive, USB). Optionally check the file with the
+   `.sha256` file.
+2. Open the file. Android asks to allow installing apps from that source (Settings, Apps, Special
+   access, Install unknown apps): allow it for the app you opened the file from.
+3. Google Play Protect may warn that the app is from an unknown developer ("Send for scanning" or
+   "Install anyway"): the app is not on the Play Store, so this is expected. Choose "Install anyway".
+4. Open Openlive and sign in with the invite link from your server (open the link on the phone, or
+   scan its QR code from the app).
+
+Updates: install the newer APK over the old one; the signature is the same, so data is kept.
 
 ### Player diagnostics
 

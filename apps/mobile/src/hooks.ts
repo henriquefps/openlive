@@ -79,7 +79,7 @@ const noSubscribe = () => () => undefined;
 const clientVersion = helloClientVersion(Constants.expoConfig?.version);
 
 /** hello.tabId: new for every connection, so two sockets of this app never replace each other. */
-function socketOptions(api: ApiClient, path: string): SocketSessionOptions {
+export function socketOptions(api: ApiClient, path: string): SocketSessionOptions {
   return {
     url: ticketSocketUrl(api, path),
     tabId: Crypto.randomUUID(),

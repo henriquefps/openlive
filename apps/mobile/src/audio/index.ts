@@ -7,6 +7,7 @@ export { type AudioMode, type FocusState, focusGain } from './mode.ts';
 interface Native {
   setMode(mode: string): void;
   release(): void;
+  playCue(pcmBase64: string, sampleRate: number): void;
   addListener(
     event: 'onFocusChange',
     listener: (e: { state: FocusState }) => void,
@@ -38,3 +39,7 @@ export const releaseAudio = (): void => audio.releaseAudio();
 
 /** The stream player closed: gives media audio back (a voice session in progress keeps its own). */
 export const releaseMedia = (): void => audio.releaseMedia();
+
+/** Plays a short cue (16-bit mono PCM) on the route of the current mode; nothing without the module. */
+export const playCue = (cue: { base64: string; sampleRate: number }): void =>
+  module?.playCue(cue.base64, cue.sampleRate);

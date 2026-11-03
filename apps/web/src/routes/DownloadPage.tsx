@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import {
+  AndroidLogoIcon,
   AppleLogoIcon,
   CopyIcon,
   DownloadSimpleIcon,
@@ -27,6 +28,7 @@ import { type HelperFile, type HelperRelease, helperReleaseQuery } from '../api/
 import { Page } from '../components/Page.tsx';
 import { QueryError } from '../components/QueryError.tsx';
 import { formatDate, formatMB } from '../i18n/format.ts';
+import { ANDROID_RELEASES_URL } from '../lib/android-app.ts';
 import { DESKTOP_OSES, detectDesktopOs } from '../lib/os.ts';
 
 // The helper download. Linux and macOS are served from the instance's
@@ -60,6 +62,7 @@ function installSteps(file: HelperFile, instance: string): string[] {
 export function DownloadPage() {
   const { t } = useTranslation();
   const current = detectDesktopOs(navigator.userAgent);
+  const isAndroid = /Android/i.test(navigator.userAgent);
   const linux = (
     <Card key="linux" data-current={current === 'linux' || undefined}>
       <CardHeader>
@@ -102,6 +105,33 @@ export function DownloadPage() {
     <Page title={t('download.title')} description={t('download.intro')}>
       <div className="flex flex-col gap-4">
         {current === 'macos' ? [macos, linux] : [linux, macos]}
+        <Card id="android" data-current={isAndroid || undefined}>
+          <CardHeader>
+            <AndroidLogoIcon className="mb-2 size-6" aria-hidden />
+            <CardTitle>
+              <h2>{t('download.android.title')}</h2>
+            </CardTitle>
+            <CardDescription>{t('download.android.intro')}</CardDescription>
+            {isAndroid && (
+              <CardAction>
+                <Badge>{t('download.yourSystem')}</Badge>
+              </CardAction>
+            )}
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <div>
+              <Button asChild>
+                <a href={ANDROID_RELEASES_URL} target="_blank" rel="noreferrer">
+                  <DownloadSimpleIcon data-icon="inline-start" />
+                  {t('download.android.action')}
+                </a>
+              </Button>
+            </div>
+            <p className="text-[0.8125rem] text-muted-foreground">
+              {t('download.android.install')}
+            </p>
+          </CardContent>
+        </Card>
         <ul className="grid gap-4 md:grid-cols-2">
           {DESKTOP_OSES.filter((os) => os === 'windows').map((os) => (
             <li key={os} className="flex flex-col *:flex-1">

@@ -66,6 +66,7 @@ const ENTRY_POINTS: Record<string, string[]> = {
     'settingsChanged',
     'flushUsage',
     'chatUnread',
+    'chatCounts',
     'eraseChatAuthor',
     'liveStreamIds',
     'putThumbnail',

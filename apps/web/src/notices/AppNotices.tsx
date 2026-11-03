@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import type { TFunction } from 'i18next';
 import {
   createContext,
   type ReactNode,
@@ -12,17 +11,23 @@ import {
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useHub } from '../hub/use-hub.ts';
-import type { RoomState } from '../room/connection.ts';
 import { streamDucking } from '../voice/ducking.ts';
 import {
   type AppRoomSession,
   useActiveVoice,
   useVoiceSessions,
 } from '../voice/use-voice-session.ts';
+import {
+  hubNoticeText as hubText,
+  roomNoticeText as roomText,
+  type Translate,
+} from '@openlive/client';
+import type { TFunction } from 'i18next';
 import { type NoticeEvent, type NoticeText, Notifier } from './policy.ts';
 import { noticeSettings } from './settings.ts';
 import { WebAudioSounds } from './sounds.ts';
 import { type Notice, HubNoticeWatcher, RoomNoticeWatcher } from './watch.ts';
+import type { RoomState } from '../room/connection.ts';
 
 // The app's sound notices, in the shell: one notifier for
 // the tab, a watcher on each room this tab has open (the pages, the voice), the hub's watcher
@@ -102,46 +107,17 @@ function RoomNotices() {
     .map((session) => <RoomWatch key={session.roomId} session={session} />);
 }
 
-function nameOf(room: RoomState, userId: string | undefined, t: TFunction): string {
-  return room.members.find((m) => m.userId === userId)?.displayName ?? t('player.someone');
-}
+/** The typed `t` as the shared text functions take it (the keys are checked by i18n:check). */
+const translate =
+  (t: TFunction): Translate =>
+  (key, options) =>
+    String(t(key as never, options as never));
 
-export function roomNoticeText(notice: Notice, room: RoomState, t: TFunction): NoticeText {
-  const name = nameOf(room, notice.userId, t);
-  const where = room.room?.name;
-  switch (notice.event) {
-    case 'streamStarted':
-      return { title: t('notices.streamStarted', { name }), description: where };
-    case 'queueSlot':
-      return { title: t('notices.queueSlot', { name }), description: t('notices.queueSlotHint') };
-    case 'viewerJoined':
-      return { title: t('notices.viewerJoined', { name }) };
-    case 'voiceJoin':
-      return { title: t('notices.voiceJoin', { name }), description: where };
-    case 'voiceLeave':
-      return { title: t('notices.voiceLeave', { name }), description: where };
-    case 'voiceJoinSelf':
-      return { title: t('notices.voiceJoinSelf'), description: where };
-    case 'voiceLeaveSelf':
-      return { title: t('notices.voiceLeaveSelf'), description: where };
-    case 'streamDropped':
-    case 'streamUnstable':
-    case 'mention':
-      return hubNoticeText(notice.event, t);
-  }
-}
+export const roomNoticeText = (notice: Notice, room: RoomState, t: TFunction): NoticeText =>
+  roomText(notice, room, translate(t));
 
-/** Your own streams' notices (and the mention, said by chat/MentionNotices.tsx). */
-export function hubNoticeText(event: NoticeEvent, t: TFunction): NoticeText {
-  switch (event) {
-    case 'streamDropped':
-      return { title: t('notices.streamDropped'), description: t('notices.streamDroppedHint') };
-    case 'streamUnstable':
-      return { title: t('notices.streamUnstable'), description: t('notices.streamUnstableHint') };
-    default:
-      return { title: t('chat.mentionElsewhere') };
-  }
-}
+export const hubNoticeText = (event: NoticeEvent, t: TFunction): NoticeText =>
+  hubText(event, translate(t));
 
 function RoomWatch({ session }: { session: AppRoomSession }) {
   const { t } = useTranslation();

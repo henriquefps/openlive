@@ -2,7 +2,6 @@
   "expo": {
     "name": "Openlive",
     "slug": "openlive",
-    "version": "0.1.0",
     "scheme": "openlive",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,7 +9,6 @@
     "backgroundColor": "#f4f4f0",
     "android": {
       "package": "dev.hfps.openlive",
-      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#5b7a3a"
@@ -46,11 +44,20 @@
           "recordAudioAndroid": false
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": false,
+          "cameraPermission": "Openlive uses the camera to take your profile photo.",
+          "microphonePermission": false
+        }
+      ],
       "expo-secure-store",
       "expo-web-browser",
       "expo-localization",
       "@config-plugins/react-native-webrtc",
       "./plugins/with-openlive-audio.js",
+      "./plugins/with-openlive-signing.js",
       [
         "expo-build-properties",
         {

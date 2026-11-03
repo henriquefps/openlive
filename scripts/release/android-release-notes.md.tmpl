@@ -1,0 +1,40 @@
+**Beta.** Openlive for Android {{VERSION}}.
+
+## What is in it
+
+{{CHANGES}}
+
+## Install
+
+1. Download `{{APK}}` on the phone (or send it there).
+2. Open it. Android asks to allow installing apps from that source (Settings, Apps, Special access,
+   Install unknown apps): allow it for the app you opened the file from.
+3. Google Play Protect may warn that the app is from an unknown developer: choose "Install anyway".
+4. Open Openlive and add your server with the invite link its admin gave you.
+
+Updates install over the old version (same signing key) and keep your data.
+
+### Obtainium
+
+[Obtainium](https://obtainium.imranr.dev/) can install and update the app from this page:
+
+- App source URL: `https://github.com/henriquefps/openlive`
+- Turn on "Include prereleases" (the beta is a pre-release).
+- "Filter APKs by regular expression": `android`
+- "Filter release titles by regular expression": `^Openlive Android` (the repository also has
+  helper releases, which have no APK)
+
+## Check the file
+
+SHA-256 of the APK:
+
+```text
+{{APK_SHA}}  {{APK}}
+```
+
+`SHA256SUMS` has the same line (`sha256sum -c SHA256SUMS`). To check the signature (Android SDK
+build-tools, `apksigner verify --print-certs {{APK}}`), the certificate SHA-256 must be:
+
+```text
+{{CERT}}
+```

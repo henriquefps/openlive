@@ -12,5 +12,19 @@ export const chatUnread = async (api: ApiClient, spaceId: string) =>
     )
   ).rooms;
 
+/** Unread messages and, among them, the ones that mention the caller, per room of a space. */
+export interface ChatActivity {
+  rooms: Record<string, number>;
+  mentions: Record<string, number>;
+}
+
+/** The same call as `chatUnread`, with the mentions too (an older server has none: `{}`). */
+export const chatActivity = async (api: ApiClient, spaceId: string): Promise<ChatActivity> => {
+  const body = await api.get<{ rooms: Record<string, number>; mentions?: Record<string, number> }>(
+    `/api/spaces/${encodeURIComponent(spaceId)}/chat/unread`,
+  );
+  return { rooms: body.rooms, mentions: body.mentions ?? {} };
+};
+
 /** "99+" above 99, as the room caps its counts. */
 export const unreadLabel = (count: number): string => (count > 99 ? '99+' : String(count));

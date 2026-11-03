@@ -230,5 +230,52 @@
       "denied": "denied",
       "blocked": "blocked"
     }
+  },
+  "summary": {
+    "title": "While you were away",
+    "close": "Close",
+    "stream": "{{who}} streamed at {{time}} in {{room}}",
+    "mentions_one": "{{count}} mention in {{room}}",
+    "mentions_other": "{{count}} mentions in {{room}}",
+    "unread_one": "{{count}} unread message in {{room}}",
+    "unread_other": "{{count}} unread messages in {{room}}",
+    "more": "+{{count}} more"
+  },
+  "sounds": {
+    "label": "Notification sounds"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "name": "Name",
+    "save": "Save",
+    "nameSaved": "Name saved",
+    "photo": {
+      "gallery": "Gallery",
+      "camera": "Camera",
+      "remove": "Remove photo",
+      "discord": "Use Discord photo",
+      "saved": "Photo saved",
+      "removed": "Photo removed",
+      "tooBig": "That picture is too large (5 MB at most).",
+      "unreadable": "Could not use that picture.",
+      "denied": "Allow the camera in the phone's settings to take a photo."
+    },
+    "nameRequired": "Type a name.",
+    "nameTooLong": "At most {{max}} characters.",
+    "app": "This phone",
+    "language": "Language",
+    "languageSystem": "System",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "voice": "Voice",
+    "pushToTalk": "Push to talk",
+    "pushToTalkHint": "Hold the button to speak, in new calls.",
+    "account": "Server account",
+    "signOut": "Sign out of this server",
+    "signOutConfirm": "Sign out of {{server}}?",
+    "open": "Settings"
   }
 }

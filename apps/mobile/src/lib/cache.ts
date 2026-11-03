@@ -41,6 +41,8 @@ export interface Scope {
 export function keys({ origin, userId }: Scope) {
   const base = [ROOT, origin, userId] as const;
   return {
+    /** The caller's profile: name, photo and where the photo comes from (GET /api/me). */
+    me: () => [...base, 'me'] as const,
     spaces: () => [...base, 'spaces'] as const,
     rooms: (spaceId: string) => [...base, 'rooms', spaceId] as const,
     unread: (spaceId: string) => [...base, 'unread', spaceId] as const,

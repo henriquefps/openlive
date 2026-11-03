@@ -13,7 +13,20 @@ The wire protocol has its own version, in [docs/PROTOCOL.md](docs/PROTOCOL.md).
 - App sign-in carries an invite, so new people can sign up from the app on invite-only servers
   (protocol 11.6).
 - The web and the upcoming Android app share one client library (`packages/client`) for the API,
-  sockets, chat, watching and voice. The Android app is not released yet.
+  sockets, chat, watching and voice.
+
+**Android app (beta)**
+
+- The Android app is out as a beta, installed by sideloading the APK from the GitHub Releases
+  (`android-v0.1.4`); it is not on the Play Store. Android 7 or later, arm64 and armv7.
+- Add servers by address, QR code or invite link, and keep several; sign in through the system
+  browser.
+- Spaces, rooms and text chat with mentions, edit and delete; the live streams of a room with
+  quality, queue and landscape full screen.
+- Voice with photos and cameras, push-to-talk, per-person volume and moderation; voice keeps
+  running in the background with the screen locked, from a notification with Mute and Leave.
+- Sound cues, toasts and a summary of what happened while you were away.
+- Profile (name, photo) and personal settings.
 
 ## 0.1.3 (2026-11-02)
 

@@ -15,6 +15,7 @@ import { me } from './me';
 import { members } from './members';
 import { metrics } from './metrics';
 import { onboarding } from './onboarding';
+import { recent } from './recent';
 import { rooms } from './rooms';
 import { rtc } from './rtc';
 import { spaces } from './spaces';
@@ -32,6 +33,7 @@ export const api = new Hono<AppEnv>()
   .route('/', members)
   .route('/', rooms)
   .route('/', chat)
+  .route('/', recent)
   .route('/', invites)
   .route('/', joinRequests)
   .route('/', devices)

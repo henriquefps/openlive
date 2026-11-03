@@ -316,6 +316,18 @@ openlive-helper doctor   # desktop, GPU, encoders and an encode test, for bug re
 
 Watching works on every system with a recent browser.
 
+## Android app (beta)
+
+An Android app (7 or later) lets you watch, chat and talk from the phone, with voice that keeps
+running in the background. It is a beta and is not on the Play Store: download the `.apk` from the
+[releases tagged `android-v`](https://github.com/henriquefps/openlive/releases?q=android-v&expanded=true),
+open it on the phone, allow installing from that source and choose "Install anyway" if Play Protect
+warns, then add your server with an invite link. The release lists the SHA-256 of the file and of
+the signing certificate. [Obtainium](https://obtainium.imranr.dev/) keeps it up to date: add
+`https://github.com/henriquefps/openlive`, turn on "Include prereleases", and filter APKs by
+`android` and release titles by `^Openlive Android`. The same app works with every Openlive
+server. Details: [apps/mobile/README.md](apps/mobile/README.md).
+
 ## Project layout
 
 ```

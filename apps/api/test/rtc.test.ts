@@ -317,6 +317,28 @@ describe('stream.announce', () => {
     expect(JSON.stringify(started)).not.toContain(sfuSessionId);
   });
 
+  it('records the start in D1 for the app summary and prunes week-old starts', async () => {
+    new FakeSfu().install();
+    const roomId = await newRoom();
+    await env.DB.prepare(
+      `INSERT INTO stream_starts (stream_id, space_id, room_id, user_id, started_at)
+       VALUES ('st_ancient', ?, ?, ?, ?)`,
+    )
+      .bind(SPACE_ID, roomId, USERS.member1.id, Date.now() - 8 * 24 * 3_600_000)
+      .run();
+    const { streamId } = await liveStream(roomId);
+    await vi.waitFor(async () => {
+      const rows = await env.DB.prepare(
+        'SELECT stream_id, room_id, user_id FROM stream_starts WHERE room_id = ?',
+      )
+        .bind(roomId)
+        .all();
+      expect(rows.results).toEqual([
+        { stream_id: streamId, room_id: roomId, user_id: USERS.member1.id },
+      ]);
+    });
+  });
+
   it('keeps the layers the helper encodes (1.19) and replaces them with a new preset', async () => {
     new FakeSfu().install();
     const roomId = await newRoom();

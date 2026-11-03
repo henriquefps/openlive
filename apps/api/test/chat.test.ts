@@ -347,6 +347,22 @@ describe('unread and mentions', () => {
     );
   });
 
+  it('counts the unread messages that mention you, over REST', async () => {
+    const roomId = await textRoom();
+    const { client: a } = await Client.join(roomId, USERS.member1.id);
+    const { client: b } = await Client.join(roomId, USERS.member2.id);
+    b.close();
+    await post(a, 'no mention');
+    await post(a, `hey @${name(USERS.member2.id)}`);
+    await post(a, `again @${name(USERS.member2.id)}`);
+    const res = await rest('GET', `/spaces/${SPACE_ID}/chat/unread`, USERS.member2.id);
+    expect(res.body.rooms[roomId]).toBe(3);
+    expect(res.body.mentions[roomId]).toBe(2);
+    // The author is never counted as mentioned, and rooms without mentions are left out.
+    const author = await rest('GET', `/spaces/${SPACE_ID}/chat/unread`, USERS.member1.id);
+    expect(author.body.mentions[roomId]).toBeUndefined();
+  });
+
   it('resolves @name server-side and sends the mentioned user a hub notice', async () => {
     const roomId = await textRoom();
     const { client: a } = await Client.join(roomId, USERS.member1.id);

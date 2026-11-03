@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import { type ReactNode, useState } from 'react';
+import { createContext, type ReactNode, useContext, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -7,6 +7,7 @@ import {
   RefreshControl,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   type TextInputProps,
@@ -14,6 +15,7 @@ import {
 } from 'react-native';
 import { CaretLeft } from 'phosphor-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { avatarSource } from '../lib/avatar.ts';
 import { font, radius, useTheme } from '../theme.ts';
 
 // The few building blocks of the screens, on the hfps tokens: a tinted background, content on
@@ -28,6 +30,7 @@ export function Screen({
   scroll = true,
   refreshing,
   onRefresh,
+  headerRight,
 }: {
   title: string;
   /** Under the title, small: the server's address, the space's name. */
@@ -39,6 +42,8 @@ export function Screen({
   /** Pull to refresh (with `scroll`). */
   refreshing?: boolean | undefined;
   onRefresh?: (() => void) | undefined;
+  /** At the right of the title: a button of the screen (the profile, the settings). */
+  headerRight?: ReactNode;
 }) {
   const { colors } = useTheme();
   const body = <View style={styles.body}>{children}</View>;
@@ -53,18 +58,23 @@ export function Screen({
             </View>
           </Pressable>
         ) : null}
-        <Text
-          accessibilityRole="header"
-          style={[styles.title, { color: colors.foreground }]}
-          numberOfLines={1}
-        >
-          {title}
-        </Text>
-        {subtitle ? (
-          <Text style={[styles.subtitle, { color: colors.mutedForeground }]} numberOfLines={1}>
-            {subtitle}
-          </Text>
-        ) : null}
+        <View style={styles.titleRow}>
+          <View style={styles.titleText}>
+            <Text
+              accessibilityRole="header"
+              style={[styles.title, { color: colors.foreground }]}
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+            {subtitle ? (
+              <Text style={[styles.subtitle, { color: colors.mutedForeground }]} numberOfLines={1}>
+                {subtitle}
+              </Text>
+            ) : null}
+          </View>
+          {headerRight}
+        </View>
       </View>
       {scroll ? (
         <ScrollView
@@ -245,6 +255,28 @@ export function Badge({
   );
 }
 
+/**
+ * Where the photos of one server load from: an uploaded photo is a path on the server and needs
+ * the app token (`headers`, null until it is known). Provided by the screens that show people.
+ */
+const AvatarSourceContext = createContext<{
+  origin: string;
+  headers: Record<string, string> | null;
+} | null>(null);
+
+export function AvatarSourceProvider({
+  origin,
+  headers,
+  children,
+}: {
+  origin: string;
+  headers: Record<string, string> | null;
+  children: ReactNode;
+}) {
+  const value = useMemo(() => ({ origin, headers }), [origin, headers]);
+  return <AvatarSourceContext.Provider value={value}>{children}</AvatarSourceContext.Provider>;
+}
+
 /** A person's photo, or the first letter of their name on an olive disc. */
 export function Avatar({
   name,
@@ -260,11 +292,13 @@ export function Avatar({
 }) {
   const { colors } = useTheme();
   const [failed, setFailed] = useState(false);
+  const photos = useContext(AvatarSourceContext);
+  const source = url ? avatarSource(url, photos?.origin ?? null, photos?.headers ?? null) : null;
   const box = { width: size, height: size, borderRadius: size / 2 };
   const face =
-    url && !failed ? (
+    source && !failed ? (
       <Image
-        source={{ uri: url }}
+        source={source}
         style={box}
         onError={() => setFailed(true)}
         accessibilityIgnoresInvertColors
@@ -343,15 +377,169 @@ export function Empty({ title, hint }: { title: string; hint?: string | undefine
   );
 }
 
+/** A card of settings rows, separated by hairlines. */
+export function Group({ children }: { children: ReactNode }) {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.group, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      {children}
+    </View>
+  );
+}
+
+/**
+ * One row of a Group: a label (with a small line under it), what is set at the right, and
+ * optionally a control under them (`below`, for the choices that need the width).
+ */
+export function SettingRow({
+  label,
+  hint,
+  right,
+  below,
+  onPress,
+  tone,
+  last = false,
+}: {
+  label: string;
+  hint?: string | undefined;
+  right?: ReactNode;
+  below?: ReactNode;
+  onPress?: (() => void) | undefined;
+  tone?: 'destructive' | undefined;
+  last?: boolean;
+}) {
+  const { colors } = useTheme();
+  const content = (
+    <View style={styles.settingRowLine}>
+      <View style={styles.rowText}>
+        <Text
+          style={[styles.rowLabel, { color: tone ? colors[tone] : colors.foreground }]}
+          numberOfLines={2}
+        >
+          {label}
+        </Text>
+        {hint ? (
+          <Text style={[styles.rowHint, { color: colors.mutedForeground }]}>{hint}</Text>
+        ) : null}
+      </View>
+      {right}
+    </View>
+  );
+  const style = [styles.settingRow, !last && { borderBottomWidth: 1, borderColor: colors.border }];
+  if (!onPress) {
+    return (
+      <View style={style}>
+        {content}
+        {below}
+      </View>
+    );
+  }
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => [style, pressed && { opacity: 0.6 }]}
+    >
+      {content}
+      {below}
+    </Pressable>
+  );
+}
+
+/** The switch of a row, in the olive primary. */
+export function Toggle({
+  value,
+  onValueChange,
+  label,
+}: {
+  value: boolean;
+  onValueChange: (next: boolean) => void;
+  label: string;
+}) {
+  const { colors } = useTheme();
+  return (
+    <Switch
+      accessibilityLabel={label}
+      value={value}
+      onValueChange={onValueChange}
+      trackColor={{ false: colors.muted, true: colors.primary }}
+      thumbColor={value ? colors.primaryForeground : colors.mutedForeground}
+    />
+  );
+}
+
+/** A few options in a row, one selected (the web's toggle group). */
+export function Segmented<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: readonly { value: T; label: string; icon?: ReactNode }[];
+  value: T;
+  onChange: (next: T) => void;
+}) {
+  const { colors } = useTheme();
+  return (
+    <View style={styles.segmented}>
+      {options.map((option) => {
+        const selected = option.value === value;
+        return (
+          <Pressable
+            key={option.value}
+            accessibilityRole="radio"
+            accessibilityState={{ selected }}
+            onPress={() => onChange(option.value)}
+            style={[
+              styles.segment,
+              {
+                backgroundColor: selected ? colors.primary : colors.card,
+                borderColor: selected ? colors.primary : colors.border,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.segmentText,
+                { color: selected ? colors.primaryForeground : colors.foreground },
+              ]}
+              numberOfLines={1}
+            >
+              {option.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 export function Row({ children }: { children: ReactNode }) {
   return <View style={styles.row}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
+  group: { borderWidth: 1, borderRadius: radius.card, overflow: 'hidden' },
+  settingRow: { minHeight: 56, paddingHorizontal: 14, paddingVertical: 10, gap: 10 },
+  settingRowLine: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  rowText: { flex: 1, gap: 2 },
+  rowLabel: { fontFamily: font.medium, fontSize: 15 },
+  rowHint: { fontFamily: font.regular, fontSize: 13 },
+  segmented: { flexDirection: 'row', gap: 6 },
+  segment: {
+    minHeight: 36,
+    paddingHorizontal: 12,
+    borderRadius: radius.control,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  segmentText: { fontFamily: font.medium, fontSize: 14 },
   screen: { flex: 1 },
   header: { paddingHorizontal: 12, paddingTop: 8, paddingBottom: 4, gap: 4 },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   back: { fontFamily: font.medium, fontSize: 15 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  titleText: { flex: 1, gap: 4 },
   title: { fontFamily: font.semibold, fontSize: 22 },
   subtitle: { fontFamily: font.regular, fontSize: 13 },
   scroll: { flexGrow: 1 },

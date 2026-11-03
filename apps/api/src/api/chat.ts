@@ -13,8 +13,10 @@ export const chat = new Hono<AppEnv>();
 const roomStub = (env: Env, roomId: string) => env.ROOM.get(env.ROOM.idFromName(roomId));
 
 /**
- * GET /api/spaces/:spaceId/chat/unread: `{ rooms: { [roomId]: number } }` for the open rooms with
- * text the caller may see; rooms without unread messages are left out.
+ * GET /api/spaces/:spaceId/chat/unread: `{ rooms: { [roomId]: number }, mentions: { [roomId]:
+ * number } }` for the open rooms with text the caller may see; rooms without unread messages (or
+ * without unread mentions) are left out. `mentions` counts the unread messages that mention the
+ * caller.
  */
 chat.get('/spaces/:spaceId/chat/unread', async (c) => {
   const user = await requireUser(c);
@@ -27,8 +29,10 @@ chat.get('/spaces/:spaceId/chat/unread', async (c) => {
   });
   const counts = await Promise.all(
     list.map(
-      async (room) => [room.id, await roomStub(c.env, room.id).chatUnread(user.id)] as const,
+      async (room) => [room.id, await roomStub(c.env, room.id).chatCounts(user.id)] as const,
     ),
   );
-  return c.json({ rooms: Object.fromEntries(counts.filter(([, n]) => n > 0)) });
+  const only = (pick: (n: { unread: number; mentions: number }) => number) =>
+    Object.fromEntries(counts.flatMap(([id, n]) => (pick(n) > 0 ? [[id, pick(n)] as const] : [])));
+  return c.json({ rooms: only((n) => n.unread), mentions: only((n) => n.mentions) });
 });

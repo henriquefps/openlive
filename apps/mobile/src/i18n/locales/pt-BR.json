@@ -230,5 +230,52 @@
       "denied": "negada",
       "blocked": "bloqueada"
     }
+  },
+  "summary": {
+    "title": "Enquanto você esteve fora",
+    "close": "Fechar",
+    "stream": "{{who}} transmitiu às {{time}} em {{room}}",
+    "mentions_one": "{{count}} menção em {{room}}",
+    "mentions_other": "{{count}} menções em {{room}}",
+    "unread_one": "{{count}} mensagem não lida em {{room}}",
+    "unread_other": "{{count}} mensagens não lidas em {{room}}",
+    "more": "+{{count}} mais"
+  },
+  "sounds": {
+    "label": "Sons de aviso"
+  },
+  "settings": {
+    "title": "Configurações",
+    "profile": "Perfil",
+    "name": "Nome",
+    "save": "Salvar",
+    "nameSaved": "Nome salvo",
+    "photo": {
+      "gallery": "Galeria",
+      "camera": "Câmera",
+      "remove": "Remover foto",
+      "discord": "Usar a foto do Discord",
+      "saved": "Foto salva",
+      "removed": "Foto removida",
+      "tooBig": "Essa imagem é grande demais (5 MB no máximo).",
+      "unreadable": "Não foi possível usar essa imagem.",
+      "denied": "Permita a câmera nas configurações do celular para tirar uma foto."
+    },
+    "nameRequired": "Digite um nome.",
+    "nameTooLong": "No máximo {{max}} caracteres.",
+    "app": "Este celular",
+    "language": "Idioma",
+    "languageSystem": "Sistema",
+    "theme": "Tema",
+    "themeSystem": "Sistema",
+    "themeLight": "Claro",
+    "themeDark": "Escuro",
+    "voice": "Voz",
+    "pushToTalk": "Apertar para falar",
+    "pushToTalkHint": "Segure o botão para falar, nas próximas chamadas.",
+    "account": "Conta no servidor",
+    "signOut": "Sair deste servidor",
+    "signOutConfirm": "Sair de {{server}}?",
+    "open": "Configurações"
   }
 }

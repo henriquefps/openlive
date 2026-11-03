@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import Constants from 'expo-constants';
+import { GearSix } from 'phosphor-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { useSyncExternalStore } from 'react';
+import { noticeSettings } from '../notices/notify.ts';
 import { Body, Button, Card, Heading, InstanceIcon, Row, Screen } from '../components/ui.tsx';
 import { hostOf } from '../lib/host.ts';
 import { useInstances } from '../state.tsx';
@@ -14,19 +17,36 @@ export function HomeScreen({
   onOpen,
   onAdd,
   onVoiceDebug,
+  onSettings,
 }: {
   current: string | null;
   onOpen: (origin: string) => void;
   onAdd: () => void;
   onVoiceDebug: () => void;
+  onSettings: () => void;
 }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { instances } = useInstances();
   // Tapping the version five times shows the voice test: a debug screen, not for everyday use.
   const [taps, setTaps] = useState(0);
+  // The cues of the notices (the web's "mute all sounds", kept on this phone): the toasts stay.
+  const settings = useSyncExternalStore(noticeSettings.subscribe, noticeSettings.get);
   return (
-    <Screen title={t('home.title')}>
+    <Screen
+      title={t('home.title')}
+      headerRight={
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('settings.open')}
+          onPress={onSettings}
+          hitSlop={8}
+          style={styles.headerButton}
+        >
+          <GearSix size={24} color={colors.foreground} />
+        </Pressable>
+      }
+    >
       {instances.length === 0 ? (
         <Card>
           <Heading>{t('home.empty')}</Heading>
@@ -60,6 +80,15 @@ export function HomeScreen({
         ))
       )}
       <Button label={t('home.add')} onPress={onAdd} />
+      <View style={styles.soundRow}>
+        <Text style={[styles.name, { color: colors.foreground }]}>{t('sounds.label')}</Text>
+        <Switch
+          accessibilityLabel={t('sounds.label')}
+          value={!settings.muted}
+          onValueChange={(on) => noticeSettings.update({ muted: !on })}
+          trackColor={{ true: colors.primary }}
+        />
+      </View>
       <Pressable accessibilityRole="text" onPress={() => setTaps((n) => n + 1)}>
         <Text style={[styles.meta, styles.version, { color: colors.mutedForeground }]}>
           {t('voice.debug.version', { version: Constants.expoConfig?.version ?? '' })}
@@ -73,7 +102,14 @@ export function HomeScreen({
 }
 
 const styles = StyleSheet.create({
+  headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   grow: { flex: 1, gap: 2 },
+  soundRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
   name: { fontFamily: font.medium, fontSize: 16 },
   meta: { fontFamily: font.regular, fontSize: 13 },
   version: { textAlign: 'center', paddingVertical: 8 },

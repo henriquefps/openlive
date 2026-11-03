@@ -15,6 +15,7 @@ import {
 import {
   Avatar,
   Badge,
+  AvatarSourceProvider,
   Banner,
   Body,
   Button,
@@ -40,6 +41,8 @@ import {
 import type { SavedInstance } from '../lib/storage.ts';
 import { StreamView } from '../player/index.tsx';
 import { font, radius, useTheme } from '../theme.ts';
+import { setChatOpen } from '../notices/notify.ts';
+import { useRoomNotices } from '../notices/watchers.tsx';
 import { useRoomVoice } from '../voice/hooks.ts';
 import { VoiceSection } from '../voice/ui/VoiceSection.tsx';
 
@@ -111,6 +114,20 @@ export function RoomScreen({
     return () => chat?.setActive(false);
   }, [chat, shown, watching, foreground]);
 
+  // The room's cues and toasts (streams, viewers, slots) from this screen's socket; a room with
+  // voice has its voice socket's watcher already.
+  const target = useMemo(
+    () => ({ origin: instance.origin, spaceId, roomId, roomName }),
+    [instance.origin, spaceId, roomId, roomName],
+  );
+  useRoomNotices(connection, !voice.hasVoice, target, t);
+  // Its mentions are in front of the reader while the chat shows.
+  useEffect(() => {
+    if (shown !== 'chat' || watching !== null || !foreground) return;
+    setChatOpen(roomId);
+    return () => setChatOpen(null);
+  }, [roomId, shown, watching, foreground]);
+
   const showLive = () => setTab(LIVE);
   const showChat = () => setTab(CHAT);
   const members = room.members;
@@ -142,125 +159,131 @@ export function RoomScreen({
   const title = room.room?.name ?? roomName;
   const online = room.status === 'open';
   return (
-    <Screen
-      title={title}
-      subtitle={instance.name}
-      onBack={onBack}
-      backLabel={t('common.back')}
-      scroll={shown === 'live'}
-      refreshing={refreshing}
-      onRefresh={() => setSession((n) => n + 1)}
-    >
-      <View style={[styles.tabs, { backgroundColor: colors.muted }]} accessibilityRole="tablist">
-        <TabButton label={t('mobile.room.tabLive')} active={shown === 'live'} onPress={showLive} />
-        {chatAvailable ? (
+    <AvatarSourceProvider origin={instance.origin} headers={headers}>
+      <Screen
+        title={title}
+        subtitle={instance.name}
+        onBack={onBack}
+        backLabel={t('common.back')}
+        scroll={shown === 'live'}
+        refreshing={refreshing}
+        onRefresh={() => setSession((n) => n + 1)}
+      >
+        <View style={[styles.tabs, { backgroundColor: colors.muted }]} accessibilityRole="tablist">
           <TabButton
-            label={t('chat.title')}
-            active={shown === 'chat'}
-            onPress={showChat}
-            badge={chatState.unread > 0 ? unreadLabel(chatState.unread) : undefined}
+            label={t('mobile.room.tabLive')}
+            active={shown === 'live'}
+            onPress={showLive}
+          />
+          {chatAvailable ? (
+            <TabButton
+              label={t('chat.title')}
+              active={shown === 'chat'}
+              onPress={showChat}
+              badge={chatState.unread > 0 ? unreadLabel(chatState.unread) : undefined}
+            />
+          ) : null}
+        </View>
+
+        <OfflineHint hasData={roomStale || room.you !== null} />
+        {notice ? (
+          <Banner tone={notice.kind === 'ended' ? 'destructive' : 'warning'}>
+            {notice.kind === 'connecting'
+              ? t('room.connection.connecting')
+              : notice.kind === 'reconnecting'
+                ? notice.quota
+                  ? t('room.connection.quotaExceeded')
+                  : t('room.connection.reconnecting')
+                : t(endedText(notice.end).key)}
+          </Banner>
+        ) : null}
+        {notice?.kind === 'ended' && endedText(notice.end).retry ? (
+          <Button
+            label={t('room.connection.useHere')}
+            variant="outline"
+            onPress={() => connection?.reconnect()}
           />
         ) : null}
-      </View>
+        {room.error && room.status === 'open' ? (
+          <Banner tone="destructive">
+            {t(`errors.${room.error.code}`, {
+              defaultValue: t('errors.generic', { code: room.error.code }),
+            })}
+          </Banner>
+        ) : null}
 
-      <OfflineHint hasData={roomStale || room.you !== null} />
-      {notice ? (
-        <Banner tone={notice.kind === 'ended' ? 'destructive' : 'warning'}>
-          {notice.kind === 'connecting'
-            ? t('room.connection.connecting')
-            : notice.kind === 'reconnecting'
-              ? notice.quota
-                ? t('room.connection.quotaExceeded')
-                : t('room.connection.reconnecting')
-              : t(endedText(notice.end).key)}
-        </Banner>
-      ) : null}
-      {notice?.kind === 'ended' && endedText(notice.end).retry ? (
-        <Button
-          label={t('room.connection.useHere')}
-          variant="outline"
-          onPress={() => connection?.reconnect()}
-        />
-      ) : null}
-      {room.error && room.status === 'open' ? (
-        <Banner tone="destructive">
-          {t(`errors.${room.error.code}`, {
-            defaultValue: t('errors.generic', { code: room.error.code }),
-          })}
-        </Banner>
-      ) : null}
-
-      {shown === 'live' ? (
-        <>
-          {voice.hasVoice && (online || voice.inVoice) ? <VoiceSection voice={voice} /> : null}
-          {cards.length > 0 ? <SectionLabel>{t('room.streams')}</SectionLabel> : null}
-          {cards.length === 0 ? (
-            <Empty
-              title={t('room.empty.title')}
-              hint={online ? t('room.empty.description') : undefined}
-            />
-          ) : (
-            cards.map((card) => (
-              <StreamCardView
-                key={card.streamId}
-                card={card}
-                thumbnail={
-                  card.thumbnailAt !== null && headers
-                    ? {
-                        uri: thumbnailUrl(instance.origin, card.streamId, card.thumbnailAt),
-                        headers,
-                      }
-                    : null
-                }
-                onWatch={() => setWatching(card.streamId)}
+        {shown === 'live' ? (
+          <>
+            {voice.hasVoice && (online || voice.inVoice) ? <VoiceSection voice={voice} /> : null}
+            {cards.length > 0 ? <SectionLabel>{t('room.streams')}</SectionLabel> : null}
+            {cards.length === 0 ? (
+              <Empty
+                title={t('room.empty.title')}
+                hint={online ? t('room.empty.description') : undefined}
               />
-            ))
-          )}
-          <SectionLabel>
-            {room.status === 'open'
-              ? t('room.present.title', { count: members.length })
-              : t('room.present.titleNoCount')}
-          </SectionLabel>
-          {members.length === 0 ? (
-            <Body muted>{t('room.present.empty')}</Body>
-          ) : (
-            <Card>
-              {sortedMembers(members, room.you?.userId ?? null).map((m) => (
-                <View key={m.userId} style={styles.member}>
-                  <Avatar name={m.displayName} url={m.avatarUrl} size={28} />
-                  <Text style={[styles.person, { color: colors.foreground }]} numberOfLines={1}>
-                    {m.displayName}
-                  </Text>
-                  {m.role !== 'member' ? (
-                    <Text style={[styles.meta, { color: colors.mutedForeground }]}>
-                      {t(`roles.${m.role}`)}
+            ) : (
+              cards.map((card) => (
+                <StreamCardView
+                  key={card.streamId}
+                  card={card}
+                  thumbnail={
+                    card.thumbnailAt !== null && headers
+                      ? {
+                          uri: thumbnailUrl(instance.origin, card.streamId, card.thumbnailAt),
+                          headers,
+                        }
+                      : null
+                  }
+                  onWatch={() => setWatching(card.streamId)}
+                />
+              ))
+            )}
+            <SectionLabel>
+              {room.status === 'open'
+                ? t('room.present.title', { count: members.length })
+                : t('room.present.titleNoCount')}
+            </SectionLabel>
+            {members.length === 0 ? (
+              <Body muted>{t('room.present.empty')}</Body>
+            ) : (
+              <Card>
+                {sortedMembers(members, room.you?.userId ?? null).map((m) => (
+                  <View key={m.userId} style={styles.member}>
+                    <Avatar name={m.displayName} url={m.avatarUrl} size={28} />
+                    <Text style={[styles.person, { color: colors.foreground }]} numberOfLines={1}>
+                      {m.displayName}
                     </Text>
-                  ) : null}
-                  {m.canStream && m.role === 'guest' ? (
-                    <View accessible accessibilityLabel={t('room.present.canStream')}>
-                      <Glyph name={BROADCAST} size={14} color={colors.foreground} />
-                    </View>
-                  ) : null}
-                </View>
-              ))}
-            </Card>
-          )}
-        </>
-      ) : chat ? (
-        <KeyboardAvoidingView style={styles.fill} behavior={KEYBOARD_BEHAVIOR}>
-          <ChatPanel
-            chat={chat}
-            state={chatState}
-            you={room.you}
-            members={members}
-            online={online}
-            quick={room.room?.kind === 'quick'}
-            retentionDays={room.settings?.chatRetentionDays}
-            locale={i18n.language}
-          />
-        </KeyboardAvoidingView>
-      ) : null}
-    </Screen>
+                    {m.role !== 'member' ? (
+                      <Text style={[styles.meta, { color: colors.mutedForeground }]}>
+                        {t(`roles.${m.role}`)}
+                      </Text>
+                    ) : null}
+                    {m.canStream && m.role === 'guest' ? (
+                      <View accessible accessibilityLabel={t('room.present.canStream')}>
+                        <Glyph name={BROADCAST} size={14} color={colors.foreground} />
+                      </View>
+                    ) : null}
+                  </View>
+                ))}
+              </Card>
+            )}
+          </>
+        ) : chat ? (
+          <KeyboardAvoidingView style={styles.fill} behavior={KEYBOARD_BEHAVIOR}>
+            <ChatPanel
+              chat={chat}
+              state={chatState}
+              you={room.you}
+              members={members}
+              online={online}
+              quick={room.room?.kind === 'quick'}
+              retentionDays={room.settings?.chatRetentionDays}
+              locale={i18n.language}
+            />
+          </KeyboardAvoidingView>
+        ) : null}
+      </Screen>
+    </AvatarSourceProvider>
   );
 }
 

@@ -1102,6 +1102,12 @@
     "copyFailed": "Não foi possível copiar. Selecione o texto e copie à mão.",
     "copySha": "Copiar o SHA-256 de {{name}}",
     "copyCommands": "Copiar os comandos do {{name}}",
+    "android": {
+      "title": "App Android (beta)",
+      "intro": "Assista, converse e fale pelo celular. Beta: não está na Play Store, você instala o APK por conta própria. Android 7 ou mais novo.",
+      "action": "Baixar o app Android",
+      "install": "Baixe o .apk da última versão android-v, abra no celular e permita instalar dessa origem. Adicione o servidor com um link de convite. O Obtainium pode manter o app atualizado."
+    },
     "os": {
       "windows": "Windows",
       "macos": "macOS",

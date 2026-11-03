@@ -108,6 +108,14 @@ export class RoomChat {
     return this.store.unread(userId, CHAT_UNREAD_CAP);
   }
 
+  /** Unread messages, and how many of them mention the user, for the app's summary. */
+  counts(userId: string): { unread: number; mentions: number } {
+    return {
+      unread: this.store.unread(userId, CHAT_UNREAD_CAP),
+      mentions: this.store.unreadMentions(userId, CHAT_UNREAD_CAP),
+    };
+  }
+
   /** Removed, banned or lost access: no longer mentionable here. */
   forget(userId: string): void {
     this.store.forgetPerson(userId);

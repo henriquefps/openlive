@@ -1308,6 +1308,21 @@ unauthenticated`. At most 20 unused tickets per token (`429 rate_limited`). Tick
    rooms) get `error session_expired` and close with **4001**, which also takes it out of a voice
    channel, and its unused tickets go.
 
+### 11.7 What happened while the app was away (additive, no protocol bump)
+
+The mobile app has no push, so when it opens after some time it asks what it missed:
+
+1. **Unread and mentions.** `GET /api/spaces/:spaceId/chat/unread` (7.6) also answers `mentions: {
+[roomId]: number }`: how many of the unread messages mention the caller (capped at 100, rooms
+   without any are left out).
+2. **Streams that started.** `GET /api/spaces/:spaceId/streams/recent?since=<ms>` → `{ streams: [{
+streamId, roomId, userId, userName, startedAt }] }`, newest first, at most 20, the streams that
+   started after `since` (never further back than 7 days) in the open rooms the caller may see
+   (a restricted room only for those with access; the caller's own streams are left out).
+   `400 invalid_message` (`/since`) for a bad `since`, `404` outside the space. The room writes a
+   `stream_starts` row in D1 when a stream is announced (migration 0015) and deletes week-old rows
+   as new ones arrive; it keeps no title, viewers or media. One D1 read per call.
+
 ## 12. Changing the protocol
 
 1. Edit this document.

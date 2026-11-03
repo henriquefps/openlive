@@ -171,6 +171,21 @@ export class ChatStore {
     return row?.n ?? 0;
   }
 
+  /** Unread live messages by others that mention the user, counted up to `cap`. */
+  unreadMentions(userId: string, cap: number): number {
+    const after = this.readSeq(userId) ?? 0;
+    const row = this.all<{ n: number }>(
+      `SELECT count(*) AS n FROM (SELECT 1 FROM chat_messages
+         WHERE seq > ? AND deleted_at IS NULL AND (user_id IS NULL OR user_id != ?)
+           AND EXISTS (SELECT 1 FROM json_each(mentions_json) WHERE value = ?) LIMIT ?)`,
+      after,
+      userId,
+      userId,
+      cap,
+    )[0];
+    return row?.n ?? 0;
+  }
+
   /** The highest seq ever given, deleted and expired messages included. */
   latestSeqAny(): number | null {
     const row = this.all<{ seq: number }>(

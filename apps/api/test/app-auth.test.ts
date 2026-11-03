@@ -95,7 +95,7 @@ describe('GET /.well-known/openlive.json', () => {
     expect(res.body).toEqual({
       name: 'localhost',
       iconUrl: 'http://localhost/icon-512.png',
-      version: '0.1.0',
+      version: expect.stringMatching(/^\d+\.\d+\.\d+$/),
       commit: expect.any(String),
       protocol: { min: { major: 1, minor: 0 }, max: PROTOCOL_VERSION },
       features: [
