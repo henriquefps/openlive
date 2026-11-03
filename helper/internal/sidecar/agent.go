@@ -92,7 +92,8 @@ type HotkeysBound struct {
 	Results []HotkeyResult `json:"results"`
 }
 
-// Hotkey is a pressed global shortcut.
+// Hotkey is a pressed global shortcut, or a released one (Released): push-to-talk needs both.
 type Hotkey struct {
-	Action string `json:"action"`
+	Action   string `json:"action"`
+	Released bool   `json:"released,omitempty"`
 }

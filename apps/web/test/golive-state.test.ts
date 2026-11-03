@@ -30,7 +30,7 @@ const PC: HelperInfo = {
   os: 'linux',
   arch: 'amd64',
   helperVersion: '0.1.0',
-  protocol: { major: 1, minor: 20 },
+  protocol: { major: 1, minor: 21 },
 };
 const SETTINGS: RoomSettings = {
   maxStreams: 4,

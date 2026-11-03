@@ -30,7 +30,7 @@ import (
 // and pointer pings (1.20). It stayed at 1.12 by mistake until 1.20, so the web hid the voice
 // sink and the go-live pings switch and called the helper outdated; it must follow the
 // protocol package now (TestProtocolVersionIsCurrent). Kept as a literal: helper:publish reads it.
-var ProtocolVersion = protocol.ProtocolVersion{Major: 1, Minor: 20}
+var ProtocolVersion = protocol.ProtocolVersion{Major: 1, Minor: 21}
 
 // PingInterval is how often the client pings (PROTOCOL.md §4).
 const PingInterval = 30 * time.Second

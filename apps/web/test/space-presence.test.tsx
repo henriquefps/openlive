@@ -67,7 +67,7 @@ describe('SpacePresenceConnection', () => {
     const c = connect();
     expect(last().hello).toMatchObject({
       type: 'hello',
-      payload: { client: 'web', tabId: 't_tab', protocol: { major: 1, minor: 20 } },
+      payload: { client: 'web', tabId: 't_tab', protocol: { major: 1, minor: 21 } },
     });
     expect(c.getState().status).toBe('connecting');
     last().receive('space.presence', { ...SERVER, rooms: [GAME] }, '1');

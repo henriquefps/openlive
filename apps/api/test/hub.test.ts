@@ -55,7 +55,7 @@ async function openHub(userId: string, deviceId?: string): Promise<Client> {
   return Client.adopt(res);
 }
 
-const PROTOCOL = { major: 1, minor: 20 };
+const PROTOCOL = { major: 1, minor: 21 };
 
 async function tab(userId: string, tabId = `t_${crypto.randomUUID().slice(0, 8)}`) {
   const client = await openHub(userId);
@@ -346,6 +346,12 @@ describe('commands', () => {
       type: 'error',
       payload: { code: 'unknown_message_type', messageType: 'helper.status' },
     });
+    expect(
+      await t.request('helper.voiceShortcut', { deviceId, action: 'toggleMute', pressed: true }),
+    ).toMatchObject({
+      type: 'error',
+      payload: { code: 'unknown_message_type', messageType: 'helper.voiceShortcut' },
+    });
   });
 });
 
@@ -382,6 +388,32 @@ describe('reports', () => {
     };
     sendRaw(h, 'helper.stats', stats);
     expect((await t2.take('helper.stats')).payload).toEqual(stats);
+  });
+
+  it('relays a global voice shortcut to every tab with the helper own deviceId (8.5)', async () => {
+    const user = await newHubUser();
+    const deviceId = await newDevice(user);
+    const { client: t1 } = await tab(user);
+    const { client: t2 } = await tab(user);
+    const { client: h } = await helper(user, deviceId);
+    sendRaw(h, 'helper.voiceShortcut', {
+      deviceId: 'd_spoofed',
+      action: 'pushToTalk',
+      pressed: true,
+    });
+    sendRaw(h, 'helper.voiceShortcut', { deviceId, action: 'pushToTalk', pressed: false });
+    for (const t of [t1, t2]) {
+      expect((await t.take('helper.voiceShortcut')).payload).toEqual({
+        deviceId,
+        action: 'pushToTalk',
+        pressed: true,
+      });
+      expect((await t.take('helper.voiceShortcut')).payload).toEqual({
+        deviceId,
+        action: 'pushToTalk',
+        pressed: false,
+      });
+    }
   });
 
   it('gives a tab that connects later the last status of each online helper', async () => {

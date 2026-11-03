@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/henriquefps/openlive/helper/internal/api"
+	"github.com/henriquefps/openlive/helper/internal/hotkeys"
 	"github.com/henriquefps/openlive/helper/internal/media"
 	protocol "github.com/henriquefps/openlive/packages/protocol/go"
 )
@@ -472,6 +473,30 @@ func (c *controller) broadcast(ctx context.Context, p protocol.Payload) {
 	if hub != nil {
 		c.send(ctx, hub, p)
 	}
+}
+
+// voiceShortcut tells the user's web tabs that a global voice shortcut went down or up
+// (helper.voiceShortcut, PROTOCOL.md §8.5). It is not a report of the stream, so it skips
+// observe; with no hub socket it is dropped.
+func (c *controller) voiceShortcut(ctx context.Context, a hotkeys.Action, pressed bool) {
+	var action protocol.VoiceShortcutAction
+	switch a {
+	case hotkeys.Talk:
+		action = protocol.VoiceShortcutActionPushToTalk
+	case hotkeys.Mute:
+		action = protocol.VoiceShortcutActionToggleMute
+	case hotkeys.Deafen:
+		action = protocol.VoiceShortcutActionToggleDeafen
+	default:
+		return
+	}
+	c.mu.Lock()
+	hub := c.hub
+	c.mu.Unlock()
+	if hub == nil {
+		return
+	}
+	c.send(ctx, hub, protocol.HelperVoiceShortcutPayload{DeviceID: c.deviceID, Action: action, Pressed: pressed})
 }
 
 func (c *controller) send(ctx context.Context, hub hubSender, p protocol.Payload) {

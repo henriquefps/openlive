@@ -107,5 +107,9 @@ final class WireTests: XCTestCase {
         let bound = Message.json(.hotkeysBound, HotkeysBound(results: [HotkeyResult(action: "stop", trigger: "CTRL+ALT+SHIFT+x", ok: false, conflict: true, error: "taken")]))
         XCTAssertEqual(String(decoding: bound.payload, as: UTF8.self),
                        #"{"results":[{"action":"stop","conflict":true,"error":"taken","ok":false,"trigger":"CTRL+ALT+SHIFT+x"}]}"#)
+        // A press has no "released"; a release does (push-to-talk).
+        XCTAssertEqual(String(decoding: Message.json(.hotkey, Hotkey(action: "talk")).payload, as: UTF8.self), #"{"action":"talk"}"#)
+        XCTAssertEqual(String(decoding: Message.json(.hotkey, Hotkey(action: "talk", released: true)).payload, as: UTF8.self),
+                       #"{"action":"talk","released":true}"#)
     }
 }

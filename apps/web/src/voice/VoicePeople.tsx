@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
-import { canActOn } from '../api/permissions.ts';
+import { canActOn } from '@openlive/client';
 import type { VoiceModeration } from '../room/socket-api.ts';
 import type { VoiceClient, VoiceClientState } from './client.ts';
 import type { VoiceParticipant } from './contract.ts';

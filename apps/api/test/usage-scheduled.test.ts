@@ -83,7 +83,12 @@ describe('scheduled handler', () => {
 
   it('reports missing pieces and filters TURN by the instance key', async () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
-    expect(await runUsageCron({ ...configured, CLOUDFLARE_ACCOUNT_ID: '' }, new Date())).toEqual({
+    expect(
+      await runUsageCron(
+        { ...configured, CLOUDFLARE_ACCOUNT_ID: '' },
+        new Date('2026-10-01T12:00:00Z'),
+      ),
+    ).toEqual({
       status: 'skipped',
       missing: ['CLOUDFLARE_ACCOUNT_ID'],
     });

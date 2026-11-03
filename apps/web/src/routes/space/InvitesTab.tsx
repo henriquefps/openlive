@@ -44,7 +44,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
-import { spaceAbilities } from '../../api/permissions.ts';
+import { spaceAbilities } from '@openlive/client';
 import {
   type Invite,
   invitesQuery,

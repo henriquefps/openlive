@@ -175,6 +175,13 @@ func TestAgentJSON(t *testing.T) {
 	if err := json.Unmarshal([]byte(`{"results":[{"action":"stop","conflict":true,"error":"taken","ok":false,"trigger":"CTRL+ALT+SHIFT+x"}]}`), &bound); err != nil {
 		t.Fatal(err)
 	}
+	var press, release Hotkey
+	if err := json.Unmarshal([]byte(`{"action":"talk"}`), &press); err != nil || press.Released {
+		t.Errorf("press %+v, %v", press, err)
+	}
+	if err := json.Unmarshal([]byte(`{"action":"talk","released":true}`), &release); err != nil || !release.Released || release.Action != "talk" {
+		t.Errorf("release %+v, %v", release, err)
+	}
 	if r := bound.Results[0]; r.Action != "stop" || r.OK || !r.Conflict || r.Trigger != "CTRL+ALT+SHIFT+x" {
 		t.Errorf("bound %+v", bound)
 	}

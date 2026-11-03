@@ -7,10 +7,15 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { type AutoState, initialAuto, judge, startLayer, stepAuto } from './automatic.ts';
-import type { PlayerSource, Rid, SourceState } from './source.ts';
-import { readStats, type StatsCounters, type StatsSample } from './stats.ts';
-import { initialWatchdog, stepWatchdog, type WatchdogState } from './watchdog.ts';
+import {
+  isCellularConnection,
+  PlaybackPolicy,
+  type PlayerSource,
+  type Quality,
+  type Rid,
+  type SourceState,
+  type StatsSample,
+} from '@openlive/client';
 
 const NO_SOURCE: SourceState = { kind: 'connecting' };
 const noop = () => () => undefined;
@@ -26,18 +31,18 @@ export function useSourceSnapshot(source: PlayerSource | null): {
   return { state, layer };
 }
 
-export type Quality = 'auto' | Rid;
+export type { Quality };
 
 /** A cellular connection, where Automatic starts on the middle layer. */
 export function isCellular(): boolean {
   const connection = (navigator as Navigator & { connection?: { type?: string } }).connection;
-  return connection?.type === 'cellular';
+  return isCellularConnection(connection?.type);
 }
 
 /**
  * Once a second while there is a source: read getStats(), feed the watchdog (stall → retry with
- * backoff) and, on Automatic, the layer policy. Returns the last sample for stats for nerds and
- * whether the network looks unstable.
+ * backoff) and, on Automatic, the layer policy (@openlive/client's PlaybackPolicy). Returns the
+ * last sample for stats for nerds and whether the network looks unstable.
  */
 export function usePlaybackLoop({
   source,
@@ -67,10 +72,7 @@ export function usePlaybackLoop({
 
   useEffect(() => {
     if (!source) return;
-    let counters: StatsCounters | null = null;
-    let watchdog: WatchdogState = initialWatchdog(performance.now());
-    let auto: AutoState | null = null;
-    let start: Rid | null = null;
+    const policy = new PlaybackPolicy(source, performance.now());
     let busy = false;
     const timer = setInterval(() => {
       if (busy) return;
@@ -78,36 +80,14 @@ export function usePlaybackLoop({
       source
         .getStats()
         .then((report) => {
-          const now = performance.now();
-          const next = readStats(report, counters, now);
-          counters = next.counters;
-          setSample(next);
-
-          const step = stepWatchdog(watchdog, {
-            now,
-            framesDecoded: next.framesDecoded,
-            active: activeRef.current && source.state.kind === 'live',
+          const next = policy.step(report, performance.now(), {
+            quality: qualityRef.current,
+            active: activeRef.current,
+            economy: economyRef.current,
+            cellular: isCellular(),
           });
-          watchdog = step.state;
-          if (step.retry) source.retry({ framesDecoded: next.framesDecoded });
-
-          const rids = source.layers.map((l) => l.rid);
-          const nominalFps = source.layers.find((l) => l.rid === source.layer)?.fps ?? null;
-          if (qualityRef.current !== 'auto' || source.state.kind !== 'live' || rids.length < 2) {
-            auto = null;
-            setUnstable(judge(next, nominalFps) === 'bad');
-            return;
-          }
-          if (!auto) {
-            start = startLayer(rids, isCellular() || economyRef.current);
-            const first = start ?? rids[0] ?? 'f';
-            auto = initialAuto(first, now);
-            if (source.layer !== first) source.setLayer(first);
-          }
-          auto = stepAuto(auto, next, { layers: rids, nominalFps });
-          if (auto.layer !== source.layer) source.setLayer(auto.layer);
-          const dropped = start !== null && rids.indexOf(auto.layer) > rids.indexOf(start);
-          setUnstable(dropped || judge(next, nominalFps) === 'bad');
+          setSample(next.sample);
+          setUnstable(next.unstable);
         })
         .catch(() => undefined)
         .finally(() => {

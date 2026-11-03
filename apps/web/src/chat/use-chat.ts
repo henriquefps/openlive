@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { chatOpened } from './api.ts';
-import { ChatClient, type ChatClientOptions, type ChatSocket } from './client.ts';
+import { ChatClient, type ChatClientOptions, type ChatSocket } from '@openlive/client';
 
 /**
  * The room's text chat while mounted. The client listens from before the socket opens, so it sees

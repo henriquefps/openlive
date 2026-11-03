@@ -48,9 +48,9 @@ func TestBind(t *testing.T) {
 	}
 	t.Log("press Ctrl+Alt+Shift+H now")
 	select {
-	case a := <-s.Activated():
-		if a != Curtain {
-			t.Fatalf("pressed %s", a)
+	case ev := <-s.Events():
+		if ev.Action != Curtain || ev.Released {
+			t.Fatalf("pressed %+v", ev)
 		}
 	case <-time.After(30 * time.Second):
 		t.Fatal("no press within 30 s")

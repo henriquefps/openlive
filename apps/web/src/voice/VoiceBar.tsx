@@ -32,10 +32,12 @@ import { Spinner } from '@/components/ui/spinner';
 import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
 import { translateError } from '../i18n/errors.ts';
+import { useHubState } from '../hub/use-hub.ts';
 import { isIos, useTip } from '../lib/tips.ts';
 import { useTutorialScreen } from '../tutorial/context.ts';
 import type { CameraClient, CameraClientState } from './camera.ts';
 import type { VoiceClient, VoiceClientState } from './client.ts';
+import { voiceShortcutHelpers } from './global-shortcuts.ts';
 import { keyLabel } from './prefs.ts';
 
 // The voice bar: join or leave, mute, deafen, push-to-talk and
@@ -522,6 +524,8 @@ function VoiceNotices({ client, state }: { client: VoiceClient | null; state: Vo
   );
   const joined = state.phase === 'joined';
   const iosTip = useTip('voice-ios-background', joined && ios);
+  const hasShortcuts = voiceShortcutHelpers(useHubState().helpers).length > 0;
+  const shortcutsTip = useTip('voice-global-shortcuts', joined && hasShortcuts);
   return (
     <>
       {state.removed && (
@@ -559,6 +563,11 @@ function VoiceNotices({ client, state }: { client: VoiceClient | null; state: Vo
           >
             {t('voice.headphones.dismiss')}
           </Button>
+        </p>
+      )}
+      {shortcutsTip.show && (
+        <p className="text-[0.8125rem] text-muted-foreground" data-testid="global-shortcuts-tip">
+          {t('voice.tips.globalShortcuts')} <DismissTip onClick={shortcutsTip.dismiss} />
         </p>
       )}
       {iosTip.show && (

@@ -111,9 +111,9 @@ func (d *desktop) macEvents(ctx context.Context, a *macagent.Agent, fallback not
 					d.run(act)
 				}
 			})
-		case act := <-a.Pressed():
-			d.log.Debug("shortcut pressed", "action", act)
-			d.enqueue(func() { d.shortcut(hotkeys.Action(act)) })
+		case hk := <-a.Pressed():
+			d.log.Debug("shortcut", "action", hk.Action, "released", hk.Released)
+			d.enqueue(func() { d.shortcut(hotkeys.Event{Action: hotkeys.Action(hk.Action), Released: hk.Released}) })
 		case n := <-a.Notifications():
 			if n.State == sidecar.NotificationsAuthorized {
 				d.notes.SetNotifier(a)

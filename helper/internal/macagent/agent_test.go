@@ -87,6 +87,7 @@ func fakeAgent(mode string, args []string) int {
 			}
 			_ = sidecar.WriteJSON(conn, sidecar.TypeHotkeysBound, res)
 			_ = sidecar.WriteJSON(conn, sidecar.TypeHotkey, sidecar.Hotkey{Action: "curtain"})
+			_ = sidecar.WriteJSON(conn, sidecar.TypeHotkey, sidecar.Hotkey{Action: "talk", Released: true})
 		}
 	}
 }
@@ -145,8 +146,11 @@ func TestAgent(t *testing.T) {
 	if len(res) != 2 || !res[0].OK || res[1].OK || !res[1].Conflict {
 		t.Errorf("results %+v", res)
 	}
-	if act := within(t, a.Pressed(), "key press"); act != "curtain" {
-		t.Errorf("pressed %s", act)
+	if hk := within(t, a.Pressed(), "key press"); hk.Action != "curtain" || hk.Released {
+		t.Errorf("pressed %+v", hk)
+	}
+	if hk := within(t, a.Pressed(), "key release"); hk.Action != "talk" || !hk.Released {
+		t.Errorf("released %+v", hk)
 	}
 
 	id1, err := a.Notify(notify.Notification{Summary: "Live", Body: "Room"})

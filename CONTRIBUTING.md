@@ -46,7 +46,7 @@ pnpm notices --check  # THIRD_PARTY_NOTICES matches the dependencies; pnpm notic
 - **English** in everything that enters the repository: code, identifiers, comments, logs,
   commit messages, pull requests and docs.
 - **Localized interface.** No user-visible text as a literal in JSX: strings live in
-  `apps/web/src/locales/` in English and Brazilian Portuguese
+  `packages/client/locales/` (shared by the web and the app) in English and Brazilian Portuguese
   . The API returns error codes
   with parameters (`{ "code": "stream_permission_required" }`) and the web translates them.
 - **Permissions through `can()`.** Every access decision in the API goes through

@@ -3,6 +3,18 @@
 All notable changes to Openlive. The server (Worker and web app) and the helper share one version.
 The wire protocol has its own version, in [docs/PROTOCOL.md](docs/PROTOCOL.md).
 
+## 0.1.4 (2026-11-02)
+
+- Global voice shortcuts through the helper: push-to-talk, mute and deafen work while a game has
+  the focus (protocol 1.21, `helper.voiceShortcut`). Settings > Voice and the voice bar say when a
+  helper provides them; the keys are in the helper's config file (`talk`, `mute`, `deafen`).
+- The web calls an instance a "server" in what people read, and hides its address when the address
+  is already its name.
+- App sign-in carries an invite, so new people can sign up from the app on invite-only servers
+  (protocol 11.6).
+- The web and the upcoming Android app share one client library (`packages/client`) for the API,
+  sockets, chat, watching and voice. The Android app is not released yet.
+
 ## 0.1.3 (2026-11-02)
 
 Helper fixes.

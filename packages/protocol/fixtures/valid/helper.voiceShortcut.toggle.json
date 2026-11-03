@@ -1,0 +1,4 @@
+{
+  "type": "helper.voiceShortcut",
+  "payload": { "deviceId": "d_pc", "action": "toggleMute", "pressed": true }
+}

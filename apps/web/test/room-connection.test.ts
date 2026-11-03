@@ -105,7 +105,7 @@ describe('RoomConnection', () => {
       type: 'hello',
       id: '1',
       payload: {
-        protocol: { major: 1, minor: 20 },
+        protocol: { major: 1, minor: 21 },
         client: 'web',
         clientVersion: expect.any(String),
         tabId: 't_tab',

@@ -112,7 +112,9 @@ function SignIn({ returnTo }: { returnTo: string | undefined }) {
   return (
     <div className="flex flex-col gap-4">
       {/* An invite opened on a phone: the app can sign in and join by itself. */}
-      {context.invite && <OpenInApp inviteToken={context.invite} />}
+      {context.invite && !returnTo?.startsWith('/app/authorize') && (
+        <OpenInApp inviteToken={context.invite} />
+      )}
       {hasContext && (
         <Alert>
           <EnvelopeOpenIcon />

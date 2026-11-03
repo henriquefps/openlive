@@ -41,6 +41,7 @@ import { TutorialProvider } from '../tutorial/TutorialProvider.tsx';
 import { useIsMobile } from '../hooks/use-mobile.ts';
 import { VoiceConnected } from '../voice/VoiceConnected.tsx';
 import { VoiceSessionProvider } from '../voice/VoiceSessionProvider.tsx';
+import { VoiceGlobalShortcuts } from '../voice/VoiceGlobalShortcuts.tsx';
 import { VoiceSinkRouting } from '../voice/VoiceSinkRouting.tsx';
 import { HubNotices, NoticeProvider } from '../notices/AppNotices.tsx';
 
@@ -116,6 +117,7 @@ function TopBar() {
       {me.data && <MentionNotices />}
       {me.data && <HubNotices />}
       {me.data && <VoiceSinkRouting />}
+      {me.data && <VoiceGlobalShortcuts />}
     </header>
   );
 }

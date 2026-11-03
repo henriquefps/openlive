@@ -1,0 +1,4 @@
+# Continuous Native Generation: `expo prebuild` writes these from app.json, never edit them.
+/android/
+/ios/
+.expo/

@@ -17,8 +17,8 @@ import { DEFAULT_DUCKING, loadDucking, streamDucking } from '../src/voice/duckin
 import { VoiceBar } from '../src/voice/VoiceBar.tsx';
 import { VoicePresence } from '../src/voice/VoicePeople.tsx';
 import { VoiceSettingsCard } from '../src/voice/VoiceSettingsCard.tsx';
-import en from '../src/locales/en/translation.json';
-import ptBR from '../src/locales/pt-BR/translation.json';
+import en from '@openlive/client/locales/en/translation.json';
+import ptBR from '@openlive/client/locales/pt-BR/translation.json';
 import { connectedHub } from './hub-fakes.ts';
 import { participant, setupVoice } from './voice-fakes.ts';
 

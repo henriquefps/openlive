@@ -179,7 +179,7 @@ describe('/download', () => {
     });
     renderApp('/download');
     expect(
-      await screen.findByText(/The macOS helper is not available on this instance yet/),
+      await screen.findByText(/The macOS helper is not available on this server yet/),
     ).toBeInTheDocument();
     expect(screen.queryByText(/--mac-dmg/)).toBeNull();
   });
@@ -224,7 +224,7 @@ describe('/download', () => {
     renderApp('/download');
     expect(
       await screen.findByText(
-        'The helper is not available on this instance yet. Ask whoever runs it.',
+        'The helper is not available on this server yet. Ask whoever runs it.',
       ),
     ).toBeInTheDocument();
     expect(screen.queryByText(/helper:publish/)).toBeNull();

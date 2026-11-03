@@ -103,7 +103,7 @@ describe('HomePage', () => {
     );
   });
 
-  it('says the instance is invite-only, and that no e-mail may come without an invite', async () => {
+  it('says the server is invite-only, and that no e-mail may come without an invite', async () => {
     fakeApi({
       'GET /api/health': health,
       'GET /api/me': anonymous,
@@ -112,7 +112,7 @@ describe('HomePage', () => {
     });
     renderApp('/');
     expect(
-      await screen.findByText(/This instance is invite-only: to create an account, ask for an/),
+      await screen.findByText(/This server is invite-only: to create an account, ask for an/),
     ).toBeInTheDocument();
     expect(screen.queryByText('No account yet? Signing in creates one.')).not.toBeInTheDocument();
     const user = userEvent.setup();
@@ -161,6 +161,36 @@ describe('HomePage', () => {
     expect(screen.getByRole('link', { name: 'Continue with Discord' })).toHaveAttribute(
       'href',
       '/api/auth/discord/start?returnTo=%2Fjoin%2FOL-1234-5678&code=OL-1234-5678',
+    );
+  });
+
+  it('carries the invite of the mobile app authorization into both logins', async () => {
+    const token = 'b'.repeat(43);
+    const returnTo = `/app/authorize?client=openlive-mobile&state=s&invite=${token}`;
+    fakeApi({
+      'GET /api/health': health,
+      'GET /api/me': anonymous,
+      'GET /api/auth/policy': () => Response.json({ signup: 'invite_only' }),
+    });
+    renderApp(`/?returnTo=${encodeURIComponent(returnTo)}`);
+    expect(await screen.findByText(/Sign in to accept your invite/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Continue with Discord' })).toHaveAttribute(
+      'href',
+      `/api/auth/discord/start?${new URLSearchParams({ returnTo, invite: token })}`,
+    );
+  });
+
+  it('ignores a malformed invite on the app authorization', async () => {
+    const returnTo = '/app/authorize?client=openlive-mobile&state=s&invite=nope';
+    fakeApi({
+      'GET /api/health': health,
+      'GET /api/me': anonymous,
+      'GET /api/auth/policy': () => Response.json({ signup: 'invite_only' }),
+    });
+    renderApp(`/?returnTo=${encodeURIComponent(returnTo)}`);
+    expect(await screen.findByRole('link', { name: 'Continue with Discord' })).toHaveAttribute(
+      'href',
+      `/api/auth/discord/start?${new URLSearchParams({ returnTo })}`,
     );
   });
 

@@ -55,7 +55,7 @@ import {
   type ChatEntry,
   type ChatState,
   charCount,
-} from './client.ts';
+} from '@openlive/client';
 import { mentionQuery, segments } from './text.ts';
 
 // The room's text chat: a panel beside the streams or voice, or

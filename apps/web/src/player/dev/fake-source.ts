@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import type { Layer, PlayerSource, Rid, SourceState, StatsReportLike } from '../source.ts';
+import type { Layer, PlayerSource, Rid, SourceState, StatsReportLike } from '@openlive/client';
 
 // Development only: a PlayerSource with no backend. A canvas draws a moving clock (captureStream)
 // and WebAudio beeps once a second, so the player, its controls, stats for nerds, Automatic and

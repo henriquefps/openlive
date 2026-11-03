@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import type { ErrorCode, ErrorPayload } from '@openlive/protocol';
+import type { ErrorInput } from '@openlive/client';
+import type { ErrorCode } from '@openlive/protocol';
 import codes from '@openlive/protocol/schema/codes.json';
 import type { TFunction } from 'i18next';
 import { formatWait } from './format.ts';
@@ -17,7 +18,7 @@ export function isErrorCode(value: unknown): value is ErrorCode {
 }
 
 /** An error body from the API: a code (possibly one this build does not know) plus parameters. */
-export type ErrorInput = Omit<ErrorPayload, 'code'> & { code: string };
+export type { ErrorInput };
 
 export function translateError(error: ErrorInput, t: TFunction = i18n.t): string {
   const { code, retryAfterMs, preset, ...params } = error;

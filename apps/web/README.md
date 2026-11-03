@@ -10,8 +10,9 @@ pnpm --filter @openlive/web dev   # web on http://localhost:5179, /api proxied t
 
 ## Localization
 
-- Strings live in `src/locales/<language>/translation.json`. `en` is the default and the fallback
-  for any missing key; `pt-BR` is the other language.
+- Strings live in `packages/client/locales/<language>/translation.json` (`@openlive/client`, shared
+  with the mobile app). `en` is the default and the fallback for any missing key; `pt-BR` is the
+  other language.
 - Language order: saved preference (`localStorage`, later `users.locale`) > browser language > `en`.
 - The API returns error codes, never text. `translateError()` in `src/i18n/errors.ts` turns a code
   from `@openlive/protocol` plus its parameters into a sentence.

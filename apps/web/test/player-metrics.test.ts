@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { describe, expect, it } from 'vitest';
 import { MetricsWindow } from '../src/player/metrics.ts';
-import type { StatsSample } from '../src/player/stats.ts';
+import type { StatsSample } from '@openlive/client';
 
 // The player's metrics window: one-second stats samples summed into the ~30 s body of
 // POST /api/metrics/viewer.

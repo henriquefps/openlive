@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import type { AppAuthorizeRequest, AppAuthorizeResponse } from '@openlive/protocol';
+import { APP_CLIENT, APP_REDIRECT_URI } from '@openlive/client';
 import { apiSend } from './client.ts';
 
 // The mobile app: the consent page of its login (/app/authorize) and the links that
 // open it from the web (an invite's "Open in app"). The API checks every value again; these
 // checks only decide what the page shows, and that it never redirects anywhere but the app.
 
-export const APP_CLIENT = 'openlive-mobile';
-export const APP_REDIRECT_URI = 'openlive://auth';
+export { APP_CLIENT, APP_REDIRECT_URI };
 /** apps/api/src/api/app.ts */
 const CODE_CHALLENGE = /^[A-Za-z0-9_-]{43}$/;
 const STATE = /^[\x21-\x7e]{1,128}$/;

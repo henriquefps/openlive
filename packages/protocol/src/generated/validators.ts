@@ -30,6 +30,7 @@ export const messageValidators: { readonly [T in MessageType]: ValidateFunction 
   "helper.stats": v.HelperStats,
   "helper.status": v.HelperStatus,
   "helper.stopStream": v.HelperStopStream,
+  "helper.voiceShortcut": v.HelperVoiceShortcut,
   "hub.welcome": v.HubWelcome,
   "kicked": v.Kicked,
   "member.joined": v.MemberJoined,

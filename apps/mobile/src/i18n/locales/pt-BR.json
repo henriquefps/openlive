@@ -1,0 +1,234 @@
+{
+  "common": {
+    "back": "Voltar",
+    "cancel": "Cancelar",
+    "retry": "Tentar de novo"
+  },
+  "home": {
+    "title": "Servidores",
+    "empty": "Nenhum servidor ainda",
+    "emptyHint": "Adicione o endereço de um servidor Openlive, leia o QR code dele ou abra um convite neste celular.",
+    "add": "Adicionar servidor",
+    "signedInAs": "Conectado como {{name}}",
+    "signedOut": "Não conectado"
+  },
+  "add": {
+    "title": "Adicionar um servidor",
+    "prompt": "Qual é o endereço do seu servidor Openlive?",
+    "urlLabel": "Endereço",
+    "urlPlaceholder": "openlive.example.com",
+    "continue": "Continuar",
+    "scan": "Ler QR code",
+    "checking": "Conferindo o servidor…",
+    "invalidUrl": "Isso não é um endereço. Tente algo como openlive.example.com.",
+    "version": "Versão {{version}}",
+    "signIn": "Adicionar e entrar",
+    "alreadyAdded": "Este servidor já está na lista.",
+    "open": "Abrir"
+  },
+  "compat": {
+    "too_old": "Este servidor roda uma versão do Openlive mais antiga do que o app aceita. Peça a quem cuida dele para atualizar.",
+    "too_new": "Este servidor precisa de uma versão mais nova do app. Atualize o Openlive.",
+    "no_app_login": "Este servidor ainda não permite entrar pelo app. Peça a quem cuida dele para atualizar."
+  },
+  "scan": {
+    "title": "Ler QR code",
+    "hint": "Aponte a câmera para o QR code de um servidor ou de um convite.",
+    "permission": "O Openlive precisa da câmera para ler o QR code.",
+    "grant": "Permitir a câmera",
+    "unknown": "Este QR code não é um endereço nem um convite do Openlive."
+  },
+  "instance": {
+    "spaces": "Spaces",
+    "noSpaces": "Você ainda não está em nenhum space deste servidor.",
+    "signIn": "Entrar",
+    "signingIn": "Entrando…",
+    "signOut": "Sair deste servidor",
+    "signedOutHint": "Entre para ver os seus spaces neste servidor.",
+    "expired": "Sua sessão neste servidor terminou. Entre de novo.",
+    "remove": "Remover este servidor do celular",
+    "role": {
+      "owner": "Dono",
+      "admin": "Admin",
+      "member": "Membro",
+      "guest": "Convidado"
+    },
+    "noSpacesHint": "Abra um link de convite neste celular para entrar em um."
+  },
+  "invite": {
+    "title": "Convite para {{space}}",
+    "room": "Sala: {{room}}",
+    "asRole": "Você entra como: {{role}}",
+    "accept": "Aceitar",
+    "request": "Pedir para entrar",
+    "joined": "Você entrou em {{space}}.",
+    "pending": "Seu pedido foi enviado. Quem administra o space vai avaliar.",
+    "signInFirst": "Entre para aceitar o convite.",
+    "dismiss": "Agora não"
+  },
+  "login": {
+    "cancelled": "O login foi fechado antes de terminar.",
+    "denied": "Você não permitiu o app neste servidor.",
+    "state_mismatch": "A resposta do login não corresponde a este pedido. Tente de novo.",
+    "invalid": "A resposta do login não é válida. Tente de novo."
+  },
+  "errors": {
+    "network": "Não foi possível falar com o servidor. Confira o endereço e a sua conexão.",
+    "invalid_instance": "Este endereço não responde como um servidor Openlive.",
+    "app_code_invalid": "O código do login expirou ou já foi usado. Tente de novo.",
+    "rate_limited": "Tentativas demais. Espere um minuto e tente de novo.",
+    "unauthenticated": "Sua sessão neste servidor terminou. Entre de novo.",
+    "generic": "Algo deu errado ({{code}})."
+  },
+  "mobile": {
+    "loading": "Carregando…",
+    "space": {
+      "noRooms": "Nenhuma sala ainda",
+      "noRoomsHint": "As salas deste space aparecem aqui quando alguém criar uma.",
+      "quiet": "Ninguém aqui",
+      "live": "Ao vivo",
+      "streaming": "Transmitindo: {{names}}",
+      "inVoice": "Na voz: {{names}}",
+      "someone": "Alguém",
+      "reconnecting": "Conexão perdida. Quem está aqui pode estar desatualizado até voltar.",
+      "presenceEnded": "As atualizações ao vivo deste space pararam. Puxe para baixo para tentar de novo."
+    },
+    "room": {
+      "tabLive": "Ao vivo",
+      "paused": "Pausada",
+      "viewers": "{{count}}/{{limit}} assistindo",
+      "replaced": "Esta sala foi aberta em outro lugar com a sua conta."
+    },
+    "chat": {
+      "off": "O chat está desligado nesta sala."
+    },
+    "player": {
+      "title": "Assistir",
+      "soon": "O player chega em breve",
+      "soonHint": "Assistir às transmissões no app é o próximo passo."
+    },
+    "offline": {
+      "saved": "Sem conexão. Mostrando dados salvos."
+    },
+    "voice": {
+      "title": "Voz",
+      "join": "Entrar na voz",
+      "nobody": "Ninguém na voz",
+      "preparing": "Iniciando a chamada…",
+      "startFailed": "O celular não conseguiu iniciar a chamada. Tente de novo.",
+      "unsupported": "Esta versão não consegue manter a chamada em segundo plano (só no Android).",
+      "micBlocked": "O microfone está bloqueado para o Openlive. Você está na voz, só ouvindo. Ative nas configurações do app para falar.",
+      "openSettings": "Abrir configurações",
+      "micError": {
+        "denied": "O microfone não foi permitido. Você está na voz, só ouvindo.",
+        "no_device": "Nenhum microfone encontrado. Você está na voz, só ouvindo.",
+        "device_lost": "O microfone foi tomado (uma ligação, ou foi desconectado). Você está só ouvindo.",
+        "unsupported": "Este celular não consegue usar o microfone aqui.",
+        "failed": "Não foi possível iniciar o microfone. Você está na voz, só ouvindo."
+      },
+      "status": {
+        "sending": "Microfone ligado",
+        "muted": "No mudo",
+        "deafened": "Áudio desativado",
+        "serverMuted": "Silenciado por um moderador",
+        "pushToTalk": "Segure para falar",
+        "listening": "Só ouvindo",
+        "connecting": "Conectando…"
+      },
+      "talk": "Segure para falar",
+      "talking": "Falando…",
+      "mode": {
+        "title": "Microfone",
+        "open": "Microfone aberto",
+        "ptt": "Aperte para falar",
+        "hint": "No modo aperte para falar, o microfone fica fechado até você segurar o botão grande."
+      },
+      "settings": "Configurações de voz",
+      "close": "Fechar",
+      "camera": "Câmera",
+      "cameraOn": "Câmera ligada",
+      "flip": "Virar",
+      "routeTitle": "Saída de áudio",
+      "route": {
+        "auto": "Automática",
+        "autoHint": "Fone quando houver, senão o alto-falante",
+        "speaker": "Alto-falante",
+        "earpiece": "Fone de ouvido do telefone",
+        "wired": "Fone com fio",
+        "bluetooth": "Bluetooth",
+        "playingThrough": "Tocando em {{route}}"
+      },
+      "pin": "Fixar {{name}}",
+      "unpin": "Soltar",
+      "you": "Você",
+      "someone": "Alguém",
+      "voiceOnly": "Na voz",
+      "barRoom": "Voltar para {{room}}",
+      "kickConfirm": "Remover {{name}} da voz?",
+      "cancel": "Cancelar",
+      "volumeLess": "Diminuir o volume",
+      "volumeMore": "Aumentar o volume",
+      "reset": "Voltar para 100 %",
+      "ended": "A chamada de voz terminou.",
+      "networkWeak": "Conexão fraca: a voz vem primeiro, as câmeras foram pausadas."
+    }
+  },
+  "voice": {
+    "notification": {
+      "title": "Na voz em #{{room}}",
+      "mute": "Silenciar",
+      "unmute": "Ativar som",
+      "leave": "Sair",
+      "channel": "Chamada de voz"
+    },
+    "permission": {
+      "title": "Microfone",
+      "message": "O Openlive precisa do microfone para os outros da sala te ouvirem. O som só vai para a sala em que você entra, e só enquanto você está nela.",
+      "continue": "Continuar",
+      "notNow": "Agora não",
+      "blockedMessage": "O microfone está bloqueado para o Openlive. Ative-o nas configurações do app para falar numa sala.",
+      "openSettings": "Abrir configurações"
+    },
+    "debug": {
+      "title": "Teste de voz",
+      "open": "Teste de voz (debug)",
+      "version": "Versão {{version}}",
+      "unsupported": "Esta versão não tem suporte nativo de voz (só Android).",
+      "server": "Servidor",
+      "room": "Sala",
+      "state": {
+        "idle": "Sem sessão",
+        "starting": "Iniciando…",
+        "active": "Em uma sessão"
+      },
+      "permissions": "Permissões",
+      "micPermission": "Permissão do microfone",
+      "notificationPermission": "Notificações",
+      "start": "Iniciar sessão",
+      "stop": "Encerrar sessão",
+      "mute": "Silenciar",
+      "unmute": "Ativar som",
+      "muted": "Silenciado na notificação",
+      "route": "Saída",
+      "routeAuto": "Automática",
+      "routeSpeaker": "Alto-falante",
+      "routeEarpiece": "Fone de ouvido do aparelho",
+      "active": "Tocando por",
+      "available": "Disponíveis",
+      "device": "Dispositivo de áudio",
+      "aec": "Cancelamento de eco por hardware",
+      "ns": "Supressão de ruído por hardware",
+      "swapped": "Dispositivo de áudio de voz",
+      "yes": "sim",
+      "no": "não",
+      "meter": "Nível do microfone",
+      "meterStart": "Iniciar medidor",
+      "meterStop": "Parar medidor",
+      "lastEvent": "Último evento",
+      "error": "Erro: {{code}}",
+      "granted": "concedida",
+      "denied": "negada",
+      "blocked": "bloqueada"
+    }
+  }
+}

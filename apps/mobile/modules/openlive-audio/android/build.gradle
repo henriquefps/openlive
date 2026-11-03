@@ -1,0 +1,21 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'dev.hfps.openlive.audio'
+version = '0.1.0'
+
+android {
+  namespace "dev.hfps.openlive.audio"
+  defaultConfig {
+    versionCode 1
+    versionName "0.1.0"
+  }
+}
+
+dependencies {
+  // OpenliveWebrtcBridge (package com.oney.WebRTCModule) swaps the PeerConnectionFactory's audio device.
+  compileOnly 'com.facebook.react:react-android'
+  implementation project(':react-native-webrtc')
+}

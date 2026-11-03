@@ -29,7 +29,7 @@ afterEach(() => {
 
 const CAPS = { stream: true, voice: true, camera: false, text: true };
 const HELPER = { user: USERS.member1.id, device: 'd_writes_pc' };
-const PROTOCOL = { major: 1, minor: 20 };
+const PROTOCOL = { major: 1, minor: 21 };
 const TRACKS = [
   { mid: '0', trackName: 'video', kind: 'video', rids: ['f', 'h', 'q'] },
   { mid: '1', trackName: 'audio', kind: 'audio' },

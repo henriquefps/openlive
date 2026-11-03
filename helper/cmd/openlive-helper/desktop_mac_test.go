@@ -185,7 +185,7 @@ func TestDesktopMacAgent(t *testing.T) {
 	if got := strings.Join(icons, " "); !strings.HasPrefix(got, "idle live curtain live") {
 		t.Errorf("icons %s", got)
 	}
-	if len(hk.Bindings) != 3 || hk.Bindings[0].Action != "curtain" || hk.Bindings[0].KeyCode != 0x04 || hk.Bindings[0].Modifiers != 0x1a00 {
+	if len(hk.Bindings) != 6 || hk.Bindings[3].Action != "talk" || hk.Bindings[3].KeyCode != 0x11 || hk.Bindings[0].Action != "curtain" || hk.Bindings[0].KeyCode != 0x04 || hk.Bindings[0].Modifiers != 0x1a00 {
 		t.Errorf("hotkeys %+v", hk)
 	}
 	var conflict bool

@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { useSyncExternalStore } from 'react';
 import { describe, expect, it } from 'vitest';
 import { ChatPanel } from '../src/chat/ChatPanel.tsx';
-import type { ChatClient } from '../src/chat/client.ts';
+import type { ChatClient } from '@openlive/client';
 import { chatSettings, message, SELF, setupChat, you } from './chat-fakes.ts';
 
 // The chat panel (chat/ChatPanel.tsx) over the chat client and a fake room socket: safe rendering,

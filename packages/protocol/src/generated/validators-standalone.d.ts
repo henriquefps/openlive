@@ -27,6 +27,7 @@ export declare const HelperStartStream: ValidateFunction;
 export declare const HelperStats: ValidateFunction;
 export declare const HelperStatus: ValidateFunction;
 export declare const HelperStopStream: ValidateFunction;
+export declare const HelperVoiceShortcut: ValidateFunction;
 export declare const HubWelcome: ValidateFunction;
 export declare const Kicked: ValidateFunction;
 export declare const MemberJoined: ValidateFunction;

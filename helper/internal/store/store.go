@@ -182,7 +182,7 @@ type Config struct {
 type Desktop struct {
 	// Tray false runs without the tray icon.
 	Tray *bool `json:"tray,omitempty"`
-	// Shortcuts maps an action (curtain, pause, stop) to a trigger ("Ctrl+Alt+Shift+H");
+	// Shortcuts maps an action (curtain, pause, stop, talk, mute, deafen) to a trigger ("Ctrl+Alt+Shift+H");
 	// "" or "off" turns one off, a missing one takes its default.
 	Shortcuts map[string]string `json:"shortcuts,omitempty"`
 	// Notifications switches the desktop notifications and their sounds.

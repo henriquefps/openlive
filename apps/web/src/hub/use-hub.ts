@@ -38,6 +38,15 @@ function sharedConnection(): HubConnection {
   return shared;
 }
 
+/**
+ * The hub's state for a screen that only reads it: it does not open the socket (the shell's
+ * header does while signed in), so it shows nothing until a hub is open.
+ */
+export function useHubState(): HubState {
+  const hub = useContext(HubContext) ?? sharedConnection();
+  return useSyncExternalStore(hub.subscribe, hub.getState);
+}
+
 /** The user hub while mounted: helpers online, their status and stats, and commands. */
 export function useHub(): { state: HubState; hub: HubConnection } {
   const provided = useContext(HubContext);

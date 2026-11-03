@@ -74,7 +74,7 @@ async function subscribe(
   expect(res.status).toBe(101);
   const client = Client.adopt(res);
   const id = client.send('hello', {
-    protocol: { major: 1, minor: 20 },
+    protocol: { major: 1, minor: 21 },
     client: 'web',
     clientVersion: '0.1.0',
     tabId: `t_${crypto.randomUUID().slice(0, 8)}`,
@@ -131,7 +131,7 @@ describe('the upgrade', () => {
     // A cookie connection cannot claim to be a helper.
     expect(
       await client.request('hello', {
-        protocol: { major: 1, minor: 20 },
+        protocol: { major: 1, minor: 21 },
         client: 'helper',
         clientVersion: '0.1.0',
         deviceId: 'd_pc',
@@ -143,7 +143,7 @@ describe('the upgrade', () => {
   it('replaces an older connection of the same tab (4002)', async () => {
     const spaceId = await newSpace();
     const hello = {
-      protocol: { major: 1, minor: 20 },
+      protocol: { major: 1, minor: 21 },
       client: 'web' as const,
       clientVersion: '0.1.0',
       tabId: 't_same',
@@ -161,7 +161,7 @@ describe('RoomDO → SpaceDO summaries', () => {
     const spaceId = await newSpace();
     const roomId = await newRoomIn(spaceId);
     const { client: tab, presence } = await subscribe(spaceId, USERS.member2.id);
-    expect(presence).toMatchObject({ spaceId, rooms: [], protocol: { major: 1, minor: 20 } });
+    expect(presence).toMatchObject({ spaceId, rooms: [], protocol: { major: 1, minor: 21 } });
 
     const { client: ana } = await Client.join(roomId, USERS.member1.id);
     expect((await ana.request('voice.join', {})).type).toBe('voice.joined');

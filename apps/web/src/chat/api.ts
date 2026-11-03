@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { queryOptions, useQueries, useQuery } from '@tanstack/react-query';
 import { meQuery } from '../api/auth.ts';
-import { apiGet } from '../api/client.ts';
+import { chatUnread } from '@openlive/client';
+import { webApi } from '../api/client.ts';
 import { isWaitError } from '../api/query-client.ts';
 
 // Unread chat messages for the space's room list and the navigation (docs/PROTOCOL.md 7.6). The
@@ -16,12 +17,7 @@ export const chatUnreadKey = (spaceId: string) => ['space', spaceId, 'chatUnread
 export const chatUnreadQuery = (spaceId: string) =>
   queryOptions({
     queryKey: chatUnreadKey(spaceId),
-    queryFn: async () =>
-      (
-        await apiGet<{ rooms: Record<string, number> }>(
-          `/api/spaces/${encodeURIComponent(spaceId)}/chat/unread`,
-        )
-      ).rooms,
+    queryFn: () => chatUnread(webApi, spaceId),
     refetchInterval: (query) => (isWaitError(query.state.error) ? false : REFRESH_MS),
     staleTime: 30_000,
   });
@@ -42,8 +38,7 @@ export function useTotalUnread(): number {
   );
 }
 
-/** "99+" above 99, as the room caps its counts. */
-export const unreadLabel = (count: number): string => (count > 99 ? '99+' : String(count));
+export { unreadLabel } from '@openlive/client';
 
 /** Rooms whose chat is open in this tab: their mentions show in the chat, not as a toast. */
 const openChats = new Set<string>();

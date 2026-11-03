@@ -38,12 +38,12 @@ type Bound struct {
 	Trigger string
 }
 
-// Session is a GlobalShortcuts portal session; Activated delivers the actions pressed.
+// Session is a GlobalShortcuts portal session; Events delivers the shortcuts pressed and released.
 type Session struct {
-	conn      *dbus.Conn
-	handle    dbus.ObjectPath
-	activated chan Action
-	Bound     []Bound
+	conn   *dbus.Conn
+	handle dbus.ObjectPath
+	events chan Event
+	Bound  []Bound
 
 	closeOnce sync.Once
 }
@@ -110,7 +110,7 @@ func Bind(ctx context.Context, bindings []Binding, opts Options) (*Session, erro
 	if handle == "" {
 		return nil, errors.New("global shortcuts: CreateSession returned no session")
 	}
-	s := &Session{conn: conn, handle: dbus.ObjectPath(handle), activated: make(chan Action, 8)}
+	s := &Session{conn: conn, handle: dbus.ObjectPath(handle), events: make(chan Event, 16)}
 	if err := s.listen(); err != nil {
 		return nil, err
 	}
@@ -162,26 +162,25 @@ func parseBound(v dbus.Variant) []Bound {
 	return out
 }
 
-// listen forwards the Activated signals of this session.
+// listen forwards the Activated and Deactivated signals of this session.
 func (s *Session) listen() error {
-	match := []dbus.MatchOption{dbus.WithMatchInterface(shortcutsIface), dbus.WithMatchMember("Activated")}
-	if err := s.conn.AddMatchSignal(match...); err != nil {
-		return fmt.Errorf("global shortcuts: %w", err)
+	for _, member := range []string{"Activated", "Deactivated"} {
+		match := []dbus.MatchOption{dbus.WithMatchInterface(shortcutsIface), dbus.WithMatchMember(member)}
+		if err := s.conn.AddMatchSignal(match...); err != nil {
+			return fmt.Errorf("global shortcuts: %w", err)
+		}
 	}
 	signals := make(chan *dbus.Signal, 16)
 	s.conn.Signal(signals)
 	go func() {
-		defer close(s.activated)
+		defer close(s.events)
 		for sig := range signals {
-			if sig.Name != shortcutsIface+".Activated" || len(sig.Body) < 2 {
+			ev, ok := eventOf(sig, s.handle)
+			if !ok {
 				continue
 			}
-			if h, _ := sig.Body[0].(dbus.ObjectPath); h != s.handle {
-				continue
-			}
-			id, _ := sig.Body[1].(string)
 			select {
-			case s.activated <- Action(id):
+			case s.events <- ev:
 			default:
 				// A burst of presses: drop, the next one gets through.
 			}
@@ -190,8 +189,29 @@ func (s *Session) listen() error {
 	return nil
 }
 
-// Activated delivers each press; it closes when the session ends.
-func (s *Session) Activated() <-chan Action { return s.activated }
+// eventOf is the shortcut event a portal signal of session handle carries.
+func eventOf(sig *dbus.Signal, handle dbus.ObjectPath) (Event, bool) {
+	var released bool
+	switch sig.Name {
+	case shortcutsIface + ".Activated":
+	case shortcutsIface + ".Deactivated":
+		released = true
+	default:
+		return Event{}, false
+	}
+	if len(sig.Body) < 2 {
+		return Event{}, false
+	}
+	if h, _ := sig.Body[0].(dbus.ObjectPath); h != handle {
+		return Event{}, false
+	}
+	id, _ := sig.Body[1].(string)
+	return Event{Action: Action(id), Released: released}, true
+}
+
+// Events delivers each press and release (push-to-talk needs both; the portal reports
+// Activated and Deactivated for every shortcut); it closes when the session ends.
+func (s *Session) Events() <-chan Event { return s.events }
 
 // Close ends the session; the desktop unbinds the shortcuts until the next run.
 func (s *Session) Close() {

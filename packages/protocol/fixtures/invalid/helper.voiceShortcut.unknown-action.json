@@ -1,0 +1,4 @@
+{
+  "type": "helper.voiceShortcut",
+  "payload": { "deviceId": "d_pc", "action": "toggleCamera", "pressed": true }
+}

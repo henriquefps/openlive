@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import type { StreamInfo } from '@openlive/protocol';
 import { createContext, useContext, useEffect, useState } from 'react';
-import type { PlayerSource } from './source.ts';
+import type { PlayerSource } from '@openlive/client';
 
 // Where the watch view gets its media once it holds a viewer slot: the rtc client (rtc/media.ts,
 // the room's SFU session with a pull per stream) in production, or the fake source

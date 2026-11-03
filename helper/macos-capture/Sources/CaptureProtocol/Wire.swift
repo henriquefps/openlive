@@ -508,9 +508,12 @@ public struct HotkeysBound: Codable, Equatable {
 
 public struct Hotkey: Codable, Equatable {
     public var action: String
+    /// true when the shortcut was released (push-to-talk needs both edges); absent on a press.
+    public var released: Bool?
 
-    public init(action: String) {
+    public init(action: String, released: Bool? = nil) {
         self.action = action
+        self.released = released
     }
 }
 

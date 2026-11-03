@@ -194,6 +194,52 @@ function expectRefused(res: Response, code: string) {
   expect(setCookies(res)['__Host-ol_session']).toBeUndefined();
 }
 
+// --- the mobile app's /app/authorize as the return path -----------------------------------
+
+describe('invite-only sign-up through the app authorization', () => {
+  const appReturn = (extra: string) =>
+    '/app/authorize?client=openlive-mobile&redirect_uri=openlive%3A%2F%2Fauth' +
+    `&code_challenge=${'c'.repeat(43)}&code_challenge_method=S256&state=${'s'.repeat(22)}` +
+    `&device_name=Pixel%208${extra}`;
+
+  it('creates a new account with the invite and lands back on /app/authorize', async () => {
+    const w = await world();
+    const { token } = await invite(w);
+    const returnTo = appReturn(`&invite=${token}`);
+    const profile = discordUser();
+    const { res } = await discordLogin(profile, { returnTo, invite: token });
+    expectSession(res);
+    expect(`${location(res).pathname}${location(res).search}`).toBe(returnTo);
+    expect(await identityOwner('discord', profile.id)).not.toBeNull();
+  });
+
+  it('creates a new account by e-mail with the invite, keeping the whole app query', async () => {
+    const w = await world();
+    const { token } = await invite(w);
+    const returnTo = appReturn(`&invite=${token}`);
+    const start = await startEmail({ email: newEmail(), returnTo, invite: token });
+    expect(start.status).toBe(202);
+    const res = await verify(mail.lastToken());
+    expectSession(res);
+    expect(`${location(res).pathname}${location(res).search}`).toBe(returnTo);
+  });
+
+  it('refuses a new account with an unusable invite', async () => {
+    const profile = discordUser();
+    const { res } = await discordLogin(profile, {
+      returnTo: appReturn(`&invite=${'x'.repeat(43)}`),
+      invite: 'x'.repeat(43),
+    });
+    expectRefused(res, 'invite_not_found');
+  });
+
+  it('refuses a new account with no invite', async () => {
+    const profile = discordUser();
+    const { res } = await discordLogin(profile, { returnTo: appReturn('') });
+    expectRefused(res, 'signup_invite_required');
+  });
+});
+
 // --- invite-only × Discord ------------------------------------------------------------------
 
 describe('invite-only sign-up, Discord', () => {

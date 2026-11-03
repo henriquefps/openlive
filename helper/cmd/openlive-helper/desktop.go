@@ -181,6 +181,12 @@ func (d *desktop) bindShortcuts(ctx context.Context, bindings []hotkeys.Binding)
 			return d.cat.T(i18n.ShortcutCurtain)
 		case hotkeys.Pause:
 			return d.cat.T(i18n.ShortcutPause)
+		case hotkeys.Talk:
+			return d.cat.T(i18n.ShortcutTalk)
+		case hotkeys.Mute:
+			return d.cat.T(i18n.ShortcutMute)
+		case hotkeys.Deafen:
+			return d.cat.T(i18n.ShortcutDeafen)
 		}
 		return d.cat.T(i18n.ShortcutStop)
 	}
@@ -207,14 +213,27 @@ func (d *desktop) bindShortcuts(ctx context.Context, bindings []hotkeys.Binding)
 		bound = append(bound, string(b.Action)+"="+trigger)
 	}
 	d.log.Info("global shortcuts bound", "shortcuts", strings.Join(bound, " "))
-	for a := range s.Activated() {
-		d.log.Debug("shortcut pressed", "action", a)
-		d.enqueue(func() { d.shortcut(a) })
+	for ev := range s.Events() {
+		d.log.Debug("shortcut", "action", ev.Action, "released", ev.Released)
+		d.enqueue(func() { d.shortcut(ev) })
 	}
 }
 
-// shortcut runs a pressed shortcut against the current state.
-func (d *desktop) shortcut(a hotkeys.Action) {
+// shortcut runs a pressed (or released) shortcut against the current state.
+func (d *desktop) shortcut(ev hotkeys.Event) {
+	a := ev.Action
+	if a.IsVoice() {
+		// Voice shortcuts go to the web tab that is in voice, whether or not a stream runs
+		// (docs/PROTOCOL.md section 8.5). Only push-to-talk reports its release.
+		if ev.Released && a != hotkeys.Talk {
+			return
+		}
+		d.ctl.voiceShortcut(context.Background(), a, !ev.Released)
+		return
+	}
+	if ev.Released {
+		return
+	}
 	switch a {
 	case hotkeys.Curtain, hotkeys.Pause:
 		if act, ok := tray.Toggle(a == hotkeys.Curtain, d.status); ok {

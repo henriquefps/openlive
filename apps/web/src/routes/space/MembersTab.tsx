@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { errorBodyOf } from '../../api/client.ts';
-import { assignableRoles, canActOn } from '../../api/permissions.ts';
+import { assignableRoles, canActOn } from '@openlive/client';
 import {
   type Member,
   membersQuery,

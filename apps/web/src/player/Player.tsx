@@ -50,8 +50,8 @@ import {
   useTrackMuted,
   useWakeLock,
 } from './hooks.ts';
-import { type ScreenInput, screenFor, VIDEO_SCREENS } from './screens.ts';
-import type { Layer, PlayerSource, Rid } from './source.ts';
+import { type ScreenInput, screenFor, VIDEO_SCREENS } from '@openlive/client';
+import type { Layer, PlayerSource, Rid } from '@openlive/client';
 import { StateScreen } from './StateScreen.tsx';
 import { StatsOverlay } from './StatsOverlay.tsx';
 import { useViewerMetrics, type WatchStart } from './metrics.ts';

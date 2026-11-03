@@ -199,7 +199,11 @@ final class HotkeyCenter {
 
     private func installHandler() {
         guard handler == nil else { return }
-        var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
+        // Pressed and released: the helper acts on a press, and push-to-talk also on the release.
+        var specs = [
+            EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed)),
+            EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyReleased)),
+        ]
         let me = Unmanaged.passUnretained(self).toOpaque()
         InstallEventHandler(GetApplicationEventTarget(), { _, event, data in
             guard let event, let data else { return OSStatus(eventNotHandledErr) }
@@ -207,14 +211,15 @@ final class HotkeyCenter {
             let status = GetEventParameter(event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID),
                                            nil, MemoryLayout<EventHotKeyID>.size, nil, &id)
             guard status == noErr, id.signature == HotkeyCenter.signature else { return OSStatus(eventNotHandledErr) }
-            Unmanaged<HotkeyCenter>.fromOpaque(data).takeUnretainedValue().pressed(id.id)
+            let released = GetEventKind(event) == UInt32(kEventHotKeyReleased)
+            Unmanaged<HotkeyCenter>.fromOpaque(data).takeUnretainedValue().pressed(id.id, released: released)
             return noErr
-        }, 1, &spec, me, &handler)
+        }, specs.count, &specs, me, &handler)
     }
 
-    private func pressed(_ id: UInt32) {
+    private func pressed(_ id: UInt32, released: Bool) {
         guard let action = actions[id] else { return }
-        sink.send(.json(.hotkey, Hotkey(action: action)))
+        sink.send(.json(.hotkey, Hotkey(action: action, released: released ? true : nil)))
     }
 }
 

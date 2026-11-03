@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openlive.invalid/protocol/v1/messages/helper.voiceShortcut.json",
+  "title": "HelperVoiceShortcutMessage",
+  "description": "A global voice shortcut the helper's user pressed or released, for the web tab that is in voice (since 1.21). Push-to-talk reports both edges; the toggles report the press only.",
+  "x-openlive": { "phase": 3, "channels": ["hub"], "from": ["helper"], "to": ["web"] },
+  "type": "object",
+  "properties": {
+    "type": { "const": "helper.voiceShortcut" },
+    "id": { "$ref": "../envelope.json#/$defs/MessageId" },
+    "payload": { "$ref": "#/$defs/HelperVoiceShortcutPayload" }
+  },
+  "required": ["type", "payload"],
+  "additionalProperties": false,
+  "$defs": {
+    "HelperVoiceShortcutPayload": {
+      "title": "HelperVoiceShortcutPayload",
+      "type": "object",
+      "properties": {
+        "deviceId": { "$ref": "../common.json#/$defs/Id" },
+        "action": { "$ref": "../common.json#/$defs/VoiceShortcutAction" },
+        "pressed": {
+          "type": "boolean",
+          "description": "true when the shortcut went down, false when it was released (push-to-talk only)."
+        }
+      },
+      "required": ["deviceId", "action", "pressed"],
+      "additionalProperties": false
+    }
+  }
+}

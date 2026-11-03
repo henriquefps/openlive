@@ -1,0 +1,16 @@
+{
+  "extends": "expo/tsconfig.base.json",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "allowJs": false,
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
+  },
+  "include": ["index.ts", "src", "test"]
+}

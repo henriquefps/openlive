@@ -43,23 +43,7 @@ export function voiceSinkHelpers(
     .sort();
 }
 
-/**
- * The browser's output that is the voice sink: its label is the sink's description. Labels are
- * empty until the microphone was allowed; some browsers add a suffix ("… (Virtual)").
- */
-export function findVoiceSinkDevice(
-  devices: readonly Pick<MediaDeviceInfo, 'kind' | 'label' | 'deviceId'>[],
-  label: string,
-): string | null {
-  const want = label.trim();
-  if (!want) return null;
-  const outputs = devices.filter(
-    (d) => d.kind === 'audiooutput' && d.deviceId !== '' && d.deviceId !== 'default',
-  );
-  const exact = outputs.find((d) => d.label.trim() === want);
-  const prefixed = outputs.find((d) => d.label.trim().startsWith(`${want} (`));
-  return (exact ?? prefixed)?.deviceId ?? null;
-}
+export { findVoiceSinkDevice } from '@openlive/client';
 
 /** Products that tell browsers of one family apart, where both sides can name them. */
 type Product = 'brave' | 'edge' | 'opera' | 'vivaldi';

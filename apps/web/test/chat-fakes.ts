@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import type { ChatMessage, Message, PayloadOf, RoomSettings, You } from '@openlive/protocol';
-import { ChatClient, type ChatClientOptions, type ChatSocket } from '../src/chat/client.ts';
+import { ChatClient, type ChatClientOptions, type ChatSocket } from '@openlive/client';
 
 // A fake room socket for the chat client: records requests, delivers server messages.
 

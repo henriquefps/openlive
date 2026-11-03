@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import i18n from '../src/i18n/index.ts';
 import Player, { type PlayerProps } from '../src/player/Player.tsx';
-import type { PlayerSource, SourceState } from '../src/player/source.ts';
+import type { PlayerSource, SourceState } from '@openlive/client';
 import { loadVolume } from '../src/player/volume.ts';
 
 const STREAM: StreamInfo = {

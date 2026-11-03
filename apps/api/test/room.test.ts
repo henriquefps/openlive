@@ -108,7 +108,7 @@ describe('handshake', () => {
     const roomId = await newRoom({ settings: { maxViewersPerStream: 4 } });
     await roomStub(roomId).upsertStream(testStream('st_1', 10));
     const { welcome } = await Client.join(roomId, USERS.admin.id);
-    expect(welcome.protocol).toEqual({ major: 1, minor: 20 });
+    expect(welcome.protocol).toEqual({ major: 1, minor: 21 });
     expect(welcome.minProtocol).toEqual({ major: 1, minor: 0 });
     expect(Math.abs(welcome.serverTime - Date.now())).toBeLessThan(5_000);
     expect(welcome.you).toMatchObject({
@@ -186,7 +186,7 @@ describe('handshake', () => {
       payload: {
         code: 'protocol_unsupported',
         minProtocol: { major: 1, minor: 0 },
-        maxProtocol: { major: 1, minor: 20 },
+        maxProtocol: { major: 1, minor: 21 },
       },
     });
     expect((await client.closed).code).toBe(4006);

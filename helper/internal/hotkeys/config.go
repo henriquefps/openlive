@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 // Package hotkeys binds the helper's global shortcuts (stop the stream,
-// privacy curtain; plus pause/resume) through the XDG GlobalShortcuts portal, which KDE
+// privacy curtain; plus pause/resume; and the voice shortcuts: push-to-talk, mute, deafen)
+// through the XDG GlobalShortcuts portal, which KDE
 // Plasma implements. Where the portal is missing the helper runs without shortcuts. On
 // macOS the same config becomes Carbon hot keys (mac.go).
 package hotkeys
@@ -19,19 +20,40 @@ const (
 	Curtain Action = "curtain"
 	Pause   Action = "pause"
 	Stop    Action = "stop"
+	// Talk, Mute and Deafen are the voice shortcuts: the helper reports them to the web tab
+	// that is in voice (docs/PROTOCOL.md section 8.5). Talk is push-to-talk: it reports the
+	// release too.
+	Talk   Action = "talk"
+	Mute   Action = "mute"
+	Deafen Action = "deafen"
 )
 
 // Actions lists every action in menu order.
-var Actions = []Action{Curtain, Pause, Stop}
+var Actions = []Action{Curtain, Pause, Stop, Talk, Mute, Deafen}
+
+// IsVoice reports whether a is one of the voice shortcuts.
+func (a Action) IsVoice() bool { return a == Talk || a == Mute || a == Deafen }
+
+// Event is a shortcut going down (Released false) or up. The toggles and the stream
+// shortcuts act on the press; push-to-talk also needs the release.
+type Event struct {
+	Action   Action
+	Released bool
+}
 
 // Defaults are the preferred triggers. Ctrl+Alt+Shift with a letter is free in the common
 // desktops, games, browsers and voice apps (Discord takes Ctrl+Shift+M/D, OBS binds nothing
 // by default, Ctrl+Alt+F-keys switch virtual terminals); three modifiers also keep "stop"
-// from firing by accident. The desktop may still ask the person to confirm or change them.
+// from firing by accident. The voice shortcuts follow the same rule with T (talk), M (mute)
+// and D (deafen): Discord's own defaults are Ctrl+Shift+M and Ctrl+Shift+D, which these do
+// not collide with. The desktop may still ask the person to confirm or change them.
 var Defaults = map[Action]string{
 	Curtain: "CTRL+ALT+SHIFT+h",
 	Pause:   "CTRL+ALT+SHIFT+p",
 	Stop:    "CTRL+ALT+SHIFT+x",
+	Talk:    "CTRL+ALT+SHIFT+t",
+	Mute:    "CTRL+ALT+SHIFT+m",
+	Deafen:  "CTRL+ALT+SHIFT+d",
 }
 
 // Binding is one shortcut to bind.
@@ -127,7 +149,7 @@ func isFunctionKey(k string) bool {
 func Parse(cfg map[string]string) ([]Binding, error) {
 	for name := range cfg {
 		if !slices.Contains(Actions, Action(name)) {
-			return nil, fmt.Errorf("shortcuts: unknown action %q (want curtain, pause or stop)", name)
+			return nil, fmt.Errorf("shortcuts: unknown action %q (want curtain, pause, stop, talk, mute or deafen)", name)
 		}
 	}
 	var out []Binding

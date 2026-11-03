@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import type { StreamInfo, VideoCodec } from '@openlive/protocol';
 import { vi } from 'vitest';
-import type { StatsReportLike } from '../src/player/source.ts';
+import type { StatsReportLike } from '@openlive/client';
 import type { RtcApi } from '../src/rtc/api.ts';
 import {
   type LocalTransceiverLike,

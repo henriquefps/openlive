@@ -1,6 +1,6 @@
 # Openlive protocol
 
-Protocol version: **1.20**
+Protocol version: **1.21**
 
 This document is the contract between the web app, the Worker and its Durable Objects (`RoomDO`,
 `UserHubDO`, `SpaceDO`) and the native helper. Change this document first, then the schema in
@@ -12,7 +12,7 @@ Go test suites, so both sides read the schema the same way.
 
 ## 1. Versioning
 
-- A version is `major.minor`. This document describes **1.20**.
+- A version is `major.minor`. This document describes **1.21**.
 - 1.1 adds the REST bodies of device pairing and the SFU proxy (`packages/protocol/schema/rest.json`,
   section 11) and their error codes; no message changed.
 - 1.2 adds the optional `encoder` and `layers[]` (per simulcast layer) to `helper.stats`.
@@ -98,6 +98,9 @@ Go test suites, so both sides read the schema the same way.
   messages `stream.setPings`, `pointer.ping` and `pointer.pinged` (with `PointerStyle`,
   `PointerColor`, `PointerShape`) and the error code `pings_disabled`. A helper before 1.20 never
   announces `pingOverlay`, so it never gets `pointer.pinged`.
+- 1.21 adds global voice shortcuts through the helper (section 8.5): the message
+  `helper.voiceShortcut` (helper → hub → web tabs) and `VoiceShortcutAction`. A helper before 1.21
+  never sends it.
 - Within a major version, changes are **additive only**: new message types, new optional fields,
   new enum values, new error codes. Nothing is removed, renamed, made required or given a new
   meaning. Each addition bumps the minor version and is marked "since 1.x" here.
@@ -767,6 +770,23 @@ and they would hear themselves.
   web browser. When it is the browser the web plays voice in and voice is not routed to the voice
   sink, the web warns the streamer.
 
+### 8.5 Global voice shortcuts (since 1.21)
+
+In the browser, push-to-talk, mute and deafen only work while the Openlive tab has focus. A helper
+that binds global shortcuts for them (a game can have the focus) reports each press as
+`helper.voiceShortcut { deviceId, action, pressed }`, with `action` one of `pushToTalk`,
+`toggleMute` and `toggleDeafen`.
+
+- Push-to-talk reports both edges (`pressed: true`, then `false`); the toggles report the press
+  only (`pressed: true`).
+- The hub relays it to all the user's web tabs, with the helper's own `deviceId`, like
+  `helper.status`. It stores nothing and sends no reply.
+- Only one tab acts: the one that is in voice, and when several are, the one that joined voice
+  most recently. It applies the action as the in-page controls do (push-to-talk only when the
+  person turned it on). A tab not in voice ignores it.
+- A helper announces the capability with its protocol: 1.21 or later. A helper before 1.21 never
+  sends the message.
+
 ## 9. Message catalogue
 
 Phase is the development phase that first needs the message. Direction: C→S client to the DO,
@@ -861,6 +881,7 @@ queue are exercised against test streams until real ones exist.
 | `helper.setVoiceOutput`  | 3     | W→H                       | `deviceId`, `label`? (since 1.16)                                                                                                                          | `ack` / `error`            |
 | `helper.status`          | 3     | H→W (all tabs)            | `deviceId`, `state`, `stream`?, `voiceSink`? (since 1.16)                                                                                                  |                            |
 | `helper.stats`           | 3     | H→W (all tabs)            | `deviceId`, `streamId`, `targetBitrateKbps`, `sentBitrateKbps`, `fps`, `width`, `height`, `packetLossPct`, `rttMs`, `encoder`? and `layers[]`? (since 1.2) |                            |
+| `helper.voiceShortcut`   | 3     | H→W (all tabs)            | `deviceId`, `action` (`VoiceShortcutAction`), `pressed` (since 1.21)                                                                                       |                            |
 | `notice`                 | 5     | S→C (web)                 | `event`, `roomId`?, `streamId`?, `userId`?                                                                                                                 |                            |
 
 ### 9.4 Space (since 1.13)
@@ -906,6 +927,7 @@ Defined in `packages/protocol/schema/common.json`; field-level detail is in the 
 | `VideoCodec`                                           | `h264` or `av1`: a video track's codec, what a viewer pulls (since 1.14). |
 | `VideoLayer`, `VideoLayers`                            | A stream's simulcast layers as encoded (since 1.19, 7.2).                 |
 | `PointerStyle`, `PointerColor`, `PointerShape`         | Look of a pointer ping (since 1.20, 7.9).                                 |
+| `VoiceShortcutAction`                                  | `pushToTalk`, `toggleMute`, `toggleDeafen` (since 1.21, 8.5).             |
 | `HelperInfo`, `SourceDescriptor`, `HelperStreamStatus` | Hub-side helper data.                                                     |
 | `HelperAudioApp`, `BrowserFamily`, `VoiceSink`         | Whose audio a stream captures; the voice sink (since 1.16, 8.4).          |
 
@@ -1242,7 +1264,12 @@ the app exchanges for an **app token**. The helper's pairing (section 11.1) is u
    `code_challenge` and a random `state`, and opens in the system browser (never a WebView):
    `/app/authorize?client=openlive-mobile&redirect_uri=openlive://auth&code_challenge=…&code_challenge_method=S256&state=…&device_name=…`.
    The page requires the normal login and keeps the whole query through it (`returnTo`, up to
-   1024 characters). `client` and `redirect_uri` must be exactly these values, the method `S256`,
+   1024 characters). A person opening an invite in the app (`openlive://join?instance=…&invite=…`)
+   adds the optional `&invite=<token>` (the invite's 43 base64url characters; anything else is
+   ignored). The login page reads it from `returnTo` as it does for `/invite/<token>`, so on an
+   `invite_only` instance a new account can be created (the invite is only checked, no use is
+   taken). The authorize page itself ignores `invite`; the app
+   accepts the invite afterwards with its app token. `client` and `redirect_uri` must be exactly these values, the method `S256`,
    `state` 1–128 printable ASCII characters, `device_name` 1–64 characters; anything else gets an
    error page and **no redirect** (RFC 6749 4.1.2.1). The page asks "Allow 'Openlive' on
    <device_name> to use your account on <instance>?":

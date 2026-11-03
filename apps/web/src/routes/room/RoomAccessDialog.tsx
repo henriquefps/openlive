@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/responsive-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { isManager } from '../../api/permissions.ts';
+import { isManager } from '@openlive/client';
 import {
   type Member,
   membersQuery,

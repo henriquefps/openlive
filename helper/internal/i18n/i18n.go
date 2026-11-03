@@ -45,6 +45,9 @@ const (
 	ShortcutCurtain    Key = "shortcut.curtain"
 	ShortcutPause      Key = "shortcut.pause"
 	ShortcutStop       Key = "shortcut.stop"
+	ShortcutTalk       Key = "shortcut.talk"
+	ShortcutMute       Key = "shortcut.mute"
+	ShortcutDeafen     Key = "shortcut.deafen"
 	ShortcutConflict   Key = "shortcut.conflict"
 	NotifyStarted      Key = "notify.started"
 	NotifyStartedBody  Key = "notify.started_body"
@@ -99,6 +102,9 @@ var catalog = map[Lang]map[Key]string{
 		ShortcutCurtain:    "Openlive: privacy curtain on/off",
 		ShortcutPause:      "Openlive: pause/resume the stream",
 		ShortcutStop:       "Openlive: stop the stream",
+		ShortcutTalk:       "Openlive: push-to-talk in voice (hold)",
+		ShortcutMute:       "Openlive: mute/unmute the microphone in voice",
+		ShortcutDeafen:     "Openlive: deafen/undeafen in voice",
 		ShortcutConflict:   "The shortcut %s is used by another app: pick another one in the helper's config file",
 		NotifyStarted:      "You are live",
 		NotifyStartedBody:  "Streaming %s to %s.",
@@ -151,6 +157,9 @@ var catalog = map[Lang]map[Key]string{
 		ShortcutCurtain:    "Openlive: ligar/desligar a cortina de privacidade",
 		ShortcutPause:      "Openlive: pausar/retomar a transmissão",
 		ShortcutStop:       "Openlive: parar a transmissão",
+		ShortcutTalk:       "Openlive: aperte para falar na voz (segure)",
+		ShortcutMute:       "Openlive: silenciar/reativar o microfone na voz",
+		ShortcutDeafen:     "Openlive: ensurdecer/voltar a ouvir na voz",
 		ShortcutConflict:   "O atalho %s já é usado por outro app: escolha outro no arquivo de configuração do helper",
 		NotifyStarted:      "Você está ao vivo",
 		NotifyStartedBody:  "Transmitindo %s em %s.",

@@ -35,7 +35,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 import { meQuery } from '../../api/auth.ts';
 import { errorBodyOf } from '../../api/client.ts';
-import { canManageRoom, isManager } from '../../api/permissions.ts';
+import { canManageRoom, isManager } from '@openlive/client';
 import { type Room, roomQuery, type Space, spaceKeys, useArchiveRoom } from '../../api/spaces.ts';
 import { roomTrail } from '../../components/breadcrumbs.ts';
 import { Page } from '../../components/Page.tsx';

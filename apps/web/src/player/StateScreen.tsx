@@ -20,7 +20,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 import { useNow } from '../hooks/use-now.ts';
 import type { WatchAccess } from '../room/connection.ts';
-import type { ScreenKind } from './screens.ts';
+import type { ScreenKind } from '@openlive/client';
 
 /** How long a queue offer lasts (PROTOCOL 7.3), for the countdown bar. */
 export const OFFER_MS = 30_000;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import type { StreamInfo } from '@openlive/protocol';
 import { describe, expect, it } from 'vitest';
-import { type ScreenInput, screenFor } from '../src/player/screens.ts';
+import { type ScreenInput, screenFor } from '@openlive/client';
 import {
   clampVolume,
   DEFAULT_VOLUME,

@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { formatBitrate } from '../i18n/format.ts';
 import { type DisplayCadence, screenLimit } from './display.ts';
 import type { Quality } from './hooks.ts';
-import type { Layer } from './source.ts';
-import type { StatsSample } from './stats.ts';
+import type { Layer } from '@openlive/client';
+import type { StatsSample } from '@openlive/client';
 
 /**
  * "Stats for nerds": the last getStats() sample over the video, and the screen's side

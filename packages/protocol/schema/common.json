@@ -95,6 +95,12 @@
         "white"
       ]
     },
+    "VoiceShortcutAction": {
+      "title": "VoiceShortcutAction",
+      "description": "What a global voice shortcut of the helper does in the web's voice session (since 1.21).",
+      "type": "string",
+      "enum": ["pushToTalk", "toggleMute", "toggleDeafen"]
+    },
     "PointerShape": {
       "title": "PointerShape",
       "description": "Closed list of pointer ping shapes (since 1.20).",

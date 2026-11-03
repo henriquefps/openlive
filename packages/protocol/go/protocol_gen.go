@@ -3,7 +3,7 @@
 package protocol
 
 // CurrentProtocol is the protocol version implemented by this package.
-var CurrentProtocol = ProtocolVersion{Major: 1, Minor: 20}
+var CurrentProtocol = ProtocolVersion{Major: 1, Minor: 21}
 
 // ID: Opaque identifier (user, space, room, stream, device, slot, offer, connection). Clients never parse it.
 type ID = string
@@ -126,6 +126,18 @@ const (
 
 // PointerColorValues lists every PointerColor in schema order.
 var PointerColorValues = []PointerColor{PointerColorOlive, PointerColorRed, PointerColorOrange, PointerColorYellow, PointerColorGreen, PointerColorCyan, PointerColorBlue, PointerColorPurple, PointerColorPink, PointerColorWhite}
+
+// VoiceShortcutAction: What a global voice shortcut of the helper does in the web's voice session (since 1.21).
+type VoiceShortcutAction string
+
+const (
+	VoiceShortcutActionPushToTalk   VoiceShortcutAction = "pushToTalk"
+	VoiceShortcutActionToggleMute   VoiceShortcutAction = "toggleMute"
+	VoiceShortcutActionToggleDeafen VoiceShortcutAction = "toggleDeafen"
+)
+
+// VoiceShortcutActionValues lists every VoiceShortcutAction in schema order.
+var VoiceShortcutActionValues = []VoiceShortcutAction{VoiceShortcutActionPushToTalk, VoiceShortcutActionToggleMute, VoiceShortcutActionToggleDeafen}
 
 // PointerShape: Closed list of pointer ping shapes (since 1.20).
 type PointerShape string
@@ -1342,6 +1354,13 @@ type HelperStopStreamPayload struct {
 	DeviceID ID `json:"deviceId"`
 }
 
+type HelperVoiceShortcutPayload struct {
+	DeviceID ID                  `json:"deviceId"`
+	Action   VoiceShortcutAction `json:"action"`
+	// true when the shortcut went down, false when it was released (push-to-talk only).
+	Pressed bool `json:"pressed"`
+}
+
 type HubWelcomePayload struct {
 	Protocol     ProtocolVersion `json:"protocol"`
 	MinProtocol  ProtocolVersion `json:"minProtocol"`
@@ -1648,6 +1667,7 @@ const (
 	MessageTypeHelperStats           MessageType = "helper.stats"
 	MessageTypeHelperStatus          MessageType = "helper.status"
 	MessageTypeHelperStopStream      MessageType = "helper.stopStream"
+	MessageTypeHelperVoiceShortcut   MessageType = "helper.voiceShortcut"
 	MessageTypeHubWelcome            MessageType = "hub.welcome"
 	MessageTypeKicked                MessageType = "kicked"
 	MessageTypeMemberJoined          MessageType = "member.joined"
@@ -1772,6 +1792,9 @@ func (HelperStatusPayload) Type() MessageType { return MessageTypeHelperStatus }
 
 // Type implements Payload.
 func (HelperStopStreamPayload) Type() MessageType { return MessageTypeHelperStopStream }
+
+// Type implements Payload.
+func (HelperVoiceShortcutPayload) Type() MessageType { return MessageTypeHelperVoiceShortcut }
 
 // Type implements Payload.
 func (HubWelcomePayload) Type() MessageType { return MessageTypeHubWelcome }
@@ -1977,6 +2000,8 @@ func NewPayload(t MessageType) Payload {
 		return &HelperStatusPayload{}
 	case MessageTypeHelperStopStream:
 		return &HelperStopStreamPayload{}
+	case MessageTypeHelperVoiceShortcut:
+		return &HelperVoiceShortcutPayload{}
 	case MessageTypeHubWelcome:
 		return &HubWelcomePayload{}
 	case MessageTypeKicked:
@@ -2109,6 +2134,7 @@ var Messages = map[MessageType]MessageInfo{
 	MessageTypeHelperStats:           {Phase: 3, Channels: []string{"hub"}, From: []string{"helper"}, To: []string{"web"}, Replies: []MessageType{}},
 	MessageTypeHelperStatus:          {Phase: 3, Channels: []string{"hub"}, From: []string{"helper"}, To: []string{"web"}, Replies: []MessageType{}},
 	MessageTypeHelperStopStream:      {Phase: 3, Channels: []string{"hub"}, From: []string{"web"}, To: []string{"helper"}, Replies: []MessageType{MessageTypeAck, MessageTypeError}},
+	MessageTypeHelperVoiceShortcut:   {Phase: 3, Channels: []string{"hub"}, From: []string{"helper"}, To: []string{"web"}, Replies: []MessageType{}},
 	MessageTypeHubWelcome:            {Phase: 3, Channels: []string{"hub"}, From: []string{"server"}, To: []string{"web", "helper"}, Replies: []MessageType{}},
 	MessageTypeKicked:                {Phase: 1, Channels: []string{"room"}, From: []string{"server"}, To: []string{"web", "helper"}, Replies: []MessageType{}},
 	MessageTypeMemberJoined:          {Phase: 1, Channels: []string{"room"}, From: []string{"server"}, To: []string{"web", "helper"}, Replies: []MessageType{}},

@@ -2,7 +2,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePlaybackLoop } from '../src/player/hooks.ts';
-import type { StatsReportLike } from '../src/player/source.ts';
+import type { StatsReportLike } from '@openlive/client';
 import { resetAv1Fallback } from '../src/rtc/codec.ts';
 import { streamLayers } from '../src/rtc/source.ts';
 import { FakeMediaStream, setup, sfuOffer } from './rtc-fakes.ts';

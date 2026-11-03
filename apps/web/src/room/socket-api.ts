@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import type { ChatSocket } from '../chat/client.ts';
+import type { ChatSocket } from '@openlive/client';
 import { type PointerSocket, pointerSocket } from '../pointer/socket.ts';
 import type { VoiceSignal } from '../voice/client.ts';
 import type { RoomConnection } from './connection.ts';

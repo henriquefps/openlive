@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { spaceAbilities } from '../api/permissions.ts';
+import { spaceAbilities } from '@openlive/client';
 import { joinRequestsQuery } from '../api/spaces.ts';
 import { EmptyState } from '../components/EmptyState.tsx';
 import { spaceTrail } from '../components/breadcrumbs.ts';

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import '../src/i18n/index.ts';
 import { refreshHzFrom, screenLimit } from '../src/player/display.ts';
-import type { StatsSample } from '../src/player/stats.ts';
+import type { StatsSample } from '@openlive/client';
 import { StatsOverlay } from '../src/player/StatsOverlay.tsx';
 
 // Stats for nerds and the viewer's screen: received fps, the screen's refresh

@@ -1,0 +1,234 @@
+{
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "retry": "Try again"
+  },
+  "home": {
+    "title": "Servers",
+    "empty": "No server yet",
+    "emptyHint": "Add the address of an Openlive server, scan its QR code, or open an invite on this phone.",
+    "add": "Add server",
+    "signedInAs": "Signed in as {{name}}",
+    "signedOut": "Not signed in"
+  },
+  "add": {
+    "title": "Add a server",
+    "prompt": "What is the address of your Openlive server?",
+    "urlLabel": "Address",
+    "urlPlaceholder": "openlive.example.com",
+    "continue": "Continue",
+    "scan": "Scan a QR code",
+    "checking": "Checking the server…",
+    "invalidUrl": "That is not an address. Try something like openlive.example.com.",
+    "version": "Version {{version}}",
+    "signIn": "Add and sign in",
+    "alreadyAdded": "This server is already on the list.",
+    "open": "Open"
+  },
+  "compat": {
+    "too_old": "This server runs an older version of Openlive than this app supports. Ask whoever runs it to update.",
+    "too_new": "This server needs a newer version of the app. Update Openlive.",
+    "no_app_login": "This server does not allow signing in from the app yet. Ask whoever runs it to update."
+  },
+  "scan": {
+    "title": "Scan a QR code",
+    "hint": "Point the camera at the QR code of a server or of an invite.",
+    "permission": "Openlive needs the camera to read the QR code.",
+    "grant": "Allow the camera",
+    "unknown": "This QR code is not an Openlive address or invite."
+  },
+  "instance": {
+    "spaces": "Spaces",
+    "noSpaces": "You are not in any space on this server yet.",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "signOut": "Sign out of this server",
+    "signedOutHint": "Sign in to see your spaces on this server.",
+    "expired": "Your session on this server ended. Sign in again.",
+    "remove": "Remove this server from the phone",
+    "role": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member",
+      "guest": "Guest"
+    },
+    "noSpacesHint": "Open an invite link on this phone to join one."
+  },
+  "invite": {
+    "title": "Invite to {{space}}",
+    "room": "Room: {{room}}",
+    "asRole": "You join as: {{role}}",
+    "accept": "Accept",
+    "request": "Ask to join",
+    "joined": "You joined {{space}}.",
+    "pending": "Your request was sent. A manager of the space will review it.",
+    "signInFirst": "Sign in to accept the invite.",
+    "dismiss": "Not now"
+  },
+  "login": {
+    "cancelled": "The sign-in was closed before it finished.",
+    "denied": "You did not allow the app on this server.",
+    "state_mismatch": "The sign-in answer did not match this request. Try again.",
+    "invalid": "The sign-in answer was not valid. Try again."
+  },
+  "errors": {
+    "network": "Could not reach the server. Check the address and your connection.",
+    "invalid_instance": "This address does not answer as an Openlive server.",
+    "app_code_invalid": "The sign-in code expired or was already used. Try again.",
+    "rate_limited": "Too many attempts. Wait a minute and try again.",
+    "unauthenticated": "Your session on this server ended. Sign in again.",
+    "generic": "Something went wrong ({{code}})."
+  },
+  "mobile": {
+    "loading": "Loading…",
+    "space": {
+      "noRooms": "No rooms yet",
+      "noRoomsHint": "Rooms of this space show up here when someone creates one.",
+      "quiet": "Nobody here",
+      "live": "Live",
+      "streaming": "Streaming: {{names}}",
+      "inVoice": "In voice: {{names}}",
+      "someone": "Someone",
+      "reconnecting": "Connection lost. Who is here may be out of date until it is back.",
+      "presenceEnded": "Live updates of this space stopped. Pull down to try again."
+    },
+    "room": {
+      "tabLive": "Live",
+      "paused": "Paused",
+      "viewers": "{{count}}/{{limit}} watching",
+      "replaced": "This room was opened in another place with your account."
+    },
+    "chat": {
+      "off": "The chat is off in this room."
+    },
+    "player": {
+      "title": "Watch",
+      "soon": "The player is coming soon",
+      "soonHint": "Watching streams in the app is the next step."
+    },
+    "offline": {
+      "saved": "Offline. Showing saved data."
+    },
+    "voice": {
+      "title": "Voice",
+      "join": "Join voice",
+      "nobody": "Nobody in voice",
+      "preparing": "Starting the call…",
+      "startFailed": "The phone could not start the call. Try again.",
+      "unsupported": "This build cannot keep a call alive in the background (Android only).",
+      "micBlocked": "The microphone is blocked for Openlive. You are in voice, listening only. Turn it on in the app's settings to talk.",
+      "openSettings": "Open settings",
+      "micError": {
+        "denied": "The microphone was not allowed. You are in voice, listening only.",
+        "no_device": "No microphone found. You are in voice, listening only.",
+        "device_lost": "The microphone was taken away (a call, or it was unplugged). You are listening only.",
+        "unsupported": "This phone cannot use the microphone here.",
+        "failed": "The microphone could not start. You are in voice, listening only."
+      },
+      "status": {
+        "sending": "Mic on",
+        "muted": "Muted",
+        "deafened": "Deafened",
+        "serverMuted": "Muted by a moderator",
+        "pushToTalk": "Hold to talk",
+        "listening": "Listening only",
+        "connecting": "Connecting…"
+      },
+      "talk": "Hold to talk",
+      "talking": "Talking…",
+      "mode": {
+        "title": "Microphone",
+        "open": "Open mic",
+        "ptt": "Push to talk",
+        "hint": "Push to talk keeps the microphone closed until you hold the big button."
+      },
+      "settings": "Voice settings",
+      "close": "Close",
+      "camera": "Camera",
+      "cameraOn": "Camera on",
+      "flip": "Flip",
+      "routeTitle": "Audio output",
+      "route": {
+        "auto": "Automatic",
+        "autoHint": "Headset when there is one, else the speaker",
+        "speaker": "Speaker",
+        "earpiece": "Earpiece",
+        "wired": "Wired headset",
+        "bluetooth": "Bluetooth",
+        "playingThrough": "Playing through {{route}}"
+      },
+      "pin": "Pin {{name}}",
+      "unpin": "Unpin",
+      "you": "You",
+      "someone": "Someone",
+      "voiceOnly": "In voice",
+      "barRoom": "Back to {{room}}",
+      "kickConfirm": "Remove {{name}} from voice?",
+      "cancel": "Cancel",
+      "volumeLess": "Lower the volume",
+      "volumeMore": "Raise the volume",
+      "reset": "Reset to 100 %",
+      "ended": "The voice call ended.",
+      "networkWeak": "Weak connection: voice comes first, cameras are paused."
+    }
+  },
+  "voice": {
+    "notification": {
+      "title": "In voice in #{{room}}",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "leave": "Leave",
+      "channel": "Voice call"
+    },
+    "permission": {
+      "title": "Microphone",
+      "message": "Openlive needs the microphone so the others in the room can hear you. Sound only goes to the room you join, and only while you are in it.",
+      "continue": "Continue",
+      "notNow": "Not now",
+      "blockedMessage": "The microphone is blocked for Openlive. Turn it on in the app's settings to talk in a room.",
+      "openSettings": "Open settings"
+    },
+    "debug": {
+      "title": "Voice test",
+      "open": "Voice test (debug)",
+      "version": "Version {{version}}",
+      "unsupported": "This build has no native voice support (Android only).",
+      "server": "Server",
+      "room": "Room",
+      "state": {
+        "idle": "No session",
+        "starting": "Starting…",
+        "active": "In a session"
+      },
+      "permissions": "Permissions",
+      "micPermission": "Microphone permission",
+      "notificationPermission": "Notifications",
+      "start": "Start session",
+      "stop": "Stop session",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "muted": "Muted in the notification",
+      "route": "Route",
+      "routeAuto": "Auto",
+      "routeSpeaker": "Speaker",
+      "routeEarpiece": "Earpiece",
+      "active": "Playing through",
+      "available": "Available",
+      "device": "Audio device",
+      "aec": "Hardware echo cancellation",
+      "ns": "Hardware noise suppression",
+      "swapped": "Voice audio device",
+      "yes": "yes",
+      "no": "no",
+      "meter": "Microphone level",
+      "meterStart": "Start meter",
+      "meterStop": "Stop meter",
+      "lastEvent": "Last event",
+      "error": "Error: {{code}}",
+      "granted": "granted",
+      "denied": "denied",
+      "blocked": "blocked"
+    }
+  }
+}

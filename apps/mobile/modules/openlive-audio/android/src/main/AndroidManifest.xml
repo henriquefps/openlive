@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <!-- Keeps a voice call alive in the background (apps/mobile/README.md, "Voice on the phone"). -->
+    <service
+      android:name="dev.hfps.openlive.audio.VoiceSessionService"
+      android:exported="false"
+      android:foregroundServiceType="microphone|mediaPlayback"
+      android:stopWithTask="false" />
+  </application>
+</manifest>

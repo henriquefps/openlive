@@ -17,7 +17,7 @@
     "test": "pnpm -r --if-present test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "i18n:check": "pnpm --filter @openlive/web i18n:check",
+    "i18n:check": "pnpm --filter @openlive/client i18n:check",
     "spdx:check": "node scripts/spdx-headers.mjs",
     "spdx:fix": "node scripts/spdx-headers.mjs --fix",
     "notices": "node scripts/third-party-notices.mjs",

@@ -19,9 +19,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { useHubState } from '../hub/use-hub.ts';
 import { canPickSink } from './audio.ts';
 import type { DeviceOption } from './client.ts';
 import { DUCK_AMOUNTS_DB, streamDucking } from './ducking.ts';
+import { voiceShortcutHelpers } from './global-shortcuts.ts';
 import { keyLabel, loadPrefs, savePrefs, type VoicePrefs } from './prefs.ts';
 
 // Settings → Voice: the microphone, the speakers and
@@ -61,6 +63,7 @@ export function VoiceSettingsCard() {
     outputs: [],
   });
   const [capturing, setCapturing] = useState(false);
+  const shortcutHelpers = voiceShortcutHelpers(useHubState().helpers);
   // Saving is idempotent, so running twice (StrictMode) is harmless.
   const update = useCallback(
     (patch: Partial<VoicePrefs>) =>
@@ -204,6 +207,16 @@ export function VoiceSettingsCard() {
               </SelectContent>
             </Select>
           </Field>
+          {shortcutHelpers.length > 0 && (
+            <Field data-testid="global-shortcuts">
+              <FieldLabel>{t('voice.settings.globalShortcuts.title')}</FieldLabel>
+              <FieldDescription>
+                {t('voice.settings.globalShortcuts.body', {
+                  devices: shortcutHelpers.map((h) => h.name).join(', '),
+                })}
+              </FieldDescription>
+            </Field>
+          )}
         </FieldGroup>
       </CardContent>
     </Card>

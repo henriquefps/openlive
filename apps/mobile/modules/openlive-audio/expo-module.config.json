@@ -1,0 +1,9 @@
+{
+  "platforms": ["android"],
+  "android": {
+    "modules": [
+      "dev.hfps.openlive.audio.OpenliveAudioModule",
+      "dev.hfps.openlive.audio.OpenliveVoiceModule"
+    ]
+  }
+}

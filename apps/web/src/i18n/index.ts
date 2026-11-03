@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import en from '../locales/en/translation.json';
-import ptBR from '../locales/pt-BR/translation.json';
+import { resources } from '@openlive/client/i18n';
 import { DEFAULT_LANGUAGE, detectLanguage, saveLanguage, type Language } from './language.ts';
 
-export const resources = {
-  en: { translation: en },
-  'pt-BR': { translation: ptBR },
-} as const;
+// The text is shared with the mobile app (@openlive/client, locales/).
+export { resources };
 
 declare module 'i18next' {
   interface CustomTypeOptions {

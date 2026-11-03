@@ -42,7 +42,7 @@ type Agent struct {
 	closed bool
 
 	clicks        chan int32
-	pressed       chan string
+	pressed       chan sidecar.Hotkey
 	notifications chan sidecar.Notifications
 	bound         chan sidecar.HotkeysBound
 	done          chan struct{}
@@ -65,7 +65,7 @@ func Start(ctx context.Context, bin string, log *slog.Logger) (*Agent, error) {
 	a := &Agent{
 		conn: conn, cmd: cmd, log: log,
 		clicks:        make(chan int32, 16),
-		pressed:       make(chan string, 16),
+		pressed:       make(chan sidecar.Hotkey, 16),
 		notifications: make(chan sidecar.Notifications, 4),
 		bound:         make(chan sidecar.HotkeysBound, 1),
 		done:          make(chan struct{}),
@@ -138,7 +138,7 @@ func (a *Agent) readLoop() {
 		case sidecar.TypeHotkey:
 			var h sidecar.Hotkey
 			if m.Decode(&h) == nil {
-				a.deliver(func() bool { return trySend(a.pressed, h.Action) })
+				a.deliver(func() bool { return trySend(a.pressed, h) })
 			}
 		case sidecar.TypeHotkeysBound:
 			var b sidecar.HotkeysBound
@@ -234,8 +234,8 @@ func (a *Agent) BindHotkeys(ctx context.Context, bindings []sidecar.HotkeyBindin
 	}
 }
 
-// Pressed are the actions of the global shortcuts pressed.
-func (a *Agent) Pressed() <-chan string { return a.pressed }
+// Pressed are the global shortcuts pressed and released, in order.
+func (a *Agent) Pressed() <-chan sidecar.Hotkey { return a.pressed }
 
 // Done is closed once the agent is gone.
 func (a *Agent) Done() <-chan struct{} { return a.done }

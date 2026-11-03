@@ -37,7 +37,7 @@ import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { errorBodyOf } from '../../api/client.ts';
-import { spaceAbilities } from '../../api/permissions.ts';
+import { spaceAbilities } from '@openlive/client';
 import {
   type SettingsPatch,
   type Space,

@@ -572,6 +572,10 @@ export class UserHubDO extends DurableObject<Env> {
         this.broadcastToTabs('helper.stats', { ...msg.payload, deviceId });
         this.recordHelperStats(deviceId, msg.payload);
         return true;
+      case 'helper.voiceShortcut':
+        // A global voice shortcut (8.5): to every tab, which decides who acts. Nothing is stored.
+        this.broadcastToTabs('helper.voiceShortcut', { ...msg.payload, deviceId });
+        return true;
       case 'helper.sourceThumbnail': {
         // Only to the tab that listed the sources; nothing of it is stored.
         const target = sql

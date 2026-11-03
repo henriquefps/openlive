@@ -1,0 +1,2088 @@
+{
+  "app": {
+    "name": "Openlive",
+    "home": "Início do Openlive",
+    "skipToContent": "Pular para o conteúdo",
+    "nav": {
+      "label": "Principal",
+      "spaces": "Spaces",
+      "settings": "Configurações",
+      "download": "Download"
+    },
+    "breadcrumb": {
+      "label": "Trilha de navegação",
+      "back": "Voltar",
+      "backTo": "Voltar para {{name}}",
+      "settings": "Configurações",
+      "setup": "Configuração inicial",
+      "users": "Usuários"
+    },
+    "sidebar": {
+      "title": "Navegação",
+      "toggle": "Mostrar ou esconder a barra lateral",
+      "rooms": "Salas de {{space}}",
+      "morePeople_one": "+{{count}} pessoa",
+      "morePeople_other": "+{{count}} pessoas"
+    }
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "English",
+    "pt-BR": "Português (Brasil)"
+  },
+  "theme": {
+    "label": "Tema",
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema"
+  },
+  "common": {
+    "comingSoon": "Em breve",
+    "loadFailed": "Não foi possível carregar",
+    "retry": "Tentar de novo",
+    "cancel": "Cancelar",
+    "done": "Pronto",
+    "save": "Salvar",
+    "close": "Fechar",
+    "back": "Voltar"
+  },
+  "home": {
+    "title": "Openlive",
+    "intro": "Compartilhe sua tela em salas privadas com seus amigos.",
+    "description": "Crie um space para o seu grupo, abra uma sala e transmita. Todos na sala veem quem está ao vivo e podem assistir, sem instalar nada para assistir.",
+    "signIn": {
+      "discord": "Continuar com o Discord",
+      "or": "ou receba um link por e-mail",
+      "note": "Ainda não tem conta? Entrar cria uma.",
+      "inviteOnly": "Este servidor é só para convidados: para criar uma conta, peça um link de convite. Contas existentes entram normalmente.",
+      "withInvite": "Entre para aceitar seu convite. Uma conta nova é criada para você se precisar.",
+      "withCode": "Entre para participar da sala. Uma conta nova é criada para você se precisar."
+    },
+    "signedIn": "Você entrou como {{name}}.",
+    "openSpaces": "Abrir seus spaces",
+    "features": {
+      "label": "Como funciona",
+      "rooms": {
+        "title": "Salas privadas",
+        "description": "Spaces e salas são só para convidados. Só membros veem quem está ao vivo."
+      },
+      "helper": {
+        "title": "Um pequeno app helper",
+        "description": "O helper no seu computador captura uma tela ou uma única janela, com o áudio do app."
+      },
+      "watch": {
+        "title": "Assista no navegador",
+        "description": "Seus amigos assistem no computador ou no celular, direto do navegador."
+      }
+    },
+    "health": {
+      "label": "Servidor",
+      "loading": "Verificando o servidor…",
+      "ok": "Versão do servidor {{version}} ({{commit}})"
+    }
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "logout": "Sair",
+    "menu": "Menu da conta de {{name}}",
+    "email": {
+      "label": "E-mail",
+      "submit": "Enviar link de acesso",
+      "sending": "Enviando…",
+      "sentTitle": "Confira seu e-mail",
+      "sentTo": "Enviamos um link de acesso para {{email}}. Ele funciona uma vez e expira em 15 minutos.",
+      "sent": "Enviamos um link de acesso para o seu e-mail. Ele funciona uma vez e expira em 15 minutos.",
+      "another": "Usar outro e-mail",
+      "inviteOnly": "Este servidor é só para convidados: endereços novos só recebem o link quando vêm de um convite."
+    },
+    "link": {
+      "title": "Você já tem uma conta",
+      "description": "O e-mail do seu Discord já pertence a uma conta do Openlive. Para conectar o Discord a ela, confirme com um link de acesso enviado para esse endereço.",
+      "send": "Enviar o link"
+    },
+    "verify": {
+      "title": "Concluir o acesso",
+      "description": "Confirme para entrar com o link do seu e-mail. O link funciona uma vez.",
+      "submit": "Entrar no Openlive",
+      "missing": "Este link de acesso está incompleto. Peça um novo na página inicial."
+    }
+  },
+  "spaces": {
+    "title": "Spaces",
+    "intro": "Grupos de amigos que compartilham salas.",
+    "empty": {
+      "title": "Nenhum space ainda",
+      "description": "Crie um space para o seu grupo ou abra um link de convite que um amigo mandou."
+    },
+    "create": {
+      "action": "Criar space",
+      "title": "Criar um space",
+      "description": "Um space é o seu grupo: as salas, os membros e os convites. Você será o dono.",
+      "name": "Nome",
+      "slug": "Endereço",
+      "slugHint": "Letras minúsculas, números e hífens: {{path}}",
+      "submit": "Criar space",
+      "restricted": "Neste servidor só o admin da plataforma cria espaços. Peça a um amigo um convite para o dele."
+    }
+  },
+  "space": {
+    "intro": "Salas, membros e convites deste space.",
+    "loading": "Space",
+    "notFound": {
+      "title": "Space não encontrado"
+    },
+    "tabs": {
+      "rooms": "Salas",
+      "members": "Membros",
+      "invites": "Convites",
+      "requests": "Pedidos",
+      "status": "Status",
+      "settings": "Configurações"
+    },
+    "rooms": {
+      "fixed": "Salas",
+      "quick": "Salas rápidas",
+      "emptyFixed": {
+        "title": "Nenhuma sala ainda",
+        "description": "Donos e admins criam as salas permanentes do space. Qualquer membro abre uma sala rápida."
+      },
+      "emptyQuick": "Nenhuma sala rápida aberta. Uma sala rápida ganha um código curto e fecha sozinha.",
+      "restricted": "Restrita",
+      "quickCreated": "A sala rápida {{code}} está aberta.",
+      "quickAction": "Sala rápida",
+      "createAction": "Criar sala",
+      "create": {
+        "title": "Criar uma sala",
+        "description": "Uma sala permanente com endereço próprio. Ela fica até um dono ou admin arquivá-la.",
+        "name": "Nome",
+        "slug": "Endereço",
+        "visibility": "Quem vê",
+        "submit": "Criar sala"
+      },
+      "visibility": {
+        "space": "Todos do space",
+        "restricted": "Só quem eu adicionar",
+        "spaceHint": "Todos os membros e convidados do space veem esta sala.",
+        "restrictedHint": "Donos e admins veem; membros e convidados precisam ser adicionados."
+      }
+    },
+    "members": {
+      "empty": {
+        "title": "Nenhum membro",
+        "description": "Quem entra por convite aparece aqui."
+      },
+      "banned": "Banidos",
+      "you": "(você)",
+      "bannedAt": "Banido em {{date}}",
+      "joinedAt": "Entrou em {{date}}",
+      "actions": "Ações para {{name}}",
+      "role": "Papel",
+      "transfer": "Tornar dono",
+      "remove": "Remover do space",
+      "ban": "Banir",
+      "unban": "Tirar o banimento",
+      "confirm": {
+        "ban": {
+          "title": "Banir {{name}}?",
+          "description": "{{name}} sai de todas as salas agora e não volta por convite até o banimento ser retirado.",
+          "action": "Banir"
+        },
+        "remove": {
+          "title": "Remover {{name}}?",
+          "description": "{{name}} sai do space e das salas agora. Um convite pode trazer de volta.",
+          "action": "Remover"
+        },
+        "transfer": {
+          "title": "Tornar {{name}} o dono?",
+          "description": "{{name}} passa a ser o dono do space e você vira admin. Só o novo dono pode desfazer.",
+          "action": "Transferir a posse"
+        }
+      }
+    },
+    "invites": {
+      "intro": "Convites ativos. O link aparece uma vez só, quando você cria o convite.",
+      "empty": {
+        "title": "Nenhum convite ativo",
+        "description": "Crie um convite e mande o link para quem você quer chamar."
+      },
+      "toRoom": "Sala {{room}}",
+      "toSpace": {
+        "member": "Space, como membro",
+        "guest": "Space, como convidado"
+      },
+      "canStream": "Pode transmitir",
+      "approval": "Precisa de aprovação",
+      "meta": "Usado {{uses}} de {{maxUses}} · até {{date}}",
+      "revoke": "Revogar",
+      "copied": "Link do convite copiado.",
+      "copyFailed": "Não deu para copiar. Selecione o link e copie.",
+      "copy": "Copiar",
+      "create": {
+        "action": "Criar convite",
+        "title": "Criar um convite",
+        "description": "Escolha o que o convite dá. Você recebe um link para mandar.",
+        "target": "Convidar para",
+        "wholeSpace": "O space inteiro",
+        "roomHint": "Convidado só desta sala: não vê o resto do space.",
+        "spaceHint": "A pessoa entra no space e vê as salas.",
+        "role": "Papel",
+        "roleHint": {
+          "member": "Membros assistem, transmitem e abrem salas rápidas.",
+          "guest": "Convidados só assistem até alguém liberar a transmissão."
+        },
+        "canStream": "Pode transmitir",
+        "canStreamHint": "O convidado pode transmitir nesta sala.",
+        "approval": "Precisa de aprovação",
+        "approvalHint": "Um dono ou admin aprova cada pessoa que abrir o link.",
+        "maxUses": "Usos",
+        "expiry": "Válido por",
+        "expiryOption": {
+          "1": "1 hora",
+          "24": "1 dia",
+          "168": "7 dias",
+          "720": "30 dias"
+        },
+        "submit": "Criar convite"
+      },
+      "created": {
+        "title": "Convite criado",
+        "description": "Mande este link para quem você está convidando.",
+        "link": "Link do convite",
+        "onceTitle": "Copie agora",
+        "once": "Por segurança o link aparece só uma vez. Se perder, revogue o convite e crie outro."
+      }
+    },
+    "requests": {
+      "empty": {
+        "title": "Nenhum pedido pendente",
+        "description": "Quando um convite precisa de aprovação, quem abre o link espera aqui."
+      },
+      "unknown": "Usuário desconhecido",
+      "toRoom": "Sala {{room}} · {{date}}",
+      "toSpace": "O space · {{date}}",
+      "rejectLabel": "Recusar {{name}}",
+      "reject": "Recusar",
+      "approveLabel": "Aprovar {{name}}",
+      "approve": "Aprovar"
+    },
+    "settings": {
+      "readOnly": "Só donos e admins mudam estas configurações.",
+      "saved": "Configurações salvas.",
+      "title": "Configurações do space",
+      "description": "O nome e os limites das salas deste space.",
+      "name": "Nome",
+      "limits": {
+        "maxStreams": "Transmissões por sala",
+        "maxViewersPerStream": "Espectadores por transmissão",
+        "maxBitrateKbps": "Bitrate (kbps)",
+        "quickRoomHours": "Salas rápidas duram (horas)",
+        "current": "Agora: {{value}}",
+        "hint": "Deixe um limite vazio para usar o da plataforma. Os limites só podem ser menores que os da plataforma."
+      },
+      "membersCanInviteGuests": "Membros podem convidar",
+      "membersCanInviteGuestsHint": "Desligado, só donos e admins criam convites.",
+      "delete": {
+        "title": "Apagar o space",
+        "description": "Fecha todas as salas e remove o space para todos.",
+        "action": "Apagar space",
+        "confirmTitle": "Apagar {{name}}?",
+        "confirm": "Todas as salas fecham agora e ninguém abre o space de novo. Não dá para desfazer."
+      },
+      "leave": {
+        "title": "Sair do space",
+        "description": "Você perde o acesso às salas. Um convite pode trazer você de volta.",
+        "action": "Sair do space",
+        "confirmTitle": "Sair de {{name}}?",
+        "confirm": "Você sai de todas as salas deste space agora."
+      },
+      "capabilities": {
+        "title": "Recursos das salas",
+        "description": "O que as salas deste space podem ter. Cada sala escolhe dentro disso."
+      }
+    }
+  },
+  "room": {
+    "intro": "Transmissões ao vivo nesta sala.",
+    "streams": "Transmissões ao vivo",
+    "empty": {
+      "title": "Ninguém ao vivo",
+      "description": "As transmissões ao vivo desta sala vão aparecer aqui."
+    },
+    "loading": "Sala",
+    "notFound": "Sala não encontrada",
+    "backToSpace": "Voltar para {{space}}",
+    "expiresIn": "Fecha em {{time}}",
+    "expired": "Fechada",
+    "quickIntro": "Sala rápida {{code}}. Ela fecha sozinha.",
+    "present": {
+      "title_one": "{{count}} aqui",
+      "title_other": "{{count}} aqui",
+      "titleNoCount": "Aqui agora",
+      "empty": "Ninguém está aqui.",
+      "canStream": "pode transmitir"
+    },
+    "connection": {
+      "connecting": "Conectando à sala…",
+      "reconnecting": "Conexão perdida. Reconectando…",
+      "reconnectingHint": "Quem está aqui pode estar desatualizado até a conexão voltar.",
+      "quotaExceeded": "Este servidor atingiu um limite diário gratuito da Cloudflare. A Cloudflare documenta a volta às 00:00 UTC, mas pode levar até 24 horas para liberar.",
+      "quotaExceededHint": "A sala tenta de novo a cada 15 minutos. Nada que você faça aqui resolve antes disso.",
+      "retryNow": "Tentar agora",
+      "replaced": "Aberta em outra aba",
+      "replacedHint": "Esta sala está aberta em outra aba ou janela deste navegador.",
+      "useHere": "Usar aqui",
+      "reload": "Recarregue a página",
+      "reloadAction": "Recarregar",
+      "kicked": "Você foi removido da sala",
+      "closed": "Esta sala está fechada",
+      "noAccess": "Você não pode ver esta sala"
+    },
+    "kickReason": {
+      "removed": "Alguém removeu você do space.",
+      "banned": "Você foi banido do space.",
+      "access_revoked": "Seu acesso a esta sala foi retirado.",
+      "role_changed": "Seu papel mudou e esta sala não está mais disponível para você."
+    },
+    "closeReason": {
+      "expired": "A sala rápida chegou ao limite de tempo.",
+      "ended_by_owner": "A sala rápida foi encerrada.",
+      "archived": "A sala foi arquivada.",
+      "deleted": "O space foi apagado.",
+      "quota_exhausted": "O space usou toda a banda do mês.",
+      "suspended": "O space foi suspenso pelo admin da plataforma."
+    },
+    "end": {
+      "action": "Encerrar sala",
+      "title": "Encerrar {{name}}?",
+      "description": "Todos na sala são desconectados e o código para de funcionar."
+    },
+    "archive": {
+      "action": "Arquivar",
+      "title": "Arquivar {{name}}?",
+      "description": "Todos na sala são desconectados e a sala sai da lista do space."
+    },
+    "access": {
+      "action": "Acesso",
+      "title": "Quem vê {{name}}",
+      "description": "Donos e admins sempre veem salas restritas. Adicione membros e convidados aqui.",
+      "granted": "Têm acesso",
+      "none": "Ninguém foi adicionado ainda.",
+      "add": "Adicionar",
+      "grantLabel": "Dar acesso a {{name}}",
+      "grant": "Adicionar",
+      "roomGuest": "Convidado desta sala",
+      "canStream": "Pode transmitir",
+      "revokeLabel": "Tirar o acesso de {{name}}",
+      "revoke": "Tirar"
+    },
+    "code": {
+      "label": "Código da sala",
+      "copy": "Copiar código",
+      "copyLink": "Copiar link de entrada",
+      "copied": "Código copiado.",
+      "linkCopied": "Link de entrada copiado.",
+      "copyFailed": "Não foi possível copiar. Selecione o código e copie."
+    },
+    "features": {
+      "action": "Recursos",
+      "title": "Recursos da sala",
+      "description": "O que esta sala tem. Owners e admins mudam a qualquer momento.",
+      "streamOff": "Desligar a transmissão encerra as transmissões ao vivo agora, para todos.",
+      "saved": "Recursos da sala salvos."
+    },
+    "panels": {
+      "voice": {
+        "title": "Voz"
+      },
+      "text": {
+        "title": "Chat"
+      }
+    },
+    "layout": {
+      "voice": {
+        "title": "Canal de voz",
+        "description": "Converse com todo mundo da sala. Entre para falar e ouvir."
+      },
+      "text": {
+        "title": "Canal de texto",
+        "description": "Mensagens e links para todos na sala."
+      },
+      "none": {
+        "title": "Nada para usar aqui",
+        "description": "Este space ou este servidor não permite mais o que esta sala tem. Um owner ou admin pode mudar os recursos da sala."
+      }
+    },
+    "live": {
+      "streaming": "{{name}} está transmitindo",
+      "watch": "Assistir"
+    },
+    "stage": {
+      "label": "Transmissões e pessoas na voz",
+      "emptyBoth": "Entre na voz para conversar ou transmita sua tela.",
+      "emptyVoice": "Ninguém está na voz",
+      "joinHint": "Entre na voz para conversar com a sala.",
+      "pip": "Sua prévia. Arraste para outro canto."
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "intro": "Idioma, aparência, voz, notificações, onde você está conectado e seus helpers pareados. Perfil vem depois.",
+    "language": {
+      "description": "O idioma da interface."
+    },
+    "theme": {
+      "description": "Sistema segue a configuração clara ou escura do seu dispositivo."
+    },
+    "sessions": {
+      "title": "Sessões",
+      "description": "Navegadores e apps conectados à sua conta. Revogue qualquer um que você não reconheça.",
+      "device": "{{browser}} no {{os}}",
+      "app": "App Openlive · {{device}}",
+      "unknownDevice": "Navegador desconhecido",
+      "current": "Este navegador",
+      "currentApp": "Este app",
+      "signedInAt": "Entrou em {{date}}",
+      "lastUsedAt": "Usado por último em {{date}}",
+      "revoke": "Revogar",
+      "revokeLabel": "Revogar a sessão em {{name}}"
+    },
+    "mobileApp": {
+      "title": "Usar o app no celular",
+      "description": "No app Openlive, leia este código ou digite o endereço deste servidor.",
+      "address": "Endereço:",
+      "qrLabel": "QR code de {{address}}"
+    },
+    "profile": {
+      "title": "Perfil",
+      "description": "Seu nome e sua foto, como as pessoas dos seus espaços os veem.",
+      "name": {
+        "label": "Nome de exibição",
+        "description": "Até {{max}} caracteres.",
+        "required": "Digite um nome.",
+        "tooLong": "Use no máximo {{max}} caracteres.",
+        "saved": "Nome salvo."
+      },
+      "photo": {
+        "label": "Foto",
+        "description": "PNG, JPEG ou WebP, até 5 MB. Ela é recortada num quadrado a partir do centro.",
+        "upload": "Enviar foto",
+        "change": "Trocar foto",
+        "remove": "Remover foto",
+        "discord": "Usar minha foto do Discord",
+        "zoom": "Zoom",
+        "preview": "Prévia da nova foto",
+        "save": "Salvar foto",
+        "saved": "Foto salva.",
+        "removed": "Foto removida.",
+        "discordSet": "Agora com a sua foto do Discord.",
+        "badType": "Escolha uma imagem PNG, JPEG ou WebP.",
+        "tooBig": "Este arquivo passa de 5 MB.",
+        "unreadable": "Não foi possível ler esta imagem. Tente outro arquivo."
+      }
+    },
+    "devices": {
+      "title": "Dispositivos pareados",
+      "description": "Computadores com o helper do Openlive. Revogue os que você não usa mais: eles desconectam na hora.",
+      "empty": "Nenhum helper pareado ainda. Abra o helper no seu computador e siga o link dele.",
+      "system": "{{os}} ({{arch}}), helper {{version}}",
+      "lastSeen": "Última atividade {{date}}",
+      "pairedAt": "Pareado em {{date}}",
+      "revoke": "Revogar",
+      "revokeLabel": "Revogar {{name}}",
+      "online": "Online",
+      "offline": "Offline",
+      "liveIn": "Transmitindo agora"
+    },
+    "tutorial": {
+      "title": "Tutorial",
+      "description": "Dicas curtas na primeira vez que você abre cada tela.",
+      "off": "Os tutoriais estão desligados. Rever liga de novo.",
+      "replay": "Rever tutorial",
+      "replayed": "O tutorial vai aparecer de novo em cada tela.",
+      "failed": "Não foi possível reiniciar o tutorial."
+    }
+  },
+  "admin": {
+    "nav": {
+      "platform": "Plataforma",
+      "claim": "Assumir esta instância",
+      "users": "Usuários"
+    },
+    "banner": {
+      "title": {
+        "warn_70": "70% do limite de {{limit}} deste mês já foi usado",
+        "warn_90": "90% do limite de {{limit}} deste mês já foi usado",
+        "warn_100": "O limite de {{limit}} deste mês foi atingido",
+        "freeTier": "O uso deste mês passou da cota grátis"
+      },
+      "nearingBlock": "Quando o limite for atingido, novas transmissões ficam bloqueadas até o ciclo de cobrança virar.",
+      "nearingAlerts": "Quando o limite for atingido, as transmissões continuam e só estes alertas aparecem.",
+      "economy": "O modo econômico está ligado: as transmissões vão até 1080p e 8 Mbps.",
+      "blocked": "Novas transmissões estão bloqueadas até o ciclo de cobrança virar. As que estão no ar terminam após um curto período de tolerância.",
+      "overLimit": "As transmissões continuam além do limite: o admin escolheu só alertas.",
+      "freeTier": "A Cloudflare cobra cada GB acima dos 1.000 GB grátis a US$ 0,05.",
+      "freeTierCost": "A Cloudflare cobra cada GB acima dos 1.000 GB grátis a US$ 0,05: cerca de {{usd}} até agora neste ciclo.",
+      "details": "Ver o uso"
+    },
+    "claim": {
+      "title": "Assumir esta instância",
+      "intro": "A primeira pessoa que digitar o código de instalação vira a admin da plataforma.",
+      "description": "O código de instalação apareceu no terminal quando o Openlive foi implantado (pnpm run setup).",
+      "code": "Código de instalação",
+      "submit": "Assumir",
+      "submitting": "Assumindo…",
+      "taken": "Esta instância já tem uma admin da plataforma."
+    },
+    "overview": {
+      "title": "Plataforma",
+      "intro": "Uso de banda de todos os spaces neste ciclo de cobrança. O conteúdo das transmissões nunca aparece aqui.",
+      "summary": "Este ciclo de cobrança",
+      "used": "Usado",
+      "usedOf": "{{used}} de {{quota}}",
+      "usedNoLimit": "{{used}}, sem limite",
+      "measured": "Estimativa vs. Cloudflare",
+      "estimate": "{{value}} estimados",
+      "real": "{{value}} reportados",
+      "realNone": "Ainda não reportado",
+      "daysLeft": "Dias restantes",
+      "daysLeftValue_one": "{{count}} dia",
+      "daysLeftValue_other": "{{count}} dias",
+      "cycleEnds": "Vira em {{date}}",
+      "cost": "Custo até agora",
+      "costDetail": "{{value}} acima da cota grátis",
+      "withinFree": "Dentro da cota grátis",
+      "projected": "Projeção do ciclo",
+      "projectedDetail": "{{value}} no ritmo atual",
+      "projectedCapped": "{{value}}: novas transmissões param no limite",
+      "strip": {
+        "soFar": "{{usd}} até agora",
+        "projected": "projeção de {{usd}} neste mês"
+      },
+      "source": {
+        "estimate": "Os freios usam a estimativa, o maior número.",
+        "real": "Os freios usam o número da Cloudflare, o maior."
+      },
+      "mode": {
+        "block": "Em 100% do limite, novas transmissões são bloqueadas.",
+        "alerts_only": "Em 100% do limite, só há alertas; o uso acima da cota grátis é cobrado.",
+        "unlimited": "Sem limite: novas transmissões nunca são bloqueadas; tudo acima da cota grátis é cobrado."
+      },
+      "settings": "Configurações e calculadora",
+      "spaces": {
+        "title": "Spaces",
+        "name": "Space",
+        "members": "Membros",
+        "usage": "Uso estimado",
+        "status": "Situação",
+        "actions": "Ações",
+        "active": "Ativo",
+        "suspended": "Suspenso",
+        "suspend": "Suspender",
+        "unsuspend": "Retirar suspensão",
+        "suspendLabel": "Suspender {{name}}",
+        "unsuspendLabel": "Retirar a suspensão de {{name}}",
+        "suspendHint": "Suspender fecha as salas do space e deixa os membros de fora até você retirar a suspensão.",
+        "empty": "Nenhum space ainda.",
+        "rowActions": "Ações de {{name}}",
+        "membersMeta_one": "{{count}} membro",
+        "membersMeta_other": "{{count}} membros"
+      },
+      "unattached": {
+        "title": "Contas sem espaço",
+        "hint": "Pessoas que entraram mas não pertencem a nenhum espaço ou sala. Revise-as na página Usuários, onde dá para banir ou excluir.",
+        "review": "Revisar contas sem espaço"
+      },
+      "noEconomy": "O modo econômico está desligado."
+    },
+    "limits": {
+      "title": "Limites da Cloudflare",
+      "intro": "Quanto esta instância usa dos limites da Cloudflare que ela pode atingir, pelas análises da própria Cloudflare. O uso normal fica bem dentro do plano gratuito.",
+      "limit": "Limite",
+      "todayUse": "Hoje (UTC)",
+      "last24hUse": "Últimas 24 horas",
+      "monthUse": "Este mês",
+      "overage": "Excedente",
+      "freeToday": "Plano gratuito hoje (comparação)",
+      "resets": "A Cloudflare documenta que os limites gratuitos voltam às {{time}} (00:00 UTC); um bloqueio pode durar mais, até o uso das últimas 24 horas cair abaixo do limite (até 24 h)",
+      "monthSoFar": "Desde {{start}} (UTC), contra o que o Workers Paid inclui por mês",
+      "updated": "Atualizado às {{time}}; as análises da Cloudflare atrasam alguns minutos",
+      "usedOf": "{{used}} de {{limit}} ({{share}})",
+      "overageTotal": "Custo estimado além do incluído neste mês: {{usd}} (preços de tabela, mais o mínimo mensal de US$ 5).",
+      "freeStops": "No Workers Free estes são limites rígidos: em 100 % aquela parte do Openlive para até a Cloudflare liberar. A Cloudflare documenta 00:00 UTC, mas já se viu o limite liberar só conforme o uso das últimas 24 horas cai, então conte com até 24 horas. Os Workers Logs são a exceção (abaixo).",
+      "notAvailable": "Indisponível: {{reason}}",
+      "cloudflareSaid": "Cloudflare: {{detail}}",
+      "empty": "A Cloudflare ainda não tem dados deste período (as análises dela atrasam alguns minutos).",
+      "state": {
+        "warning": "Acima de 70 %",
+        "critical": "Acima de 90 %",
+        "reached": "Limite atingido"
+      },
+      "reason": {
+        "notConfigured": "configure {{missing}} na instância",
+        "permission": "o token da API precisa de {{permission}}",
+        "notExposed": "as análises da Cloudflare não informam isso para esta conta",
+        "failed": "a API da Cloudflare recusou a consulta ou não respondeu; nova tentativa em 5 minutos"
+      },
+      "metric": {
+        "doRowsWritten": "Linhas escritas em Durable Objects",
+        "doRowsRead": "Linhas lidas em Durable Objects",
+        "doRequests": "Requisições a Durable Objects",
+        "doDuration": "Duração de Durable Objects (GB-s)",
+        "d1RowsWritten": "Linhas escritas no D1",
+        "d1RowsRead": "Linhas lidas no D1",
+        "workerRequests": "Requisições ao Worker"
+      },
+      "plan": {
+        "free": "Workers Free",
+        "paid": "Workers Paid",
+        "unknown": "Plano desconhecido: escolha o seu plano",
+        "chosen": "Conforme escolhido aqui",
+        "detected": "Detectado pelas assinaturas da conta",
+        "notDetected": "Não detectado ({{reason}}); escolha aqui",
+        "choose": "Plano do Cloudflare Workers",
+        "option": {
+          "detect": "Detectar automaticamente",
+          "free": "Workers Free",
+          "paid": "Workers Paid"
+        }
+      },
+      "logs": {
+        "name": "Eventos do Workers Logs",
+        "estimated": "Estimado: invocações do Worker e dos Durable Objects × amostragem de {{sampling}}",
+        "noteFree": "Workers Logs: depois de 200.000 eventos no dia a Cloudflare guarda só 1 % dos logs até 00:00 UTC; o Openlive continua funcionando. Reduza a amostragem com o --log-sampling do setup. A partir de 1º de dezembro de 2026 a Cloudflare limita os logs a 0,5 GB por dia e para de guardá-los no limite.",
+        "notePaid": "Workers Logs: 20 milhões de eventos por mês estão incluídos, depois US$ 0,60 por milhão. A partir de 1º de dezembro de 2026 a Cloudflare cobra os logs por volume (50 GB por mês incluídos, depois US$ 0,25 por GB)."
+      },
+      "raw": {
+        "title_one": "Resposta bruta da Cloudflare ({{count}} consulta)",
+        "title_other": "Respostas brutas da Cloudflare ({{count}} consultas)",
+        "entry": "{{metric}} · {{window}} · HTTP {{status}}",
+        "window": {
+          "today": "hoje (UTC)",
+          "last24h": "últimas 24 horas",
+          "month": "este mês"
+        }
+      }
+    },
+    "settings": {
+      "title": "Configurações da plataforma",
+      "intro": "Tetos que todo space e toda sala respeitam, o limite mensal de banda e quem pode entrar.",
+      "quality": "Qualidade e vagas",
+      "maxResolution": "Resolução máxima",
+      "maxFps": "Taxa de quadros máxima",
+      "fps": "{{fps}} fps",
+      "fps120Title": "Presets de 120 fps",
+      "fps120Off": "Jogo 120 (1080p120, ~14 Mbps) e Máxima 120 (1440p120, ~20 Mbps) estão desligados. Escolha 120 fps para oferecê-los; custam cerca do dobro por espectador.",
+      "fps120Preset": "{{name}}: {{rate}} com as camadas menores e o som, ~{{size}} por hora por espectador.",
+      "presetCapped": "{{name}}: o limite de {{cap}} deixa a camada alta com cerca de {{rate}} em vez de {{full}}. Aumente o bitrate máximo para {{need}} para a qualidade completa.",
+      "raiseTo": "Aumentar para {{need}}",
+      "fps120Capped": "O limite de {{cap}} deixa a camada alta com cerca de {{rate}} em vez de {{full}}. Aumente o bitrate máximo para {{need}} para a qualidade completa.",
+      "maxBitrate": "Bitrate máximo (Mbps)",
+      "maxViewers": "Espectadores por transmissão",
+      "maxStreams": "Transmissões por sala",
+      "range": "De {{min}} a {{max}}.",
+      "budget": {
+        "title": "Limite mensal",
+        "intro": "Quanta banda do Realtime a instância pode usar em cada ciclo de cobrança. Os primeiros 1.000 GB da Cloudflare são grátis; cada GB acima deles custa US$ 0,05.",
+        "choice": {
+          "free": "Cota grátis",
+          "custom": "Personalizado",
+          "unlimited": "Ilimitado"
+        },
+        "noCost": "{{usd}} por mês, grátis",
+        "maxCost": "Até {{usd}} por mês",
+        "noCap": "Sem teto de custo",
+        "hours": "Cerca de {{hours}} de transmissões lotadas",
+        "hoursUnlimited": "Sem limite de transmissões lotadas",
+        "customGB": "Limite (GB)",
+        "customUsd": "Ou um valor mensal (US$)",
+        "customDescription": "De {{min}} a {{max}}. O valor compra GB acima dos {{free}} grátis a US$ 0,05 cada.",
+        "unlimitedNote": "As transmissões nunca são bloqueadas por uso. Todos ainda veem um aviso quando o uso passa da cota grátis, e você vê o custo até agora."
+      },
+      "quotaMode": "Quando o limite for atingido",
+      "block": "Bloquear novas transmissões",
+      "alertsOnly": "Só alertas",
+      "blockDescription": "Recomendado. Novas transmissões são bloqueadas a 95% do limite estimado; as que estão no ar recebem um aviso e terminam após 10 minutos de tolerância.",
+      "alertsDescription": "As transmissões continuam além do limite, e a Cloudflare cobra cada GB acima da cota grátis a US$ 0,05.",
+      "autoEconomy": "Modo econômico perto do limite",
+      "autoEconomyDescription": "Acima de 90% do limite, as transmissões vão até 1080p e 8 Mbps. Desligue para manter a qualidade máxima até o limite.",
+      "cycleDay": "Dia em que o ciclo de cobrança vira",
+      "cycleDayDescription": "O dia do mês em que o ciclo de cobrança da sua conta Cloudflare vira (1 a 31).",
+      "overheads": "Incluir as folgas medidas",
+      "overheadsDescription": "Conta cerca de 1,5× o bitrate mais cerca de 15 MB por entrada de espectador, como medido na Fase 0. Desligue para usar a fórmula simples.",
+      "save": "Salvar",
+      "saving": "Salvando…",
+      "saved": "Configurações salvas.",
+      "access": "Quem pode entrar",
+      "inviteOnly": "Cadastro só com convite",
+      "inviteOnlyOn": "Recomendado. Contas novas precisam de um link de convite ou do código de uma sala; contas existentes sempre entram.",
+      "inviteOnlyOff": "Qualquer pessoa com uma conta do Discord ou um endereço de e-mail pode criar uma conta.",
+      "adminSpaces": "Só o admin da plataforma cria espaços",
+      "adminSpacesOn": "Recomendado. Todo espaço transmite usando a sua cota de banda, então você decide quais existem.",
+      "adminSpacesOff": "Qualquer pessoa conectada pode criar um espaço e convidar o próprio grupo.",
+      "backgroundPause": "Pausar abas em segundo plano",
+      "backgroundPauseDescription": "Quem deixar a aba em segundo plano por 60 segundos para de receber o vídeo até voltar. A vaga de espectador é mantida. Picture-in-picture e tela cheia contam como assistindo.",
+      "idleCheck": "Perguntar \"Ainda está assistindo?\"",
+      "idleCheckDescription": "Depois de 2 horas sem nenhuma interação, o espectador recebe a pergunta. Sem resposta em 60 segundos, ele para de assistir e libera a vaga.",
+      "capabilities": "Recursos das salas",
+      "capabilitiesDescription": "O que spaces e salas desta instância podem ter. Desligar as câmeras economiza banda.",
+      "maxCameras": "Câmeras por sala",
+      "maxCamerasCost": "Cada câmera é recebida por todos os outros na voz: 6 câmeras na faixa pequena custam cerca de {{strip}} por hora, cerca de {{large}} se todos ampliarem. 0 desliga as câmeras.",
+      "av1": {
+        "allow": "Permitir AV1",
+        "description": "As transmissões também enviam a camada mais alta em AV1 para quem tem um navegador que decodifica AV1, a cerca de 65 % do bitrate do H.264 para economizar dados ou ao mesmo bitrate para uma imagem mais nítida, conforme a escolha de cada preset; os demais, e todas as camadas menores, continuam em H.264. Quem transmite precisa de uma NVIDIA RTX 40 ou mais nova (ou uma GPU VA-API que codifique AV1) e envia a cópia em AV1 a mais. Desligado até ser medido com conteúdo real.",
+        "preset": "{{name}}: codec",
+        "codec": {
+          "av1Save": "AV1: economizar dados",
+          "av1Quality": "AV1: qualidade",
+          "h264": "Só H.264"
+        },
+        "hint": {
+          "av1Save": "Economizar dados: ~35 % menos banda, imagem parecida.",
+          "av1Quality": "Qualidade: a mesma banda do H.264, movimento mais nítido.",
+          "h264": "Todos os espectadores recebem H.264."
+        },
+        "cost": "~{{h264}} por hora por espectador em H.264, ~{{av1Save}} em AV1 economizando dados, ~{{av1Quality}} em AV1 qualidade."
+      },
+      "unsaved": "Alterações não salvas",
+      "discard": "Descartar",
+      "workersPlan": {
+        "description": "A estimativa confere o uso de Durable Objects com os limites deste plano.",
+        "detected": "Detectado: {{plan}}. A estimativa usa este.",
+        "notDetected": "Ainda não detectado; escolha Workers Free ou Workers Paid para a estimativa conferir os Durable Objects."
+      },
+      "sections": {
+        "label": "Seções das configurações",
+        "streams": {
+          "title": "Transmissões e qualidade",
+          "description": "A maior resolução, taxa de quadros e bitrate que uma transmissão pode usar, e quantas pessoas cabem numa sala."
+        },
+        "av1": {
+          "title": "AV1",
+          "description": "Uma segunda faixa de vídeo para quem tem navegador que decodifica AV1, por preset de qualidade."
+        },
+        "voice": {
+          "title": "Voz, câmera e chat",
+          "description": "O que as salas podem ter e quantas câmeras podem ficar ligadas ao mesmo tempo."
+        },
+        "budget": {
+          "title": "Limites e orçamento",
+          "description": "O limite mensal, o que acontece perto dele e ao atingi-lo, e os freios que economizam banda."
+        },
+        "access": {
+          "title": "Acesso",
+          "description": "Quem pode criar conta e quem pode criar espaço."
+        },
+        "cloudflare": {
+          "title": "Plano da Cloudflare",
+          "description": "Seu plano de Workers, para os limites de Durable Objects."
+        }
+      }
+    },
+    "calculator": {
+      "title": "Calculadora de custo",
+      "intro": "A mesma fórmula do medidor de uso, para que esta estimativa e o medidor do mês concordem.",
+      "fullHour": "Uma hora de transmissão lotada",
+      "fullHourDetail": "{{slots}} espectadores × {{bitrate}}",
+      "hoursFit": "Horas lotadas por mês",
+      "hoursFitDetail": "{{quota}} grátis por mês",
+      "hoursFitLimit": "Dentro do seu limite de {{quota}}",
+      "scenario": "Mês típico",
+      "scenarioIntro": "Edite o cenário para ver o total do mês e o custo acima da cota grátis.",
+      "streamsPerDay": "Transmissões por dia",
+      "hoursPerStream": "Horas por transmissão",
+      "viewersPerStream": "Espectadores por transmissão",
+      "days": "Dias por mês",
+      "total": "Total do mês",
+      "aboveFree": "Acima da cota grátis",
+      "cost": "Custo estimado",
+      "profiles": "Perfis de referência",
+      "profile": {
+        "economy": "Econômico",
+        "max": "Máximo",
+        "max120": "Máximo 120 fps"
+      },
+      "profileSpec": "{{resolution}}{{fps}}, {{bitrate}}, {{slots}} vagas",
+      "perHour": "{{value}} por hora lotada",
+      "hoursPerMonth": "{{value}} por mês",
+      "overLimit": "Este mês passaria do seu limite de {{limit}}.",
+      "cameras": "Câmeras ligadas",
+      "camerasHint": "Câmeras na voz durante cada transmissão, vistas na faixa pequena (180p, ~150 kbps).",
+      "cameraHour": "Uma hora de {{cameras}} câmeras entre {{people}} pessoas",
+      "cameraHourDetail": "{{strip}} na faixa, {{large}} se todos ampliarem"
+    },
+    "setup": {
+      "title": "Configurar o Openlive",
+      "intro": "Seis passos curtos antes de convidar alguém. Tudo pode ser mudado depois nas configurações da plataforma.",
+      "progress": "Progresso da configuração",
+      "stepOf": "Passo {{step}} de {{total}}",
+      "done": "concluído",
+      "skip": "Pular por enquanto",
+      "back": "Voltar",
+      "next": "Avançar",
+      "finish": "Concluir configuração",
+      "steps": {
+        "account": {
+          "short": "Conta",
+          "title": "Conta de admin",
+          "intro": "O admin da plataforma define os limites e vê o uso de todos os spaces, nunca o conteúdo das transmissões."
+        },
+        "checks": {
+          "short": "Verificações",
+          "title": "Verificações",
+          "intro": "Se cada secret está configurado e cada serviço responde. Nada é criado nem enviado."
+        },
+        "quality": {
+          "short": "Qualidade e vagas",
+          "title": "Qualidade e vagas",
+          "intro": "Os tetos que todo space e toda sala respeitam. A calculadora mostra quanto custam."
+        },
+        "calculator": {
+          "short": "Calculadora",
+          "title": "Quanto custa",
+          "intro": "Como os tetos e um mês típico usam a cota grátis de banda."
+        },
+        "quota": {
+          "short": "Limite mensal",
+          "title": "Limite mensal",
+          "intro": "Quanta banda a instância pode usar por mês, o que acontece no limite e quando o mês vira."
+        },
+        "access": {
+          "short": "Acesso",
+          "title": "Quem pode entrar",
+          "intro": "Se contas novas precisam de convite, e quem pode criar espaços. Os dois usam a sua cota."
+        },
+        "space": {
+          "short": "Primeiro space",
+          "title": "Primeiro space e convite",
+          "intro": "Crie o space do grupo e o primeiro link de convite."
+        }
+      },
+      "account": {
+        "done": "Você é o admin da plataforma",
+        "doneDetail": "{{name}} assumiu esta instância com o código de instalação.",
+        "todo": "Esta instância ainda não tem admin da plataforma",
+        "claim": "Assuma com o código de instalação"
+      },
+      "checks": {
+        "guide": "Guia de self-host",
+        "rerun": "Verificar de novo",
+        "items": {
+          "discord": "Login com Discord",
+          "email": "Login por e-mail (Resend)",
+          "sfu": "Realtime SFU",
+          "turn": "Realtime TURN",
+          "d1": "Banco de dados (D1)",
+          "r2": "Armazenamento de miniaturas (R2)"
+        },
+        "status": {
+          "ok": "OK",
+          "missing": "Faltando",
+          "error": "Erro"
+        },
+        "codes": {
+          "configured": "Configurado.",
+          "secret_missing": "Não configurado:",
+          "auth_failed": "A Cloudflare recusou as credenciais. Confira o id e o token.",
+          "unreachable": "O serviço não respondeu. Tente de novo daqui a pouco.",
+          "unexpected_response": "O serviço deu uma resposta inesperada.",
+          "binding_failed": "O binding não respondeu. Confira o wrangler.jsonc."
+        }
+      },
+      "costWarning": {
+        "title": "O uso acima da cota grátis é cobrado",
+        "body": "A Cloudflare cobra US$ 0,05 por GB acima de 1.000 GB por mês e nunca bloqueia sozinha. O Openlive avisa todo mundo a 70%, 90% e 100%."
+      },
+      "space": {
+        "createTitle": "Crie o primeiro space",
+        "createIntro": "Um space é o seu grupo: as salas, os membros e os convites.",
+        "ready": "{{name}} está pronto",
+        "inviteIntro": "Crie um link de convite para mandar aos amigos. O link aparece uma vez só.",
+        "open": "Abrir o space"
+      },
+      "reminder": {
+        "title": "A configuração não terminou",
+        "body": "Você parou no passo {{step}} de {{total}}. Continue de onde parou.",
+        "resume": "Continuar configuração",
+        "dismiss": "Dispensar"
+      }
+    },
+    "users": {
+      "title": "Usuários",
+      "intro": "Todas as contas desta instância e os espaços de cada uma. Você vê os dados da conta, nunca o que alguém transmite.",
+      "search": "Buscar usuários",
+      "searchPlaceholder": "Nome, e-mail ou id",
+      "filter": "Mostrar",
+      "filters": {
+        "all": "Todos",
+        "no_space": "Sem espaço",
+        "banned": "Banidos",
+        "admins": "Admins da plataforma"
+      },
+      "empty": {
+        "all": "Nenhuma conta ainda.",
+        "no_space": "Toda conta pertence a um espaço ou a uma sala.",
+        "banned": "Ninguém está banido.",
+        "admins": "Nenhum admin da plataforma."
+      },
+      "noMatch": "Nenhuma conta corresponde à busca.",
+      "more": "Mostrar mais",
+      "columns": {
+        "name": "Nome",
+        "spaces": "Espaços",
+        "lastSeen": "Visto por último",
+        "status": "Status"
+      },
+      "noSpace": "Sem espaço",
+      "spaceBanned": "banido",
+      "never": "Nunca",
+      "status": {
+        "active": "Ativa",
+        "banned": "Banida",
+        "admin": "Admin da plataforma"
+      },
+      "providers": {
+        "discord": "Discord",
+        "email": "E-mail"
+      },
+      "actions": {
+        "ban": "Banir",
+        "unban": "Desbanir",
+        "sessions": "Desconectar de tudo",
+        "devices": "Desvincular helpers",
+        "delete": "Excluir conta"
+      },
+      "detail": {
+        "loading": "Conta",
+        "id": "Id",
+        "providers": "Entra com",
+        "created": "Criada",
+        "bannedAt": "Banida em {{date}}",
+        "self": "Esta é a sua conta: você não pode bani-la nem excluí-la.",
+        "spaces": "Espaços",
+        "streams": "Ao vivo agora",
+        "noStreams": "Não está transmitindo.",
+        "streamIn": "{{room}} em {{space}}",
+        "streamMeta_one": "{{preset}} desde {{since}}, {{count}} espectador",
+        "streamMeta_other": "{{preset}} desde {{since}}, {{count}} espectadores",
+        "sessions": "Navegadores conectados",
+        "noSessions": "Não está conectada em lugar nenhum.",
+        "sessionMeta": "Entrou em {{created}}, ativa por último em {{seen}}",
+        "devices": "Helpers vinculados",
+        "noDevices": "Nenhum helper vinculado.",
+        "seen": "visto em {{date}}",
+        "activity": "Atividade recente",
+        "noActivity": "Nada registrado ainda.",
+        "by": "por {{name}}",
+        "byThem": "por esta conta"
+      },
+      "confirm": {
+        "banTitle": "Banir {{name}} da instância?",
+        "banBody": "A pessoa é desconectada de tudo, os helpers são desvinculados, as transmissões terminam e ela sai de todas as salas agora. Ela não entra mais, e a conta do Discord e o e-mail dela não podem criar outra conta.",
+        "reason": "Motivo (opcional)",
+        "reasonHint": "Só admins da plataforma veem.",
+        "unbanTitle": "Desbanir {{name}}?",
+        "unbanBody": "A pessoa pode entrar de novo. Ela entra e vincula os helpers outra vez.",
+        "sessionsTitle": "Desconectar {{name}} de tudo?",
+        "sessionsBody": "Todos os navegadores desta conta são desconectados. Ela pode entrar de novo.",
+        "devicesTitle": "Desvincular os helpers de {{name}}?",
+        "devicesBody": "Todo helper vinculado para de funcionar e as transmissões dele terminam. Ela pode vincular de novo.",
+        "deleteTitle": "Excluir {{name}}?",
+        "deleteBody": "A conta e os dados pessoais dela são excluídos: participações, acessos a salas, sessões, helpers, identidades de login e progresso do tutorial. Os registros de auditoria ficam, sem a pessoa. Não dá para desfazer.",
+        "alsoBan": "Também banir",
+        "alsoBanHint": "A conta do Discord e o e-mail dela não podem se cadastrar de novo.",
+        "ownerTitle": "Esta conta é dona de espaços",
+        "ownerBody": "Transfira ou exclua estes espaços antes:",
+        "messages": "Mensagens no chat",
+        "messagesChoice": {
+          "delete": "Apagar",
+          "anonymize": "Manter como “conta removida”"
+        },
+        "messagesHint": "Em todas as salas em que a pessoa escreveu. Você nunca vê as mensagens."
+      },
+      "done": {
+        "sessions_one": "Desconectada de {{count}} navegador.",
+        "sessions_other": "Desconectada de {{count}} navegadores.",
+        "devices_one": "{{count}} helper desvinculado.",
+        "devices_other": "{{count}} helpers desvinculados."
+      },
+      "audit": {
+        "invite_accept": "Aceitou um convite",
+        "invite_create": "Criou um convite",
+        "invite_revoke": "Revogou um convite",
+        "join_request_create": "Pediu para entrar",
+        "join_request_approve": "Pedido de entrada aprovado",
+        "join_request_reject": "Pedido de entrada recusado",
+        "member_role_change": "Papel alterado",
+        "member_ban": "Banido de um espaço",
+        "member_unban": "Desbanido num espaço",
+        "member_leave": "Saiu de um espaço",
+        "member_remove": "Removido de um espaço",
+        "platform_access_update": "Mudou quem pode entrar",
+        "platform_admin_claim": "Assumiu a instância",
+        "platform_settings_update": "Mudou as configurações da plataforma",
+        "platform_space_suspend": "Suspendeu um espaço",
+        "platform_space_unsuspend": "Retirou a suspensão de um espaço",
+        "platform_user_remove": "Removeu uma conta",
+        "platform_user_ban": "Banido da instância",
+        "platform_user_unban": "Desbanido na instância",
+        "platform_user_sessions_revoke": "Desconectado de tudo pelo admin",
+        "platform_user_devices_revoke": "Helpers desvinculados pelo admin",
+        "platform_user_delete": "Conta excluída",
+        "room_access_grant": "Acesso à sala concedido",
+        "room_access_revoke": "Acesso à sala revogado",
+        "room_archive": "Arquivou uma sala",
+        "room_create": "Criou uma sala",
+        "room_join_code": "Entrou numa sala por código",
+        "room_update": "Alterou uma sala",
+        "space_create": "Criou um espaço",
+        "space_delete": "Excluiu um espaço",
+        "space_transfer": "Posse do espaço transferida",
+        "space_update": "Alterou um espaço"
+      },
+      "spaceCount_one": "{{count}} espaço",
+      "spaceCount_other": "{{count}} espaços",
+      "lastSeenMeta": "Visto {{when}}"
+    },
+    "estimate": {
+      "title": "Estimativa do mês",
+      "intro": "Com as configurações desta página, incluindo as não salvas, e o cenário abaixo.",
+      "open": "Detalhes",
+      "month": "GB por mês",
+      "perMonth": "{{value}} por mês",
+      "cost": "Custo",
+      "costDetail": "Acima dos {{free}} gratuitos do mês, a {{price}} por GB.",
+      "fits": "Cabe no seu limite de {{limit}}",
+      "over": "Passa do seu limite de {{limit}}",
+      "overShort": "Passa do limite",
+      "unlimited": "Sem limite mensal",
+      "hoursFit": "Cabem até {{hours}} por dia deste cenário no limite.",
+      "hoursFitFree": "Cabem até {{hours}} por dia deste cenário na cota gratuita.",
+      "economy": "O modo econômico começa em {{at}}; o mês terminaria perto de {{total}}.",
+      "breakdown": "Por origem",
+      "source": {
+        "streamsH264GB": "Transmissões, H.264",
+        "streamsAv1GB": "Transmissões, AV1",
+        "voiceGB": "Voz",
+        "camerasGB": "Câmeras"
+      },
+      "clamped": {
+        "viewers": "Suas configurações permitem {{viewers}} espectadores por transmissão.",
+        "streamers": "Suas configurações permitem {{streamers}} transmissões por sala.",
+        "cameras": "{{cameras}} câmeras: seu limite de câmeras, ou as pessoas na voz.",
+        "voice": "A voz está desligada para as salas.",
+        "stream": "As transmissões estão desligadas para as salas.",
+        "preset": "{{preset}} é o maior preset que suas configurações permitem."
+      },
+      "workers": {
+        "free": "Workers Free: cerca de {{rows}} linhas escritas em Durable Objects e {{requests}} requisições por dia, {{share}} de um limite diário.",
+        "paid": "Workers Paid: {{share}} dos Durable Objects incluídos no mês, cerca de {{usd}} além deles."
+      },
+      "scenario": "Cenário",
+      "resetScenario": "Restaurar",
+      "input": {
+        "viewers": "Amigos assistindo",
+        "streamers": "Transmitindo",
+        "hoursPerDay": "Horas por dia",
+        "daysPerMonth": "Dias por mês",
+        "voicePeople": "Pessoas na voz",
+        "cameras": "Câmeras ligadas",
+        "preset": "Preset",
+        "av1Share": "Espectadores que decodificam AV1"
+      }
+    }
+  },
+  "download": {
+    "title": "Download",
+    "intro": "O helper do Openlive captura a sua tela e transmite. Para assistir, basta o navegador.",
+    "yourSystem": "Seu sistema",
+    "action": "Baixar",
+    "comingLater": "Em breve. Por enquanto o helper roda no Linux e no macOS.",
+    "sha256": "SHA-256",
+    "copied": "Copiado",
+    "copyFailed": "Não foi possível copiar. Selecione o texto e copie à mão.",
+    "copySha": "Copiar o SHA-256 de {{name}}",
+    "copyCommands": "Copiar os comandos do {{name}}",
+    "os": {
+      "windows": "Windows",
+      "macos": "macOS",
+      "linux": "Linux"
+    },
+    "linux": {
+      "intro": "x86-64 (amd64). Baixe uma das duas opções, instale e pareie com este servidor.",
+      "version": "Versão {{version}}, publicada em {{date}}",
+      "releaseNotes": "Notas da versão",
+      "install": "Instalar e parear",
+      "tarball": {
+        "title": "Tarball",
+        "recommended": "Recomendado para NVIDIA",
+        "description": "Usa o GStreamer e o driver de vídeo do seu sistema, então o NVENC funciona com o driver que você tem. Instala em ~/.local, sem root."
+      },
+      "flatpak": {
+        "title": "Flatpak",
+        "description": "Isolado, com o GStreamer do runtime do Flatpak. Na NVIDIA, o NVENC precisa da extensão do Flathub para a versão exata do seu driver; sem ela o helper codifica na CPU."
+      },
+      "doctor": "Rode openlive-helper doctor para ver quais codificadores funcionam na sua máquina.",
+      "encoderNotes": "Notas sobre codificadores",
+      "signedOut": "Entre para baixar o helper.",
+      "noSpace": "O helper é para membros de um space neste servidor. Entre em um space com um convite e volte aqui.",
+      "unpublished": "Nenhum helper publicado ainda",
+      "adminHint": "Publique a versão oficial a partir do repositório com:",
+      "unpublishedMember": "O helper ainda não está disponível neste servidor. Fale com quem o administra."
+    },
+    "macos": {
+      "intro": "macOS 13 ou mais recente, em Apple silicon ou Intel. Assinado e notarizado pela Apple.",
+      "dmg": {
+        "title": "Imagem de disco",
+        "description": "Um app com o helper dentro. Ele fica na barra de menus e abre quando você entra na sessão."
+      },
+      "steps": {
+        "open": "Abra {{name}} e arraste o Openlive Helper para Aplicativos.",
+        "launch": "Abra o Openlive Helper em Aplicativos. Na primeira vez, o macOS pergunta se deve abrir um app baixado da internet: Abrir.",
+        "pair": "Quando ele pedir o endereço, digite este e confirme o código no navegador:",
+        "screen": "Quando o macOS pedir, permita a Gravação de Tela (Ajustes do Sistema > Privacidade e Segurança > Gravação de Tela e Áudio do Sistema).",
+        "goLive": "Use Transmitir numa sala: o helper transmite pela barra de menus."
+      },
+      "unpublished": "Nenhum helper para macOS publicado ainda",
+      "adminHint": "Publique uma versão oficial (--from-release, que inclui a imagem de disco), ou gere e notarize a imagem num Mac com packaging/macos/build-app.sh e publique uma compilação do código-fonte com:",
+      "unpublishedMember": "O helper para macOS ainda não está disponível neste servidor. Pergunte a quem o administra."
+    }
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "intro": "Esta página não existe.",
+    "back": "Ir para o início"
+  },
+  "stream": {
+    "resolution": "{{height}}p{{fps}}",
+    "meta": "{{resolution}} · {{bitrate}}",
+    "slots": "{{used}}/{{limit}}",
+    "slotsLabel": "{{used}} de {{limit}} vagas de espectador ocupadas",
+    "noPreview": "Sem prévia",
+    "status": {
+      "live": "Ao vivo",
+      "paused": "Pausado",
+      "full": "Lotado",
+      "failed": "Falhou"
+    },
+    "watch": "Assistir à transmissão de {{name}}",
+    "economy": "Econômico"
+  },
+  "status": {
+    "ok": "OK",
+    "live": "Ao vivo",
+    "warning": "Atenção",
+    "failed": "Falhou",
+    "idle": "Parado"
+  },
+  "dev": {
+    "title": "Componentes",
+    "intro": "Exemplos para revisar o design system. Esta página só existe em builds de desenvolvimento.",
+    "streamCards": "Cards de transmissão",
+    "statusBadges": "Badges de estado",
+    "emptyGrid": "Grade de transmissões vazia",
+    "player": "Player",
+    "playerIntro": "Uma sala com transmissões falsas (relógio no canvas e tom). Force qualquer estado pelo painel; não precisa de backend."
+  },
+  "presets": {
+    "text": "Texto e código",
+    "game": "Jogo",
+    "max": "Máxima",
+    "native": "Nativa",
+    "game120": "Jogo 120",
+    "max120": "Máxima 120"
+  },
+  "errors": {
+    "unknown": "Algo deu errado. Tente de novo.",
+    "unauthenticated": "Você precisa entrar.",
+    "session_expired": "Sua sessão expirou. Entre de novo.",
+    "forbidden": "Você não tem permissão para fazer isso.",
+    "hello_required": "A conexão não foi iniciada corretamente. Recarregue a página.",
+    "protocol_unsupported": "Esta versão do app não é mais suportada. Atualize-o.",
+    "invalid_message": "O servidor recusou um pedido inválido.",
+    "unknown_message_type": "O servidor não entende este pedido. Atualize o app.",
+    "rate_limited": "Pedidos demais. Tente de novo em {{retryAfter}}.",
+    "internal_error": "O servidor teve um problema. Tente de novo.",
+    "room_not_found": "Esta sala não existe.",
+    "room_closed": "Esta sala está encerrada.",
+    "stream_not_found": "Esta transmissão terminou ou não existe.",
+    "stream_permission_required": "Você não tem permissão para transmitir nesta sala.",
+    "stream_limit_reached": "Esta sala já tem o máximo de {{limit}} transmissões.",
+    "stream_paused": "Esta transmissão está pausada.",
+    "pings_disabled": "Quem transmite não permitiu cliques visuais.",
+    "preset_not_allowed": "A qualidade {{preset}} não é permitida nesta sala.",
+    "viewer_limit_reached": "Transmissão lotada ({{used}}/{{limit}}).",
+    "viewer_limit_too_high": "O limite de espectadores pode ser no máximo {{limit}}.",
+    "slot_not_found": "Sua vaga de espectador expirou. Tente de novo.",
+    "offer_not_found": "A oferta de vaga expirou ou já foi usada.",
+    "quota_exhausted": "Este space já usou toda a banda do mês.",
+    "helper_offline": "Seu helper está offline. Abra-o no seu computador.",
+    "helper_busy": "Seu helper já está transmitindo.",
+    "source_not_found": "Essa janela ou tela não está mais disponível.",
+    "not_found": "Esta página ou recurso não existe.",
+    "space_not_found": "Este space não existe ou você não é membro.",
+    "member_not_found": "Esta pessoa não é membro do space.",
+    "user_not_found": "Este usuário não existe.",
+    "slug_taken": "O endereço \"{{slug}}\" já está em uso.",
+    "already_member": "Você já tem este acesso.",
+    "banned": "Você foi banido deste space.",
+    "owner_must_transfer": "Transfira a posse do space antes de sair dele.",
+    "setting_above_ceiling": "Este valor pode ser no máximo {{limit}}.",
+    "invite_not_found": "Este convite não existe.",
+    "invite_expired": "Este convite expirou.",
+    "invite_revoked": "Este convite foi revogado.",
+    "invite_exhausted": "Este convite já atingiu o limite de usos.",
+    "join_request_not_found": "Este pedido de entrada não existe.",
+    "join_request_decided": "Este pedido de entrada já foi decidido.",
+    "origin_not_allowed": "Este pedido não veio do app Openlive. Recarregue a página e tente de novo.",
+    "auth_not_configured": "Este modo de entrar ainda não foi configurado neste servidor.",
+    "oauth_state_invalid": "O login demorou demais ou foi iniciado em outra aba. Tente de novo.",
+    "oauth_failed": "O login pelo Discord foi cancelado ou não funcionou. Tente de novo.",
+    "magic_link_invalid": "Este link de acesso expirou ou já foi usado. Peça um novo.",
+    "email_send_failed": "Não conseguimos enviar o e-mail. Tente de novo mais tarde.",
+    "session_not_found": "Esta sessão não existe mais.",
+    "admin_claim_unavailable": "Este servidor não tem código de instalação, então o papel de admin não pode ser reivindicado.",
+    "admin_already_claimed": "Este servidor já tem um admin.",
+    "install_code_invalid": "O código de instalação não está correto.",
+    "space_suspended": "Este space foi suspenso pela admin da plataforma.",
+    "room_code_invalid": "Nenhuma sala rápida aberta tem este código. Confira e tente de novo.",
+    "authorization_pending": "Aguardando a aprovação do pareamento.",
+    "slow_down": "Verificando rápido demais; aguardando {{intervalMs}} ms entre as verificações.",
+    "expired_token": "Este pareamento expirou. Comece o pareamento de novo no helper.",
+    "device_code_invalid": "Este código de pareamento está errado ou expirou. Confira o código no helper.",
+    "device_not_found": "Este dispositivo não está pareado com a sua conta.",
+    "app_code_invalid": "Este código de login está errado, já foi usado ou expirou. Entre de novo pelo app.",
+    "rtc_not_configured": "A transmissão ainda não está configurada neste servidor.",
+    "sfu_error": "O servidor de mídia recusou o pedido. Tente de novo.",
+    "sfu_session_not_found": "A conexão de mídia caiu. Reconectar pode ajudar.",
+    "bitrate_not_allowed": "O bitrate passa do limite desta sala ({{limit}} kbps).",
+    "signup_invite_required": "Este servidor é só para convidados. Para criar uma conta, abra o link de convite ou de sala que você recebeu e depois entre.",
+    "space_creation_restricted": "Neste servidor só o admin da plataforma cria espaços.",
+    "user_not_removable": "Esta conta agora pertence a um espaço ou a uma sala, então não foi removida.",
+    "account_banned": "Esta conta está banida deste servidor.",
+    "cannot_target_self": "Você não pode fazer isso com a sua própria conta.",
+    "last_platform_admin": "A instância precisa de pelo menos um admin da plataforma.",
+    "capability_disabled": "Esta sala não tem este recurso.",
+    "voice_full": "O canal de voz está cheio ({{limit}} pessoas).",
+    "voice_speak_not_allowed": "Você não pode falar neste canal de voz.",
+    "voice_not_joined": "Fora do canal de voz.",
+    "voice_track_not_found": "Essa pessoa não está mais falando no canal de voz.",
+    "camera_not_allowed": "Você não pode ligar a câmera nesta sala.",
+    "camera_limit_reached": "Esta sala já tem {{limit}} câmeras ligadas.",
+    "chat_message_too_long": "A mensagem é longa demais (no máximo {{limit}} caracteres).",
+    "chat_write_not_allowed": "Convidados não podem escrever neste chat.",
+    "chat_message_not_found": "Essa mensagem não existe mais.",
+    "do_quota_exceeded": "Este servidor atingiu um limite diário gratuito da Cloudflare. A Cloudflare documenta a volta às 00:00 UTC, mas pode levar até 24 horas para liberar."
+  },
+  "roles": {
+    "owner": "Dono",
+    "admin": "Admin",
+    "member": "Membro",
+    "guest": "Convidado"
+  },
+  "invite": {
+    "title": "Convite",
+    "intro": "Alguém convidou você para o Openlive.",
+    "unusable": "Este convite não pode mais ser usado",
+    "notFound": "Convite não encontrado",
+    "toSpaces": "Ir para os seus spaces",
+    "room": "{{room}} em {{space}}",
+    "pending": {
+      "title": "Aguardando aprovação",
+      "description": "Seu pedido para entrar em {{place}} foi enviado. Um dono ou admin vai aprovar; o space aparece na sua lista quando isso acontecer."
+    },
+    "joining": "Entrar em {{place}}",
+    "asRoomGuest": "Você entra só nesta sala, como convidado: pode assistir.",
+    "as": {
+      "member": "Você entra como membro: pode assistir, transmitir e abrir salas rápidas.",
+      "guest": "Você entra como convidado: pode assistir."
+    },
+    "canStream": "Você também pode transmitir nesta sala.",
+    "needsApproval": "Um dono ou admin aprova o seu pedido antes.",
+    "expires": "Válido até {{date}}",
+    "request": "Pedir para entrar",
+    "accept": "Aceitar convite",
+    "decline": "Agora não"
+  },
+  "openInApp": {
+    "title": "Tem o app Openlive?",
+    "description": "Abra este convite no app, ou continue abaixo no navegador.",
+    "open": "Abrir no app",
+    "get": {
+      "ios": "Baixar o app para iPhone",
+      "android": "Baixar o app para Android"
+    }
+  },
+  "join": {
+    "title": "Entrar com código",
+    "intro": "Digite o código de uma sala rápida para entrar nela.",
+    "label": "Código da sala",
+    "submit": "Entrar",
+    "hint": "Peça o código a quem abriu a sala rápida, como OL-4821-0937.",
+    "joining": "Entrando em {{code}}…",
+    "failed": "Não foi possível entrar na sala"
+  },
+  "tutorial": {
+    "next": "Avançar",
+    "back": "Voltar",
+    "done": "Pronto",
+    "skip": "Pular tutorial",
+    "disable": "Não mostrar tutoriais de novo",
+    "progress": "Passo {{current}} de {{total}}",
+    "spaces": {
+      "what": {
+        "title": "Spaces",
+        "body": "Um space é um grupo privado, com salas e membros próprios. Só quem você convida consegue vê-lo."
+      },
+      "create": {
+        "title": "Criar um space",
+        "body": "Crie um para o seu grupo e depois convide os amigos."
+      }
+    },
+    "space": {
+      "rooms": {
+        "title": "Salas",
+        "body": "Salas fixas ficam até alguém arquivá-las. Salas rápidas expiram sozinhas."
+      },
+      "quick": {
+        "title": "Salas rápidas",
+        "body": "Abra uma sala para hoje com um clique; ela fecha sozinha."
+      },
+      "invites": {
+        "title": "Convites",
+        "body": "Crie links para membros ou convidados, para o space inteiro ou uma sala."
+      },
+      "members": {
+        "title": "Membros e papéis",
+        "body": "Owners e admins administram o space. Convidados só assistem, a menos que alguém deixe transmitir."
+      },
+      "create": {
+        "title": "Criar uma sala",
+        "body": "Escolha um modelo: assistir junto, só transmissão, canal de voz ou de texto."
+      }
+    },
+    "room": {
+      "presence": {
+        "title": "Quem está aqui",
+        "body": "Todo mundo que está na sala agora, ao vivo."
+      },
+      "streams": {
+        "title": "O palco",
+        "body": "As transmissões ao vivo e quem está na voz aparecem aqui como blocos. Assista a uma para vê-la grande."
+      },
+      "golive": {
+        "title": "Transmitir",
+        "body": "Transmita a sua tela para esta sala com o helper do seu computador."
+      },
+      "features": {
+        "title": "Recursos da sala",
+        "body": "Escolha o que a sala tem: transmissão, voz, texto."
+      },
+      "voice": {
+        "title": "Voz",
+        "body": "Entre no canal de voz da sala para conversar enquanto assiste."
+      },
+      "chat": {
+        "title": "Chat",
+        "body": "Mensagens e links para todos na sala. Digite @ para mencionar alguém."
+      },
+      "chatButton": {
+        "title": "Chat",
+        "body": "Abra as mensagens da sala aqui. O número conta o que você ainda não leu."
+      }
+    },
+    "topbar": {
+      "preferences": {
+        "title": "Idioma e tema",
+        "body": "Troque o idioma e o modo claro ou escuro aqui."
+      },
+      "user": {
+        "title": "Seu menu",
+        "body": "Configurações, onde dá para rever este tutorial, e sair."
+      }
+    },
+    "golive-helper": {
+      "helpers": {
+        "title": "Os seus helpers",
+        "body": "Cada computador com o helper aberto aparece aqui. Escolha de qual transmitir."
+      }
+    },
+    "golive-source": {
+      "sources": {
+        "title": "O que compartilhar",
+        "body": "As suas telas e janelas, com prévias que só você vê. Nada é compartilhado antes de começar."
+      }
+    },
+    "golive-options": {
+      "preset": {
+        "title": "Qualidade",
+        "body": "Mais qualidade precisa de mais upload. A sala pode ter um limite."
+      },
+      "audio": {
+        "title": "Som",
+        "body": "Envie o som de um app só, nunca o do computador inteiro, para a sua chamada de voz não ser ouvida duas vezes."
+      },
+      "start": {
+        "title": "Começar",
+        "body": "O helper começa a transmitir e todos na sala podem assistir."
+      }
+    },
+    "golive-live": {
+      "controls": {
+        "title": "Ao vivo",
+        "body": "Pausar esconde a sua tela na hora. Dá para mudar a qualidade ou parar de qualquer aparelho."
+      }
+    },
+    "admin-users": {
+      "search": {
+        "title": "Encontre qualquer pessoa",
+        "body": "Busque por nome, e-mail ou id. Todas as contas da instância estão aqui."
+      },
+      "filter": {
+        "title": "Filtros",
+        "body": "Mostre as contas sem espaço, as banidas ou os admins da plataforma."
+      },
+      "list": {
+        "title": "Abra uma conta",
+        "body": "Os espaços, sessões, helpers e atividade dela, além de banir, desconectar e excluir."
+      }
+    },
+    "admin-settings": {
+      "budget": {
+        "title": "Limite mensal",
+        "body": "Escolha a cota grátis, um limite maior, o seu próprio ou nenhum. Cada um mostra o custo máximo e quantas transmissões lotadas cabem."
+      }
+    },
+    "voice": {
+      "mute": {
+        "title": "Silenciar",
+        "body": "Para de enviar o seu microfone. Todos veem o ícone de silenciado."
+      },
+      "deafen": {
+        "title": "Desativar áudio",
+        "body": "Você não ouve ninguém e fica silenciado. Ao reativar, o silêncio anterior volta."
+      },
+      "devices": {
+        "title": "Dispositivos",
+        "body": "Escolha o microfone e a saída de áudio, e ligue o aperte para falar."
+      },
+      "panel": {
+        "title": "Voz conectada",
+        "body": "Sua voz continua enquanto você navega. Volte para a sala ou desconecte por aqui."
+      },
+      "camera": {
+        "title": "Câmera",
+        "body": "Mostre sua câmera para quem está na voz. Ela fica desligada até você ligar."
+      }
+    }
+  },
+  "link": {
+    "title": "Parear um helper",
+    "intro": "Conecte o helper do Openlive de um computador à sua conta, para ele transmitir por você.",
+    "codeLabel": "Código de pareamento",
+    "codeHint": "O helper mostra um código como K7F-2QM.",
+    "next": "Continuar",
+    "checking": "Verificando {{code}}…",
+    "tryAnother": "Digitar outro código",
+    "confirmTitle": "Parear este helper?",
+    "confirmDescription": "Um helper no {{os}} ({{arch}}, versão {{version}}) pediu para parear com o código {{code}}. Só aprove se for o seu computador.",
+    "nameLabel": "Nome do dispositivo",
+    "nameHint": "Aparece nas Configurações e quando o helper está online.",
+    "defaultName": "Computador {{os}}",
+    "approve": "Parear",
+    "pairedTitle": "Helper pareado",
+    "pairedDescription": "Pode voltar para o helper: ele se conecta sozinho em alguns segundos.",
+    "toDevices": "Ver dispositivos pareados"
+  },
+  "appAuthorize": {
+    "title": "Entrar no app",
+    "question": "Permitir que o “Openlive” em {{device}} use a sua conta em {{instance}}?",
+    "description": "Conectado como {{name}}. O app poderá fazer o que você faz aqui, menos administrar o servidor.",
+    "warning": "Só permita se você acabou de começar o login pelo app Openlive nesse aparelho. Dá para revogar quando quiser em Configurações → Sessões.",
+    "allow": "Permitir",
+    "deny": "Recusar",
+    "allowed": "Permitido",
+    "denied": "Recusado",
+    "backToApp": "Volte para o app Openlive. Você pode fechar esta página.",
+    "invalid": {
+      "title": "Este pedido de login não é válido",
+      "description": "Comece o login de novo pelo app Openlive. Nada foi compartilhado."
+    }
+  },
+  "player": {
+    "label": "Transmissão de {{name}}",
+    "someone": "Alguém",
+    "backToRoom": "Voltar para a sala",
+    "close": "Fechar",
+    "retryNow": "Tentar agora",
+    "mute": "Silenciar (M)",
+    "unmute": "Ativar o som (M)",
+    "muted": "Sem som",
+    "volume": "Volume",
+    "volumeAt": "Volume {{percent}}%",
+    "noAudio": "Sem áudio",
+    "noAudioHint": "Quem transmite não ligou o áudio do app, então não há som para tocar.",
+    "tapToUnmute": "Toque para ativar o som",
+    "unstable": "Rede instável · qualidade reduzida",
+    "theater": "Modo teatro (T)",
+    "theaterExit": "Visualização padrão (T)",
+    "fullscreen": "Tela cheia (F)",
+    "fullscreenExit": "Sair da tela cheia (F)",
+    "pip": "Picture-in-picture",
+    "multiview": "Multi-view",
+    "quality": {
+      "label": "Qualidade",
+      "auto": "Automático",
+      "autoAt": "Automático ({{layer}})"
+    },
+    "stats": {
+      "toggle": "Stats para nerds (I)",
+      "title": "Stats para nerds",
+      "close": "Fechar stats",
+      "waiting": "Esperando os primeiros números…",
+      "resolution": "Resolução",
+      "fps": "Quadros por segundo",
+      "fpsReceived": "Taxa de quadros recebida",
+      "screen": "Tela",
+      "screenValue": "{{hz}} Hz · {{shown}} fps exibidos",
+      "bitrate": "Bitrate",
+      "loss": "Perda de pacotes",
+      "jitterBuffer": "Jitter buffer",
+      "rtt": "Ida e volta",
+      "codec": "Codec",
+      "layer": "Camada",
+      "decode": "Tempo de decodificação",
+      "ttff": "Tempo até o primeiro quadro",
+      "frames": "Quadros",
+      "dropped": "Quadros descartados",
+      "droppedValue": "{{value}} por segundo",
+      "screenLimit": "Sua tela é de {{hz}} Hz: você está vendo {{hz}} fps de uma transmissão de {{fps}} fps.",
+      "framesValue": "{{decoded}} decodificados · {{freezes}} congelamentos · {{lost}} pacotes perdidos",
+      "ms": "{{value}} ms"
+    },
+    "queue": {
+      "slots": "{{used}}/{{limit}} vagas ocupadas",
+      "join": "Entrar na fila",
+      "joinHint": "Quando abrir uma vaga, você tem 30 segundos para pegá-la.",
+      "joining": "Entrando na fila…",
+      "position": "Você é o número {{position}} de {{length}} na fila",
+      "leave": "Sair da fila",
+      "offer": "Abriu uma vaga para você",
+      "offerLeft": "{{seconds}} s restantes",
+      "accept": "Assistir agora",
+      "decline": "Agora não",
+      "waiting_one": "{{count}} esperando",
+      "waiting_other": "{{count}} esperando"
+    },
+    "screen": {
+      "connecting": {
+        "title": "Conectando…",
+        "description": "Preparando a transmissão de {{name}}."
+      },
+      "paused": {
+        "title": "Pausado",
+        "description": "{{name}} pausou a transmissão. Ela continua aqui quando voltar.",
+        "sourceHidden": "A janela que {{name}} está compartilhando está minimizada ou escondida. A transmissão continua quando ela voltar."
+      },
+      "curtain": {
+        "title": "Cortina de privacidade",
+        "description": "{{name}} escondeu a tela por um momento."
+      },
+      "reconnecting": {
+        "title": "Reconectando…",
+        "description": "O vídeo parou de chegar. Tentando de novo."
+      },
+      "ended": {
+        "title": "A transmissão terminou",
+        "description": "{{name}} não está mais transmitindo."
+      },
+      "noPermission": {
+        "title": "Você não pode assistir a esta transmissão",
+        "description": "Peça acesso a um dono ou admin do space."
+      },
+      "roomExpired": {
+        "title": "Esta sala expirou",
+        "description": "Salas rápidas fecham sozinhas quando o tempo acaba."
+      },
+      "helperOffline": {
+        "title": "O helper de {{name}} ficou offline",
+        "description": "A transmissão parou quando o helper perdeu a conexão. Ela pode voltar em instantes."
+      },
+      "helperOutdated": {
+        "title": "O helper de {{name}} precisa de atualização",
+        "description": "Esta transmissão vem de uma versão do helper que este app não consegue tocar. Peça para atualizar."
+      },
+      "full": {
+        "title": "Esta transmissão está lotada",
+        "description": "Todas as vagas de espectador estão ocupadas."
+      }
+    },
+    "endReason": {
+      "ended_by_streamer": "{{name}} parou de transmitir.",
+      "ended_by_moderator": "Um moderador encerrou esta transmissão.",
+      "helper_disconnected": "O helper de {{name}} perdeu a conexão.",
+      "permission_revoked": "{{name}} não pode mais transmitir nesta sala.",
+      "room_closed": "A sala fechou.",
+      "quota_exhausted": "O space usou toda a banda do mês."
+    },
+    "stillWatching": {
+      "title": "Ainda está assistindo?",
+      "description": "Você não interage há um tempo. A transmissão para em {{seconds}} s para liberar sua vaga para outra pessoa.",
+      "continue": "Continuar assistindo",
+      "stop": "Parar de assistir"
+    }
+  },
+  "golive": {
+    "action": "Transmitir",
+    "title": "Transmitir",
+    "description": "O seu helper transmite para esta sala. Você controla por aqui.",
+    "connecting": "Procurando os seus helpers…",
+    "hubEnded": "A conexão com os seus helpers caiu. Recarregue a página.",
+    "noPermission": {
+      "title": "Você ainda não pode transmitir aqui",
+      "body": "Peça a um moderador desta sala a permissão para transmitir."
+    },
+    "offline": {
+      "title": "O seu helper está offline",
+      "body": "Abra o helper do Openlive no seu computador e deixe-o rodando. Ele se conecta sozinho.",
+      "download": "Baixar o helper",
+      "devices": "Dispositivos pareados"
+    },
+    "helper": {
+      "title": "Transmitir de"
+    },
+    "fit": {
+      "outdated": "Atualização disponível",
+      "unsupported": "Atualização necessária",
+      "busy": "Transmitindo em outro lugar",
+      "live_here": "Ao vivo aqui"
+    },
+    "source": {
+      "title": "O que compartilhar",
+      "loading": "Pedindo ao helper as telas e janelas…",
+      "empty": "O helper não encontrou nada para compartilhar.",
+      "portalScreen": "Escolher uma tela no diálogo do sistema",
+      "portalWindow": "Escolher uma janela no diálogo do sistema",
+      "portalHint": "O sistema mostra o próprio diálogo no computador: escolha lá o que compartilhar.",
+      "last": "Último: {{label}}",
+      "lastHint": "Compartilha de novo sem o diálogo do sistema. Para compartilhar outra coisa, volte e escolha uma tela ou janela."
+    },
+    "options": {
+      "title": "Opções",
+      "preset": "Qualidade",
+      "resolutionLabel": "Resolução",
+      "resolutionP": "{{height}}p",
+      "resolution4k": "4K (nativa)",
+      "fpsLabel": "Quadros por segundo (FPS)",
+      "upload": "Precisa de cerca de {{rate}} de upload.",
+      "roomCap": "Esta sala limita as transmissões a {{rate}}.",
+      "roomCapTop": "A camada alta fica com cerca de {{rate}} em vez de {{full}}.",
+      "audio": "Som",
+      "start": "Começar a transmitir",
+      "starting": "Começando…"
+    },
+    "audio": {
+      "none": "Sem som",
+      "source": "Som deste app",
+      "app": "Som de {{app}}"
+    },
+    "failure": {
+      "quota": "As transmissões estão bloqueadas por enquanto",
+      "no_permission": "Você não pode transmitir aqui",
+      "busy": "O seu helper está ocupado",
+      "offline": "O seu helper ficou offline",
+      "other": "Não foi possível começar a transmissão"
+    },
+    "state": {
+      "idle": "Sem transmitir",
+      "starting": "Começando a transmissão…",
+      "live": "Você está ao vivo",
+      "paused": "Pausado",
+      "stopping": "Parando…",
+      "error": "A transmissão parou"
+    },
+    "live": {
+      "on": "Transmitindo de {{name}}",
+      "curtainHint": "os espectadores veem uma tela de pausa",
+      "pause": "Pausar (cortina de privacidade)",
+      "resume": "Retomar",
+      "stop": "Parar a transmissão"
+    },
+    "stats": {
+      "video": "Vídeo",
+      "videoValue": "{{width}}×{{height}} a {{fps}} fps",
+      "bitrate": "Taxa de bits",
+      "bitrateValue": "{{sent}} (alvo {{target}})",
+      "loss": "Perda de pacotes",
+      "lossValue": "{{value}}%",
+      "encoder": "Encoder",
+      "layers": "Camadas",
+      "layer": "{{rid}} {{height}}p{{fps}} {{rate}}"
+    }
+  },
+  "metrics": {
+    "spaceTitle": "Status",
+    "spaceIntro": "Como as transmissões deste space rodaram: primeiro quadro, congelamentos, quedas, os helpers e os erros mais frequentes.",
+    "adminTitle": "Status",
+    "adminIntro": "Como as transmissões rodaram na instância toda e em cada space.",
+    "range": {
+      "label": "Período",
+      "24h": "Últimas 24 horas",
+      "7d": "Últimos 7 dias"
+    },
+    "empty": "Ainda não houve transmissões nem espectadores neste período.",
+    "none": "—",
+    "ms": "{{value}} ms",
+    "kilobytes": "{{value}} KB",
+    "percentOfCore": "{{value}}% de um núcleo",
+    "ttff": "Mediana do primeiro quadro",
+    "ttffDetail_one": "Percentil 90 {{p90}} · {{count}} visualização",
+    "ttffDetail_other": "Percentil 90 {{p90}} · {{count}} visualizações",
+    "ttffByStart": "Pré-carregado {{prepull}} · no clique {{click}}",
+    "freezes": "Congelamentos por hora",
+    "reconnects_one": "{{count}} reconexão",
+    "reconnects_other": "{{count}} reconexões",
+    "viewerMinutes": "Minutos assistidos",
+    "drops": "Transmissões que caíram",
+    "dropsDetail_one": "{{dropped}} de {{count}} transmissão encerrada",
+    "dropsDetail_other": "{{dropped}} de {{count}} transmissões encerradas",
+    "helper": {
+      "title": "Helpers",
+      "none": "Nenhum relatório de helper neste período.",
+      "minutes": "Minutos transmitidos",
+      "fps": "Taxa de quadros",
+      "fpsValue": "{{sent}} enviados · {{captured}} capturados",
+      "bitrate": "Bitrate médio",
+      "cpu": "CPU do helper",
+      "keyframes": "Pedidos de keyframe por hora",
+      "idr": "Maior keyframe"
+    },
+    "errors": {
+      "title": "Erros mais frequentes",
+      "none": "Nenhum erro neste período.",
+      "decode_one": "{{count}} erro de reprodução nos players",
+      "decode_other": "{{count}} erros de reprodução nos players"
+    },
+    "table": {
+      "space": "Space",
+      "topError": "Erro mais frequente",
+      "deleted": "Space excluído"
+    },
+    "unavailable": {
+      "notConfigured": "O status precisa de um token da API da Cloudflare",
+      "notConfiguredHint": "Configure {{missing}} no Worker (o medidor de uso usa o mesmo token). As métricas continuam sendo gravadas enquanto isso.",
+      "permission": "O token da API da Cloudflare não consegue ler as métricas",
+      "permissionHint": "Dê ao token a permissão {{permission}}. As métricas continuam sendo gravadas enquanto isso.",
+      "failed": "O status está indisponível agora",
+      "failedHint": "O analytics da Cloudflare não respondeu. Tente de novo em um minuto."
+    }
+  },
+  "capabilities": {
+    "stream": {
+      "label": "Transmissão",
+      "description": "A grade de transmissões e o player."
+    },
+    "voice": {
+      "label": "Voz",
+      "description": "Um canal de voz para conversar enquanto assistem."
+    },
+    "camera": {
+      "label": "Câmera",
+      "description": "Câmeras no canal de voz. Precisa da voz."
+    },
+    "text": {
+      "label": "Texto",
+      "description": "Um chat de texto para recados e links."
+    },
+    "notAllowed": "Não permitido neste space.",
+    "notAllowedPlatform": "Não permitido neste servidor.",
+    "atLeastOne": "Ligue pelo menos um entre transmissão, voz e texto.",
+    "templates": {
+      "label": "O que a sala tem",
+      "watchTogether": {
+        "label": "Assistir junto",
+        "description": "Transmissão, voz e texto."
+      },
+      "streamOnly": {
+        "label": "Só transmissão",
+        "description": "Transmissões, como as salas até agora."
+      },
+      "voice": {
+        "label": "Canal de voz",
+        "description": "Conversar sem tela. Câmera opcional."
+      },
+      "text": {
+        "label": "Canal de texto",
+        "description": "Recados e links."
+      },
+      "custom": {
+        "label": "Personalizado",
+        "description": "Escolha cada um."
+      }
+    }
+  },
+  "voice": {
+    "title": "Voz",
+    "join": "Entrar na voz",
+    "joining": "Entrando na voz…",
+    "leave": "Sair",
+    "controls": "Controles de voz",
+    "mute": "Silenciar",
+    "unmute": "Ativar microfone",
+    "deafen": "Desativar áudio",
+    "undeafen": "Ativar áudio",
+    "holdToTalk": "Segure para falar ({{key}})",
+    "devices": "Dispositivos de áudio e aperte para falar",
+    "input": "Microfone",
+    "output": "Saída de áudio",
+    "systemDefault": "Padrão do sistema",
+    "outputUnsupported": "Este navegador toca a voz na saída de áudio do sistema.",
+    "pushToTalk": "Aperte para falar",
+    "pushToTalkKey": "Tecla do aperte para falar: {{key}} (trocar)",
+    "pressAKey": "Aperte uma tecla para o aperte para falar (Esc cancela).",
+    "status": {
+      "sending": "Seu microfone está ligado: os outros ouvem você.",
+      "muted": "Você está silenciado.",
+      "deafened": "Áudio desativado: você não ouve ninguém e está silenciado.",
+      "serverMuted": "Um moderador silenciou você.",
+      "pushToTalk": "Aperte para falar: segure {{key}} com esta aba em foco.",
+      "listening": "Só ouvindo.",
+      "connecting": "Conectando o microfone…"
+    },
+    "inVoice": "Na voz ({{count}})",
+    "nobody": "Ninguém na voz ainda.",
+    "state": {
+      "muted": "Silenciado",
+      "deafened": "Áudio desativado",
+      "serverMuted": "Silenciado por um moderador",
+      "speaking": "falando",
+      "camera": "Câmera ligada"
+    },
+    "personMenu": "Opções de voz de {{name}}",
+    "volume": "Volume de {{name}}",
+    "percent": "{{value}} %",
+    "serverMute": "Silenciar para todos",
+    "serverUnmute": "Liberar o microfone para todos",
+    "kick": "Tirar da voz",
+    "listenOnly": "Você está na voz, só ouvindo.",
+    "micError": {
+      "denied": "O navegador bloqueou o microfone. Libere nas configurações do site para falar.",
+      "no_device": "Nenhum microfone encontrado.",
+      "device_lost": "O microfone foi desconectado.",
+      "unsupported": "Este navegador não consegue usar o microfone nesta página.",
+      "failed": "Não foi possível ligar o microfone."
+    },
+    "removed": {
+      "kicked": "Um moderador tirou você da voz.",
+      "removed": "Você não tem mais acesso a esta sala.",
+      "moved": "Sua voz passou para outra aba.",
+      "capability_disabled": "A voz foi desligada nesta sala."
+    },
+    "headphones": {
+      "tip": "Dica: com fone de ouvido o som fica melhor. O cancelamento de eco está ligado.",
+      "dismiss": "Não mostrar de novo"
+    },
+    "settings": {
+      "title": "Voz",
+      "description": "Seu microfone, saída de áudio e aperte para falar nos canais de voz, neste navegador.",
+      "key": "Tecla do aperte para falar",
+      "changeKey": "Trocar",
+      "hint": "Os nomes dos dispositivos aparecem depois que você libera o microfone.",
+      "globalShortcuts": {
+        "title": "Atalhos globais",
+        "body": "O helper do Openlive em {{devices}} dá atalhos de aperte para falar, silenciar e ensurdecer que funcionam com um jogo em foco. Por padrão: Ctrl+Alt+Shift+T (aperte para falar, quando ligado), Ctrl+Alt+Shift+M (silenciar) e Ctrl+Alt+Shift+D (ensurdecer). Para trocá-los, edite o bloco \"shortcuts\" do arquivo de configuração do helper (talk, mute, deafen) ou os atalhos do desktop no KDE."
+      }
+    },
+    "camera": {
+      "turnOn": "Ligar câmera",
+      "turnOff": "Desligar câmera",
+      "starting": "Ligando a câmera…",
+      "onAir": "Você está com a câmera ligada",
+      "notAllowed": "A câmera está desativada para você nesta sala.",
+      "strip": "Câmeras",
+      "enlarge": "Ampliar a câmera de {{name}}",
+      "shrink": "Fechar a câmera ampliada",
+      "you": "Você",
+      "devices": "Câmera",
+      "flip": "Trocar de câmera",
+      "front": "Câmera frontal",
+      "back": "Câmera traseira",
+      "paused": "Câmeras pausadas: a conexão está fraca, então a voz tem prioridade.",
+      "lowQuality": "Câmeras em baixa qualidade: a conexão está instável.",
+      "dismiss": "Fechar",
+      "error": {
+        "denied": "O acesso à câmera foi negado. Permita no navegador para ligar a câmera.",
+        "no_device": "Nenhuma câmera encontrada.",
+        "device_lost": "A câmera foi desconectada.",
+        "unsupported": "Este navegador não consegue usar a câmera aqui.",
+        "failed": "Não foi possível ligar a câmera."
+      },
+      "stopped": {
+        "moderator": "Um moderador desligou a sua câmera.",
+        "quota_exhausted": "Sua câmera foi desligada: a banda do mês acabou. A voz continua.",
+        "capability_disabled": "As câmeras foram desligadas nesta sala.",
+        "not_allowed": "Você não pode mais usar a câmera nesta sala.",
+        "limit": "Sua câmera foi desligada: a sala agora permite menos câmeras."
+      }
+    },
+    "cameraOff": "Desligar a câmera",
+    "session": {
+      "label": "Voz conectada em {{room}}",
+      "connected": "Voz conectada",
+      "connecting": "Conectando à voz…",
+      "goTo": "Ir para {{room}}",
+      "disconnect": "Desconectar",
+      "switchTitle": "Mudar para {{room}}?",
+      "switchBody": "Você vai sair da voz em {{room}}.",
+      "switch": "Mudar"
+    },
+    "echo": {
+      "title": "Quem está na voz vai se ouvir na sua transmissão",
+      "body": "A transmissão captura o som deste navegador. Use outro navegador para a janela que você compartilha, ou compartilhe sem som."
+    },
+    "ducking": {
+      "label": "Abaixar a transmissão quando alguém fala",
+      "hint": "A transmissão que você assiste fica mais baixa enquanto alguém da sua voz fala, e volta depois.",
+      "amount": "Quanto abaixar",
+      "amounts": {
+        "6": "Um pouco (−6 dB)",
+        "12": "Médio (−12 dB)",
+        "18": "Bastante (−18 dB)"
+      }
+    },
+    "boostWarning": "Acima de 100 % sem fone de ouvido, o cancelamento de eco pode não cobrir esta voz.",
+    "tips": {
+      "dismiss": "Entendi",
+      "ios": "No iPhone e no iPad, deixe esta aba aberta e a tela ligada: o navegador corta o microfone em segundo plano.",
+      "globalShortcuts": "Seu helper adiciona atalhos globais de aperte para falar, silenciar e ensurdecer: eles funcionam com um jogo em foco. As teclas ficam em Configurações > Voz."
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "unread_one": "{{count}} mensagem não lida",
+    "unread_other": "{{count}} mensagens não lidas",
+    "empty": "Nenhuma mensagem ainda. Diga oi!",
+    "loadingOlder": "Carregando mensagens antigas",
+    "readOnly": "Convidados podem ler este chat, mas não escrever.",
+    "offline": "Reconectando à sala…",
+    "placeholder": "Mensagem para a sala (@ para mencionar)",
+    "inputLabel": "Mensagem",
+    "send": "Enviar",
+    "counter": "{{count}} de {{max}} caracteres",
+    "mentionSuggestions": "Pessoas para mencionar",
+    "edited": "(editada)",
+    "edit": "Editar",
+    "editLabel": "Editar mensagem",
+    "editHint": "Enter para salvar, Esc para cancelar.",
+    "actions": "Ações da mensagem ({{name}})",
+    "accountRemoved": "Conta removida",
+    "failed": "Não enviada.",
+    "retry": "Tentar de novo",
+    "discard": "Descartar",
+    "delete": {
+      "title": "Apagar esta mensagem?",
+      "own": "Ela é apagada para todos. Não dá para desfazer.",
+      "other": "Como moderador, você a apaga para todos. Não dá para desfazer.",
+      "action": "Apagar",
+      "moderate": "Apagar (moderador)"
+    },
+    "mentionToast": "{{name}} mencionou você no chat",
+    "mentionElsewhere": "Você foi mencionado no chat de uma sala",
+    "retention": {
+      "none": "Sem histórico: as mensagens somem quando a sala esvazia",
+      "days_one": "Mensagens guardadas por {{count}} dia",
+      "days_other": "Mensagens guardadas por {{count}} dias",
+      "quick": "As mensagens somem quando a sala acaba"
+    },
+    "settings": {
+      "retention": "Histórico do chat",
+      "noHistory": "Sem histórico",
+      "days_one": "{{count}} dia",
+      "days_other": "{{count}} dias",
+      "retentionHint": "Mensagens mais antigas são apagadas automaticamente. O space pode limitar as opções mais longas.",
+      "noHistoryHint": "As mensagens são apagadas assim que todos saem da sala.",
+      "guestsCanWrite": "Convidados podem escrever",
+      "guestsCanWriteHint": "Convidados sempre podem ler o chat."
+    },
+    "close": "Fechar o chat"
+  },
+  "notices": {
+    "streamStarted": "{{name}} começou a transmitir",
+    "queueSlot": "Abriu uma vaga para assistir {{name}}",
+    "queueSlotHint": "Aceite em até 30 segundos.",
+    "viewerJoined": "{{name}} começou a assistir à sua transmissão",
+    "streamDropped": "Sua transmissão caiu",
+    "streamDroppedHint": "O helper perdeu a conexão ou parou com um erro.",
+    "streamUnstable": "Sua rede está instável",
+    "streamUnstableHint": "Quem assiste pode ver uma qualidade menor até ela melhorar.",
+    "voiceJoin": "{{name}} entrou na voz",
+    "voiceLeave": "{{name}} saiu da voz",
+    "voiceJoinSelf": "Você entrou na voz",
+    "voiceLeaveSelf": "Você saiu da voz",
+    "settings": {
+      "title": "Notificações",
+      "description": "Sons curtos no app, cada um com uma mensagem na tela. Tocam com esta aba aberta, inclusive em segundo plano, depois que você clicar na página.",
+      "muteAll": "Silenciar todos os sons",
+      "muteAllHint": "As mensagens na tela continuam.",
+      "volume": "Volume",
+      "preview": "Tocar o som de: {{name}}",
+      "previewShort": "Tocar o som",
+      "kinds": {
+        "streamStarted": "Alguém começa a transmitir",
+        "queueSlot": "Abre uma vaga na fila",
+        "viewerJoined": "Alguém começa a assistir à sua transmissão",
+        "streamProblem": "Sua transmissão cai ou sua rede fica instável",
+        "mention": "Alguém menciona você num chat",
+        "voiceSelf": "Você entra ou sai da voz",
+        "voiceOthers": "Alguém entra ou sai da sua voz"
+      },
+      "hints": {
+        "streamStarted": "Numa sala que você tem aberta.",
+        "queueSlot": "Você tem 30 segundos para aceitar.",
+        "viewerJoined": "Desligado, a não ser que você ligue.",
+        "streamProblem": "Um alerta, vindo do seu helper.",
+        "mention": "Numa sala cujo chat não está aberto.",
+        "voiceSelf": "Só o som: o botão já mostra.",
+        "voiceOthers": "Na voz em que você está."
+      }
+    }
+  },
+  "pointer": {
+    "allow": "Permitir cliques visuais",
+    "allowHint": "Quem assiste pode clicar na sua transmissão e mostrar na sua tela um indicador pulsando com o nome. Nada é clicado no seu computador.",
+    "allowGoLiveHint": "Quem assiste pode apontar na sua tela com um indicador pulsando e o nome. Nada é clicado no seu computador. Funciona quando o seu helper sabe desenhar os cliques.",
+    "unsupported": "Cliques visuais precisam de um helper que saiba desenhá-los na sua tela.",
+    "enter": "Clicar na tela (P)",
+    "leave": "Parar de clicar (P)",
+    "banner": "Seus cliques aparecem na tela de {{name}}",
+    "keyHint": "Setas movem, Enter clica, Esc sai",
+    "layer": "Tela de {{name}}: clique para apontar",
+    "you": "Você",
+    "rateLimited": "Cliques demais. Espere um pouco.",
+    "settings": {
+      "title": "Ponteiro",
+      "description": "Como seus cliques visuais aparecem na tela de alguém, quando a pessoa permite. Neste navegador.",
+      "color": "Cor",
+      "shape": "Formato",
+      "shapeHint": "Seu nome aparece embaixo.",
+      "preview": "Prévia: {{shape}} {{color}}"
+    },
+    "colors": {
+      "olive": "Oliva",
+      "red": "Vermelho",
+      "orange": "Laranja",
+      "yellow": "Amarelo",
+      "green": "Verde",
+      "cyan": "Ciano",
+      "blue": "Azul",
+      "purple": "Roxo",
+      "pink": "Rosa",
+      "white": "Branco"
+    },
+    "shapes": {
+      "ring": "Anel",
+      "dot": "Ponto",
+      "crosshair": "Mira",
+      "star": "Estrela"
+    }
+  }
+}

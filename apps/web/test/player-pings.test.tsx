@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../src/i18n/index.ts';
 import Player, { PING_SHOW_MS, type PlayerProps } from '../src/player/Player.tsx';
-import type { PlayerSource } from '../src/player/source.ts';
+import type { PlayerSource } from '@openlive/client';
 import { pointerStyle } from '../src/pointer/style.ts';
 
 // Click mode in the player (docs/PROTOCOL.md 7.9): the pointer button, the frame click

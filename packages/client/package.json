@@ -1,0 +1,25 @@
+{
+  "name": "@openlive/client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./i18n": "./src/i18n.ts",
+    "./locales/*": "./locales/*"
+  },
+  "scripts": {
+    "typecheck": "tsc",
+    "test": "vitest run",
+    "i18n:check": "node scripts/i18n-check.ts"
+  },
+  "dependencies": {
+    "@openlive/protocol": "workspace:*",
+    "@openlive/usage": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}

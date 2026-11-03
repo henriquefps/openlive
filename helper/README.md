@@ -187,6 +187,13 @@ web still controls it.
   desktops, games, browsers and voice apps; three modifiers keep _stop_ from firing by accident).
   The first run on KDE shows a dialog to accept or change them; the desktop remembers the choice
   (System Settings → Shortcuts → Openlive helper), and later runs bind silently.
+- **Global voice shortcuts** (since protocol 1.21) work while a game has the focus: push-to-talk
+  (`talk`, `Ctrl+Alt+Shift+T`, hold it), mute (`mute`, `Ctrl+Alt+Shift+M`) and deafen (`deafen`,
+  `Ctrl+Alt+Shift+D`). The helper reports them as `helper.voiceShortcut` and the web tab that is in
+  voice applies them (docs/PROTOCOL.md section 8.5); push-to-talk only works when it is turned on
+  in the voice settings. They need no stream. They are bound like the others (the portal's
+  `Activated`/`Deactivated` give the press and the release; on macOS the Carbon pressed/released
+  events); turn one off with `""` or `"off"`.
 - **Notifications** (`org.freedesktop.Notifications`): you are live, stream stopped, your stream
   dropped, network unstable (the target bitrate held under half its peak, or ≥ 5% loss, for 10 s;
   at most once every 2 min), someone started watching (off by default), the curtain on/off, and
@@ -217,7 +224,12 @@ The `desktop` block of `config.json` (all optional):
   "desktop": {
     "tray": true,
     "language": "pt-BR",
-    "shortcuts": { "curtain": "Ctrl+Alt+Shift+H", "pause": "", "stop": "Super+F12" },
+    "shortcuts": {
+      "curtain": "Ctrl+Alt+Shift+H",
+      "pause": "",
+      "stop": "Super+F12",
+      "talk": "Ctrl+Alt+F9"
+    },
     "notifications": { "enabled": true, "sounds": false, "viewerJoined": true, "unstable": true }
   }
 }
