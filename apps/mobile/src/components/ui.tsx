@@ -1,15 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { createContext, type ReactNode, useContext, useMemo, useState } from 'react';
-import {
-  Image,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  View,
-} from 'react-native';
+import { Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { avatarSource } from '../lib/avatar.ts';
@@ -20,6 +11,7 @@ import { Card } from './ui/Card.tsx';
 import { EmptyState } from './ui/EmptyState.tsx';
 import { Field } from './ui/Input.tsx';
 import { PageHeader } from './ui/PageHeader.tsx';
+import { Switch } from './ui/Switch.tsx';
 
 // Kept for the screens (and the voice UI) that import them from here; the kit is in ./ui/.
 export { Badge, Button, Card, Field };
@@ -327,16 +319,7 @@ export function Toggle({
   onValueChange: (next: boolean) => void;
   label: string;
 }) {
-  const { colors } = useTheme();
-  return (
-    <Switch
-      accessibilityLabel={label}
-      value={value}
-      onValueChange={onValueChange}
-      trackColor={{ false: colors.muted, true: colors.primary }}
-      thumbColor={value ? colors.primaryForeground : colors.mutedForeground}
-    />
-  );
+  return <Switch label={label} value={value} onValueChange={onValueChange} />;
 }
 
 /** A few options in a row, one selected (the web's toggle group). */

@@ -92,7 +92,7 @@ export function readDismissed(raw: string | null | undefined): string | null {
   return parseVersion(raw) ? (raw as string) : null;
 }
 
-/** The size in megabytes with one decimal ("12.3"), or null when unknown. */
+/** The size in decimal megabytes (1 MB = 1,000,000 bytes, as GitHub shows) with one decimal ("12.3"), or null when unknown. */
 export function sizeInMb(bytes: number): string | null {
-  return bytes > 0 ? (bytes / (1024 * 1024)).toFixed(1) : null;
+  return bytes > 0 ? (bytes / 1_000_000).toFixed(1) : null;
 }

@@ -5,6 +5,14 @@ The wire protocol has its own version, in [docs/PROTOCOL.md](docs/PROTOCOL.md).
 
 ## Unreleased
 
+## 0.1.7 (2026-11-06)
+
+**Android app (beta)**
+
+- Switches (for example "Sons de aviso", the notification sounds) are drawn in the theme colors
+  instead of the system's teal thumb.
+- The update banner shows the download size in the same decimal MB as GitHub (73.2 MB).
+
 ## 0.1.6 (2026-11-06)
 
 - Web: on phones the space page's sections (rooms, members, invites, requests, status, settings)

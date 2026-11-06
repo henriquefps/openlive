@@ -90,7 +90,8 @@ describe('shouldShowUpdate and dismissal', () => {
 
 describe('sizeInMb', () => {
   it('formats and handles unknown', () => {
-    expect(sizeInMb(50 * 1024 * 1024)).toBe('50.0');
+    expect(sizeInMb(50_000_000)).toBe('50.0');
+    expect(sizeInMb(73_191_086)).toBe('73.2');
     expect(sizeInMb(0)).toBeNull();
   });
 });

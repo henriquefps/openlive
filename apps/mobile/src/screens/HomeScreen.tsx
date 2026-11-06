@@ -4,10 +4,10 @@ import type { JoinByCodeResult } from '@openlive/client';
 import { ArrowCircleUp, GearSix, HardDrives, Hash, X } from 'phosphor-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linking, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSyncExternalStore } from 'react';
 import { noticeSettings } from '../notices/notify.ts';
-import { Button, Card, InstanceIcon, Row, Screen } from '../components/ui.tsx';
+import { Button, Card, InstanceIcon, Row, Screen, Toggle } from '../components/ui.tsx';
 import { EmptyState } from '../components/ui/EmptyState.tsx';
 import { Separator } from '../components/ui/Separator.tsx';
 import { useAppUpdate } from '../app-update.tsx';
@@ -140,11 +140,10 @@ export function HomeScreen({
       <Separator />
       <View style={styles.soundRow}>
         <Text style={[styles.name, { color: colors.foreground }]}>{t('sounds.label')}</Text>
-        <Switch
-          accessibilityLabel={t('sounds.label')}
+        <Toggle
+          label={t('sounds.label')}
           value={!settings.muted}
           onValueChange={(on) => noticeSettings.update({ muted: !on })}
-          trackColor={{ true: colors.primary }}
         />
       </View>
       <Pressable accessibilityRole="text" onPress={() => setTaps((n) => n + 1)}>
