@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
+import type { DeviceList } from '@openlive/protocol';
 import { ApiError, type ApiClient } from './client.ts';
 
 // The signed-in user and their sessions. On the web the session lives in an HttpOnly
@@ -100,6 +101,13 @@ export const listSessions = (api: ApiClient) =>
 
 export function revokeSession(api: ApiClient, sessionId: string): Promise<void> {
   return api.send('DELETE', `/api/me/sessions/${encodeURIComponent(sessionId)}`);
+}
+
+/** The paired helpers (Settings > Devices). */
+export const listDevices = (api: ApiClient) => api.get<DeviceList>('/api/me/devices');
+
+export function revokeDevice(api: ApiClient, deviceId: string): Promise<void> {
+  return api.send('DELETE', `/api/me/devices/${encodeURIComponent(deviceId)}`);
 }
 
 export async function logout(api: ApiClient): Promise<void> {

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import type { Space } from '@openlive/client';
+import type { JoinByCodeResult, Space } from '@openlive/client';
+import { Plus, SquaresFour } from 'phosphor-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -9,18 +10,25 @@ import {
   Body,
   Button,
   Card,
-  Empty,
+  Badge,
   Heading,
   InstanceIcon,
   Row,
   Screen,
+  SectionLabel,
 } from '../components/ui.tsx';
+import { JoinForm } from '../components/JoinForm.tsx';
+import { Skeleton } from '../components/ui/Skeleton.tsx';
+import { CreateSpaceSheet } from './CreateSpaceSheet.tsx';
+import { QueryFailure } from './space/shared.tsx';
+import { canCreateSpace } from '../lib/space-create.ts';
+import { EmptyState } from '../components/ui/EmptyState.tsx';
 import { OfflineHint } from '../components/OfflineHint.tsx';
 import { errorText } from '../i18n/errors.ts';
 import { hostOf } from '../lib/host.ts';
 import { FEATURE_INVITE_DEEP_LINK } from '../lib/instance.ts';
 import { useApi, useAuthHeaders } from '../hooks.ts';
-import { useAcceptInvite, useInvitePreview, useSpaces } from '../queries.ts';
+import { useAcceptInvite, useInvitePreview, useMe, useSpaces } from '../queries.ts';
 import { useInstances } from '../state.tsx';
 import { font, useTheme } from '../theme.ts';
 
@@ -36,6 +44,7 @@ export function InstanceScreen({
   onRemoved,
   onInviteDone,
   onOpenSpace,
+  onOpenRoom,
   onSettings,
 }: {
   origin: string;
@@ -46,6 +55,8 @@ export function InstanceScreen({
   onRemoved: () => void;
   onInviteDone: () => void;
   onOpenSpace: (space: Space) => void;
+  /** A room joined by its code. */
+  onOpenRoom: (joined: JoinByCodeResult) => void;
   /** The profile and settings of this server's account. */
   onSettings: () => void;
 }) {
@@ -53,6 +64,10 @@ export function InstanceScreen({
   const { instances, signIn, signOut, remove, lost } = useInstances();
   const instance = instances.find((i) => i.origin === origin);
   const spaces = useSpaces(origin);
+  const me = useMe(origin);
+  const [creating, setCreating] = useState(false);
+  // An invite pasted in the join form behaves like one that came with a link.
+  const [pasted, setPasted] = useState<string | null>(null);
   const headers = useAuthHeaders(useApi(origin));
   const [pulling, setPulling] = useState(false);
   const [busy, setBusy] = useState<'signIn' | 'signOut' | 'remove' | null>(null);
@@ -96,15 +111,16 @@ export function InstanceScreen({
   };
 
   // Features unknown (an older save): the link came from the instance, so it offers invites.
-  const inviteToken =
+  const linked =
     invite && instance.features?.includes(FEATURE_INVITE_DEEP_LINK) !== false ? invite : null;
+  const inviteToken = pasted ?? linked;
 
   return (
     <Screen
       title={instance.name}
       subtitle={instance.name !== hostOf(origin) ? hostOf(origin) : undefined}
       onBack={onBack}
-      backLabel={t('common.back')}
+      backLabel={t('home.title')}
       refreshing={pulling}
       onRefresh={signedIn ? pull : undefined}
       headerRight={
@@ -148,13 +164,13 @@ export function InstanceScreen({
 
       <OfflineHint hasData={signedIn && spaces.data !== undefined} />
       {signedIn && spaces.isPending && spaces.fetchStatus !== 'paused' ? (
-        <Body muted>{t('add.checking')}</Body>
+        <>
+          <Skeleton height={56} />
+          <Skeleton height={56} />
+        </>
       ) : null}
       {signedIn && spaces.data === undefined && spaces.isError ? (
-        <>
-          <Body tone="destructive">{errorText(t, spaces.error)}</Body>
-          <Button label={t('common.retry')} variant="outline" onPress={retry} />
-        </>
+        <QueryFailure error={spaces.error} onRetry={retry} />
       ) : null}
       {!signedIn ? (
         <>
@@ -168,7 +184,33 @@ export function InstanceScreen({
           />
         </>
       ) : null}
-      {signedIn && spaces.data ? <Spaces spaces={spaces.data} onOpen={onOpenSpace} /> : null}
+      {signedIn && spaces.data ? (
+        <Spaces
+          spaces={spaces.data}
+          canCreate={canCreateSpace(me.data)}
+          onCreate={() => setCreating(true)}
+          onOpen={onOpenSpace}
+        />
+      ) : null}
+      {signedIn ? (
+        <>
+          <SectionLabel>{t('join.title')}</SectionLabel>
+          <JoinForm
+            origin={origin}
+            onRoom={onOpenRoom}
+            onInvite={(token) => {
+              setPasted(token);
+              setNotice(null);
+            }}
+          />
+          <CreateSpaceSheet
+            origin={origin}
+            open={creating}
+            onClose={() => setCreating(false)}
+            onCreated={onOpenSpace}
+          />
+        </>
+      ) : null}
       {notice ? <Body tone="destructive">{notice}</Body> : null}
 
       <View style={styles.footer}>
@@ -191,26 +233,53 @@ export function InstanceScreen({
   );
 }
 
-function Spaces({ spaces, onOpen }: { spaces: Space[]; onOpen: (space: Space) => void }) {
+function Spaces({
+  spaces,
+  canCreate,
+  onCreate,
+  onOpen,
+}: {
+  spaces: Space[];
+  /** Platform setting `spaceCreation`: on an admin-only server others see why there is no button. */
+  canCreate: boolean;
+  onCreate: () => void;
+  onOpen: (space: Space) => void;
+}) {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const create = (
+    <Button
+      label={t('spaces.create.action')}
+      icon={<Plus size={18} color={colors.primaryForeground} />}
+      onPress={onCreate}
+    />
+  );
   return (
     <>
       <Heading>{t('instance.spaces')}</Heading>
       {spaces.length === 0 ? (
-        <Empty title={t('instance.noSpaces')} hint={t('instance.noSpacesHint')} />
+        <EmptyState
+          icon={<SquaresFour size={22} color={colors.mutedForeground} />}
+          title={t('spaces.empty.title')}
+          description={canCreate ? t('spaces.empty.description') : t('spaces.create.restricted')}
+        >
+          {canCreate ? create : null}
+        </EmptyState>
+      ) : canCreate ? (
+        create
       ) : null}
       {spaces.map((space) => (
         <Card key={space.id} onPress={() => onOpen(space)}>
           <View style={styles.space}>
-            <Text style={[styles.spaceName, { color: colors.foreground }]} numberOfLines={1}>
-              {space.name}
-            </Text>
-            {space.role ? (
-              <Text style={[styles.role, { color: colors.mutedForeground }]}>
-                {t(`instance.role.${space.role}`)}
+            <View style={styles.grow}>
+              <Text style={[styles.spaceName, { color: colors.foreground }]} numberOfLines={1}>
+                {space.name}
               </Text>
-            ) : null}
+              <Text style={[styles.slug, { color: colors.mutedForeground }]} numberOfLines={1}>
+                {`/s/${space.slug}`}
+              </Text>
+            </View>
+            {space.role ? <Badge tone="outline" label={t(`instance.role.${space.role}`)} /> : null}
           </View>
         </Card>
       ))}
@@ -279,6 +348,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 8,
   },
-  spaceName: { fontFamily: font.medium, fontSize: 15, flex: 1 },
-  role: { fontFamily: font.regular, fontSize: 13 },
+  grow: { flex: 1 },
+  spaceName: { fontFamily: font.medium, fontSize: 15 },
+  slug: { fontFamily: font.regular, fontSize: 13 },
 });

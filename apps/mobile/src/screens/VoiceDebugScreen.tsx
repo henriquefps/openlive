@@ -90,7 +90,7 @@ export function VoiceDebugScreen({ onBack }: { onBack: () => void }) {
 
   const active = snapshot.state === 'active';
   return (
-    <Screen title={t('voice.debug.title')} onBack={onBack} backLabel={t('common.back')}>
+    <Screen title={t('voice.debug.title')} onBack={onBack} backLabel={t('home.title')}>
       {!voice.supported ? <Body tone="warning">{t('voice.debug.unsupported')}</Body> : null}
       <Card>
         <Heading>{t('voice.debug.state.' + snapshot.state)}</Heading>

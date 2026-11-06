@@ -40,6 +40,8 @@ import {
 } from '../lib/room-view.ts';
 import type { SavedInstance } from '../lib/storage.ts';
 import { StreamView } from '../player/index.tsx';
+import { useSpace } from '../space-queries.ts';
+import { RoomMenu } from './room/RoomMenu.tsx';
 import { font, radius, useTheme } from '../theme.ts';
 import { setChatOpen } from '../notices/notify.ts';
 import { useRoomNotices } from '../notices/watchers.tsx';
@@ -87,6 +89,7 @@ export function RoomScreen({
     room.settings,
   );
   const headers = useAuthHeaders(api);
+  const space = useSpace(instance.origin, spaceId);
   const [tab, setTab] = useState<Tab>('live');
   const [watching, setWatching] = useState<string | null>(null);
   const [foreground, setForeground] = useState(AppState.currentState === 'active');
@@ -157,6 +160,8 @@ export function RoomScreen({
   }
 
   const title = room.room?.name ?? roomName;
+  // The parent level: the space the room is in (a guest of one room cannot read it).
+  const spaceName = space.data?.name;
   const online = room.status === 'open';
   return (
     <AvatarSourceProvider origin={instance.origin} headers={headers}>
@@ -164,7 +169,18 @@ export function RoomScreen({
         title={title}
         subtitle={instance.name}
         onBack={onBack}
-        backLabel={t('common.back')}
+        backLabel={spaceName ?? t('common.back')}
+        headerRight={
+          <RoomMenu
+            origin={instance.origin}
+            spaceId={spaceId}
+            roomId={roomId}
+            role={room.you?.role}
+            ended={room.status === 'ended'}
+            liveStreams={room.streams.length}
+            onClosed={onBack}
+          />
+        }
         scroll={shown === 'live'}
         refreshing={refreshing}
         onRefresh={() => setSession((n) => n + 1)}

@@ -21,13 +21,24 @@ import {
 } from '../components/ui.tsx';
 import { errorText } from '../i18n/errors.ts';
 import { DISPLAY_NAME_MAX, nameProblem } from '../lib/avatar.ts';
-import { LANGUAGES, type LanguageChoice, THEMES, type ThemeChoice } from '../lib/settings.ts';
+import { SwatchPicker } from '../components/ui/SwatchPicker.tsx';
+import { paletteColors } from '../lib/palette.ts';
+import {
+  LANGUAGES,
+  type LanguageChoice,
+  PALETTES,
+  type PaletteId,
+  THEMES,
+  type ThemeChoice,
+} from '../lib/settings.ts';
 import { useApi, useAuthHeaders } from '../hooks.ts';
 import { CAMERA, choosePhoto, GALLERY, type PhotoSource } from '../photo.ts';
 import { useMe, useProfileActions } from '../queries.ts';
-import { setLanguage, setTheme, useSettings } from '../settings.ts';
+import { setLanguage, setPalette, setTheme, useSettings } from '../settings.ts';
+import { useTheme } from '../theme.ts';
 import { useInstances } from '../state.tsx';
 import { voicePrefsStore } from '../voice/store.ts';
+import { DevicesSection, NoticesSection, SessionsSection } from './settings-cards.tsx';
 
 /**
  * The settings of the app: this phone's language, theme and voice, and, when opened from a
@@ -45,7 +56,8 @@ export function SettingsScreen({
 }) {
   const { t } = useTranslation();
   const { instances, signOut } = useInstances();
-  const { theme, language } = useSettings();
+  const { theme, palette, language } = useSettings();
+  const { mode } = useTheme();
   const instance = origin ? instances.find((i) => i.origin === origin) : undefined;
   const [pushToTalk, setPushToTalk] = useState(() => loadPrefs(voicePrefsStore).pushToTalk);
 
@@ -72,9 +84,8 @@ export function SettingsScreen({
   return (
     <Screen
       title={t('settings.title')}
-      subtitle={instance?.name}
       onBack={onBack}
-      backLabel={t('common.back')}
+      backLabel={instance?.name ?? t('home.title')}
     >
       {instance?.user ? <Profile origin={instance.origin} /> : null}
 
@@ -91,13 +102,29 @@ export function SettingsScreen({
           }
         />
         <SettingRow
-          label={t('settings.theme')}
-          last
+          label={t('theme.label')}
+          hint={t('settings.theme.description')}
           below={
             <Segmented<ThemeChoice>
               value={theme}
               onChange={setTheme}
               options={THEMES.map((value) => ({ value, label: themeLabel(value, t) }))}
+            />
+          }
+        />
+        <SettingRow
+          label={t('palette.label')}
+          hint={t('settings.palette.description')}
+          last
+          below={
+            <SwatchPicker<PaletteId>
+              value={palette}
+              onChange={setPalette}
+              options={PALETTES.map((value) => ({
+                value,
+                label: t(`palette.${value}`),
+                color: paletteColors(value, mode).primary,
+              }))}
             />
           }
         />
@@ -119,8 +146,12 @@ export function SettingsScreen({
         />
       </Group>
 
+      <NoticesSection />
+
       {instance?.user ? (
         <>
+          <SessionsSection origin={instance.origin} />
+          <DevicesSection origin={instance.origin} />
           <SectionLabel>{t('settings.account')}</SectionLabel>
           <Group>
             <SettingRow
@@ -142,10 +173,7 @@ function languageLabel(value: LanguageChoice, t: TFunction): string {
   return value === 'en' ? 'English' : 'Português';
 }
 
-function themeLabel(value: ThemeChoice, t: TFunction): string {
-  if (value === 'light') return t('settings.themeLight');
-  return value === 'dark' ? t('settings.themeDark') : t('settings.themeSystem');
-}
+const themeLabel = (value: ThemeChoice, t: TFunction): string => t(`theme.${value}`);
 
 /** Name and photo on one server. */
 function Profile({ origin }: { origin: string }) {

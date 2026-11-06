@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import './i18n/index.ts';
+import type { JoinByCodeResult } from '@openlive/client';
 import { useIsRestoring } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import * as NavigationBar from 'expo-navigation-bar';
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BackHandler, Linking, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -24,6 +27,7 @@ import {
   spaceRoute,
   type Stack,
   top,
+  withSection,
 } from './lib/navigation.ts';
 import { AddInstanceScreen } from './screens/AddInstanceScreen.tsx';
 import { HomeScreen } from './screens/HomeScreen.tsx';
@@ -67,7 +71,7 @@ const SCAN: Route = { name: 'scan' };
 const VOICE_DEBUG: Route = { name: 'voice-debug' };
 
 function Navigator() {
-  const { dark } = useTheme();
+  const { dark, colors } = useTheme();
   const { ready, instances } = useInstances();
   const [stack, setStack] = useState<Stack>(INITIAL_STACK);
   // The saved theme and language are applied before the first screen, so nothing flashes.
@@ -75,6 +79,12 @@ function Navigator() {
   useEffect(() => {
     void settingsReady.then(() => setSettingsLoaded(true));
   }, []);
+  // The system bars and the window behind the app follow the resolved mode and palette.
+  useEffect(() => {
+    // 'auto' follows the color scheme, which settings.ts forces to the chosen mode.
+    NavigationBar.setStyle('auto');
+    void SystemUI.setBackgroundColorAsync(colors.background).catch(() => {});
+  }, [colors.background]);
   const [current, setCurrent] = useState<string | null>(null);
   // Bumped when a room closes: the space behind it reads its unread counts again.
   const [roomsClosed, setRoomsClosed] = useState(0);
@@ -106,6 +116,14 @@ function Navigator() {
     );
     return () => setRoomOpener(null);
   }, []);
+  /** A room joined by its code opens at once, above the screen that asked. */
+  const openJoined = useCallback(
+    (origin: string, joined: JoinByCodeResult) => {
+      setCurrent(origin);
+      push(roomRoute(origin, joined.room.spaceId, joined.room.id, joined.room.name));
+    },
+    [push],
+  );
   const reset = useCallback((next: Route) => setStack(resetStack(next)), []);
 
   // A session that ended (401, revoked) closes the instance's spaces and rooms.
@@ -151,12 +169,18 @@ function Navigator() {
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      // Back from a section of a space goes to the space's rooms first, as the page's trail.
+      const at = top(stack);
+      if (at.name === 'space' && at.section) {
+        setStack((s) => withSection(s, 'rooms'));
+        return true;
+      }
       if (stack.length <= 1) return false;
       pop();
       return true;
     });
     return () => subscription.remove();
-  }, [stack.length, pop]);
+  }, [stack, pop]);
 
   const removed = (origin: string) => {
     setCurrent(null);
@@ -175,6 +199,8 @@ function Navigator() {
           onAdd={() => push(ADD)}
           onVoiceDebug={() => push(VOICE_DEBUG)}
           onSettings={() => push(settingsRoute())}
+          onScan={() => push(SCAN)}
+          onJoinedRoom={openJoined}
         />
       );
       break;
@@ -217,6 +243,7 @@ function Navigator() {
           onRemoved={() => removed(route.origin)}
           onInviteDone={() => reset(instanceRoute(route.origin))}
           onOpenSpace={(space) => push(spaceRoute(route.origin, space.id, space.name))}
+          onOpenRoom={(joined) => openJoined(route.origin, joined)}
           onSettings={() => push(settingsRoute(route.origin))}
         />
       );
@@ -228,7 +255,8 @@ function Navigator() {
           origin={route.origin}
           spaceId={route.spaceId}
           spaceName={route.spaceName}
-          serverName={instances.find((i) => i.origin === route.origin)?.name ?? ''}
+          section={route.section}
+          onSection={(section) => setStack((s) => withSection(s, section))}
           refreshKey={roomsClosed}
           onBack={pop}
           onOpenRoom={(roomId, roomName) =>
@@ -256,7 +284,7 @@ function Navigator() {
   return (
     <>
       <StatusBar style={dark ? 'light' : 'dark'} />
-      <View style={{ flex: 1 }}>{screen}</View>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>{screen}</View>
       <VoiceBar
         onOpenRoom={(roomId, link) =>
           push(roomRoute(link.origin, link.spaceId, roomId, link.roomName))

@@ -1,24 +1,33 @@
 // SPDX-License-Identifier: AGPL-3.0-only
+import { DEFAULT_PALETTE, isPalette, type PaletteId } from './palette.ts';
 
 // The personal settings of this phone, kept under the same keys as the web's localStorage
-// (apps/web theme.ts, language.ts): `openlive.theme` and `openlive.language`. Pure, so the rules
+// (apps/web theme.ts, language.ts): `openlive.theme`, `openlive.palette` and `openlive.language`. Pure, so the rules
 // are tested without a device. The voice prefs (push-to-talk) are @openlive/client's own.
 
 export const THEMES = ['system', 'light', 'dark'] as const;
 export type ThemeChoice = (typeof THEMES)[number];
 
+export { DEFAULT_PALETTE, isPalette, PALETTES, type PaletteId } from './palette.ts';
+
 export const LANGUAGES = ['system', 'en', 'pt-BR'] as const;
 export type LanguageChoice = (typeof LANGUAGES)[number];
 
 export const THEME_KEY = 'openlive.theme';
+export const PALETTE_KEY = 'openlive.palette';
 export const LANGUAGE_KEY = 'openlive.language';
 
 export interface AppSettings {
   theme: ThemeChoice;
+  palette: PaletteId;
   language: LanguageChoice;
 }
 
-export const DEFAULT_SETTINGS: AppSettings = { theme: 'system', language: 'system' };
+export const DEFAULT_SETTINGS: AppSettings = {
+  theme: 'system',
+  palette: DEFAULT_PALETTE,
+  language: 'system',
+};
 
 export interface SettingsSource {
   getItem(key: string): string | null;
@@ -33,9 +42,11 @@ export const isLanguage = (value: unknown): value is LanguageChoice =>
 /** What was saved; anything unknown reads as "follow the system". */
 export function loadSettings(source: SettingsSource): AppSettings {
   const theme = source.getItem(THEME_KEY);
+  const palette = source.getItem(PALETTE_KEY);
   const language = source.getItem(LANGUAGE_KEY);
   return {
     theme: isTheme(theme) ? theme : DEFAULT_SETTINGS.theme,
+    palette: isPalette(palette) ? palette : DEFAULT_SETTINGS.palette,
     language: isLanguage(language) ? language : DEFAULT_SETTINGS.language,
   };
 }

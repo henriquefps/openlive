@@ -8,6 +8,7 @@
 export * from './api/client.ts';
 export * from './api/auth.ts';
 export * from './api/spaces.ts';
+export * from './api/status.ts';
 export * from './api/permissions.ts';
 export * from './api/chat.ts';
 export * from './api/recent.ts';

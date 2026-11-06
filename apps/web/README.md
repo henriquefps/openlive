@@ -29,6 +29,14 @@ pnpm --filter @openlive/web dev   # web on http://localhost:5179, /api proxied t
   `--card` surface (`SidebarInset`). Below 768 px the sidebar is a sheet.
 - Theme: Light, Dark or System (`src/theme/theme.ts`). System follows `prefers-color-scheme`; a
   `light` or `dark` class on `<html>` overrides it. The choice is saved in `localStorage`.
+- Palette: Olive (default), Blue, Violet, Rose or Graphite, a second axis next to the theme
+  (`openlive.palette` in `localStorage`, `data-palette="<id>"` on `<html>`; Olive has no
+  attribute). `index.css` has one `:root[data-palette]` block that serves light and dark through
+  `light-dark()`; each palette only sets four variables (neutral hue and strength, brand hue and
+  chroma). `--live`, `--destructive` and `--warning` never change. To add a palette: add the id to
+  `PALETTES` and `PALETTE_SWATCHES`, a four-variable rule in `index.css` and a `palette.<id>`
+  string in every locale; `test/theme-contrast.test.ts` then checks it. Colors that stay fixed on
+  purpose: the pointer colors the user picks (`pointer/style.ts`), the QR code, the player overlay.
 - Status colors only through tokens: ok/live `primary`, paused/full `warning`, failed
   `destructive`, stopped `muted-foreground` (`StatusBadge`, `StreamCard`).
 - `src/components/ui/` is shadcn source added by its CLI. After `pnpm dlx shadcn@latest add`,

@@ -10,7 +10,15 @@
     "emptyHint": "Adicione o endereço de um servidor Openlive, leia o QR code dele ou abra um convite neste celular.",
     "add": "Adicionar servidor",
     "signedInAs": "Conectado como {{name}}",
-    "signedOut": "Não conectado"
+    "signedOut": "Não conectado",
+    "update": {
+      "title": "Atualização disponível",
+      "version": "Versão {{version}}",
+      "versionSize": "Versão {{version}} · {{size}} MB",
+      "download": "Baixar",
+      "downloadLabel": "Baixar a versão {{version}}",
+      "dismiss": "Dispensar o aviso de atualização"
+    }
   },
   "add": {
     "title": "Adicionar um servidor",
@@ -91,13 +99,22 @@
       "inVoice": "Na voz: {{names}}",
       "someone": "Alguém",
       "reconnecting": "Conexão perdida. Quem está aqui pode estar desatualizado até voltar.",
-      "presenceEnded": "As atualizações ao vivo deste space pararam. Puxe para baixo para tentar de novo."
+      "presenceEnded": "As atualizações ao vivo deste space pararam. Puxe para baixo para tentar de novo.",
+      "share": "Compartilhar link",
+      "targetRoom": "Uma sala"
     },
     "room": {
       "tabLive": "Ao vivo",
       "paused": "Pausada",
       "viewers": "{{count}}/{{limit}} assistindo",
-      "replaced": "Esta sala foi aberta em outro lugar com a sua conta."
+      "replaced": "Esta sala foi aberta em outro lugar com a sua conta.",
+      "menu": "Menu da sala",
+      "shareCode": "Código",
+      "shareLink": "Link",
+      "shareCodeA11y": "Compartilhar código",
+      "shareLinkA11y": "Compartilhar link",
+      "endDone": "Sala encerrada.",
+      "archiveDone": "Sala arquivada."
     },
     "chat": {
       "off": "O chat está desligado nesta sala."
@@ -171,6 +188,20 @@
       "reset": "Voltar para 100 %",
       "ended": "A chamada de voz terminou.",
       "networkWeak": "Conexão fraca: a voz vem primeiro, as câmeras foram pausadas."
+    },
+    "nav": {
+      "backTo": "Voltar para {{name}}",
+      "sections": "Seções"
+    },
+    "join": {
+      "entry": "Entrar numa sala com código",
+      "pasteLabel": "Código da sala ou link de convite",
+      "hint": "O código de uma sala rápida (como OL-4821-0937) ou o link dela, ou um link ou token de convite.",
+      "unknown": "Isso não é um código de sala nem um link de convite.",
+      "unknownCode": "Isso não é um código de sala.",
+      "otherServer": "Esse link é de {{host}}. Abra-o a partir desse servidor.",
+      "noServer": "Entre em um servidor antes de entrar numa sala.",
+      "server": "Servidor"
     }
   },
   "voice": {
@@ -266,10 +297,6 @@
     "app": "Este celular",
     "language": "Idioma",
     "languageSystem": "Sistema",
-    "theme": "Tema",
-    "themeSystem": "Sistema",
-    "themeLight": "Claro",
-    "themeDark": "Escuro",
     "voice": "Voz",
     "pushToTalk": "Apertar para falar",
     "pushToTalkHint": "Segure o botão para falar, nas próximas chamadas.",
@@ -277,5 +304,10 @@
     "signOut": "Sair deste servidor",
     "signOutConfirm": "Sair de {{server}}?",
     "open": "Configurações"
+  },
+  "notices": {
+    "settings": {
+      "description": "Sons curtos no app, cada um com uma mensagem na tela. Tocam enquanto o app está aberto."
+    }
   }
 }

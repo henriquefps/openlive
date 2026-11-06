@@ -114,6 +114,7 @@ export default tseslint.config(
               'tone',
               'accessibilityRole',
               'accessibilityLiveRegion',
+              'size',
               'autoCapitalize',
               'behavior',
               'keyboardShouldPersistTaps',

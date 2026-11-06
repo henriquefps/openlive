@@ -99,7 +99,7 @@ export function AddInstanceScreen({
   };
 
   return (
-    <Screen title={t('add.title')} onBack={onBack} backLabel={t('common.back')}>
+    <Screen title={t('add.title')} onBack={onBack} backLabel={t('home.title')}>
       <Body>{t('add.prompt')}</Body>
       <Field
         label={t('add.urlLabel')}

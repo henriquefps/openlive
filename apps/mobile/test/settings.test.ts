@@ -25,6 +25,7 @@ describe('settings', () => {
     expect(loadSettings(store({}))).toEqual(DEFAULT_SETTINGS);
     expect(loadSettings(store({ [THEME_KEY]: 'dark', [LANGUAGE_KEY]: 'pt-BR' }))).toEqual({
       theme: 'dark',
+      palette: 'olive',
       language: 'pt-BR',
     });
     expect(loadSettings(store({ [THEME_KEY]: 'neon', [LANGUAGE_KEY]: 'fr' }))).toEqual(

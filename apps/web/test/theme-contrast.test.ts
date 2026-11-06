@@ -8,12 +8,62 @@ import { describe, expect, it } from 'vitest';
 
 const css = readFileSync(resolve(process.cwd(), 'src/index.css'), 'utf8');
 
-/** The token block for a theme: the `:root` rule (light) or the `.dark` rule. */
-function tokens(selector: ':root' | '.dark'): Record<string, string> {
+/** The body of the first rule that starts with `selector {`. */
+function block(selector: string): string {
   const start = css.indexOf(`\n${selector} {`);
-  const body = css.slice(start, css.indexOf('\n}', start));
+  expect(start, selector).toBeGreaterThan(-1);
+  return css.slice(start, css.indexOf('\n}', start));
+}
+
+function declarations(body: string): Record<string, string> {
   return Object.fromEntries(
-    [...body.matchAll(/^\s+--([\w-]+): (oklch\([^)]+\));/gm)].map((m) => [m[1], m[2]]),
+    [...body.matchAll(/^\s+--([\w-]+):\s*([^;]+);/gm)].map((m) => [
+      m[1] as string,
+      (m[2] as string).replace(/\s+/g, ' ').replace(/\( /g, '(').replace(/ \)/g, ')'),
+    ]),
+  );
+}
+
+/** The olive tokens: the `:root` rule (light) or the `.dark` rule. */
+function tokens(selector: ':root' | '.dark'): Record<string, string> {
+  return declarations(block(selector));
+}
+
+/** Picks the light or dark argument of the first `light-dark(a, b)` in `value`. */
+function pickMode(value: string, mode: 'light' | 'dark'): string {
+  const start = value.indexOf('light-dark(');
+  if (start < 0) return value;
+  const argsStart = start + 'light-dark('.length;
+  let depth = 1;
+  let comma = -1;
+  let i = argsStart;
+  for (; depth > 0; i++) {
+    const ch = value[i];
+    if (ch === '(') depth++;
+    else if (ch === ')') depth--;
+    else if (ch === ',' && depth === 1) comma = i;
+  }
+  const arg = mode === 'light' ? value.slice(argsStart, comma) : value.slice(comma + 1, i - 1);
+  return value.slice(0, start) + arg.trim() + value.slice(i);
+}
+
+/** A palette's tokens for one mode: its variables substituted, light-dark() and calc() resolved. */
+function paletteTokens(palette: string, mode: 'light' | 'dark'): Record<string, string> {
+  const shared = declarations(block(':root[data-palette]'));
+  const own = declarations(block(`:root[data-palette='${palette}']`));
+  const all = { ...shared, ...own };
+  const expand = (value: string): string =>
+    value.replace(/var\(--([\w-]+)\)/g, (_m, name: string) => expand(all[name] as string));
+  return Object.fromEntries(
+    Object.keys(shared)
+      .filter((k) => !k.startsWith('color'))
+      .map((k) => {
+        const resolved = pickMode(expand(all[k] as string), mode).replace(
+          /calc\(([\d.]+) \* ([\d.]+)\)/g,
+          (_m, x: string, y: string) => String(Number(x) * Number(y)),
+        );
+        return [k, resolved];
+      }),
   );
 }
 
@@ -68,10 +118,16 @@ const MARKS: [string, string, number][] = [
   ),
 ];
 
+const PALETTES = ['blue', 'violet', 'rose', 'graphite'];
+
 describe.each([
-  ['light', tokens(':root')],
-  ['dark', tokens('.dark')],
-] as const)('%s theme contrast', (_name, t) => {
+  ['olive light', tokens(':root')],
+  ['olive dark', tokens('.dark')],
+  ...PALETTES.flatMap((p) => [
+    [`${p} light`, paletteTokens(p, 'light')],
+    [`${p} dark`, paletteTokens(p, 'dark')],
+  ]),
+] as [string, Record<string, string>][])('%s contrast', (_name, t) => {
   it.each([...TEXT, ...MARKS])('%s on %s is at least %d:1', (fg, bg, min) => {
     expect(t[fg], fg).toBeDefined();
     expect(t[bg], bg).toBeDefined();
@@ -102,4 +158,17 @@ describe.each([
     const bad = (t.destructive as string).match(/[\d.]+/g)?.map(Number) ?? [];
     expect(Math.abs((live[2] ?? 0) - (bad[2] ?? 0))).toBeGreaterThanOrEqual(10);
   });
+});
+
+describe('palettes keep the semantic colors fixed', () => {
+  it.each(PALETTES.flatMap((p) => [[p, 'light'] as const, [p, 'dark'] as const]))(
+    '%s %s: live, destructive and warning match olive',
+    (palette, mode) => {
+      const olive = tokens(mode === 'light' ? ':root' : '.dark');
+      const t = paletteTokens(palette, mode);
+      for (const token of ['live', 'destructive', 'warning']) {
+        expect(t[token], token).toBe(olive[token]);
+      }
+    },
+  );
 });

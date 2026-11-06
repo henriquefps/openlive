@@ -5,6 +5,14 @@ The wire protocol has its own version, in [docs/PROTOCOL.md](docs/PROTOCOL.md).
 
 ## Unreleased
 
+## 0.1.6 (2026-11-06)
+
+- Web: on phones the space page's sections (rooms, members, invites, requests, status, settings)
+  are a dropdown instead of a scrolling tab strip that hid the last ones; it shows the pending
+  requests count, with a dot when requests has items and another section is open.
+- Web: color palettes. Next to Light, Dark and System you can pick Olive (default), Blue, Violet,
+  Rose or Graphite, from the theme menu or Settings; the choice is saved in the browser. Live,
+  error and warning colors stay the same in every palette.
 - The Download page links straight to the helper files in the public GitHub release, with their
   SHA-256, instead of serving them from the server's own storage: the server still offers exactly
   the version its admin pinned, but no download goes through the Worker and no copy sits in R2.
@@ -14,6 +22,18 @@ The wire protocol has its own version, in [docs/PROTOCOL.md](docs/PROTOCOL.md).
 - The Android card has a direct "Download APK (X.Y.Z)" button with the SHA-256, set with
   `pnpm run helper:publish -- --android-from-release X.Y.Z`; without it the card links to the
   Android releases as before.
+
+**Android app (beta)**
+
+- Theme: light, dark or system, with the same five color palettes as the web (Olive, Blue, Violet,
+  Rose, Graphite); the interface is restyled like the web.
+- Space management: rooms, members, invites, join requests, status and settings, and creating
+  fixed and quick rooms. You can also create a space.
+- Join a room by code, room link or invite. The room menu shares the code and link and manages
+  features, access, archive or end.
+- Settings has sessions, devices and notification toggles.
+- The servers screen shows a banner when a newer Android version is published on the server you
+  use; it opens the APK of the official release.
 
 ## 0.1.5 (2026-11-03)
 

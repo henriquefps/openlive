@@ -23,7 +23,7 @@ export function ScanScreen({
   const done = useRef(false);
 
   return (
-    <Screen title={t('scan.title')} onBack={onBack} backLabel={t('common.back')} scroll={false}>
+    <Screen title={t('scan.title')} onBack={onBack} backLabel={t('add.title')} scroll={false}>
       {permission?.granted ? (
         <>
           <Body muted>{t('scan.hint')}</Body>

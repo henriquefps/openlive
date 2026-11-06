@@ -28,9 +28,18 @@ import { MobileAppCard } from '../components/MobileAppCard.tsx';
 import { Page } from '../components/Page.tsx';
 import { ProfileCard } from '../components/ProfileCard.tsx';
 import { SessionsCard } from '../components/SessionsCard.tsx';
-import { THEME_ICONS } from '../components/ThemeMenu.tsx';
+import { PaletteSwatch, THEME_ICONS } from '../components/ThemeMenu.tsx';
 import { meQuery } from '../api/auth.ts';
-import { isTheme, setTheme, THEMES, useTheme } from '../theme/theme.ts';
+import {
+  isPalette,
+  isTheme,
+  PALETTES,
+  setPalette,
+  setTheme,
+  THEMES,
+  usePalette,
+  useTheme,
+} from '../theme/theme.ts';
 import { replayTutorials, tutorialQuery } from '../tutorial/state.ts';
 import { NotificationSettingsCard } from '../notices/NotificationSettingsCard.tsx';
 import { PointerSettingsCard } from '../pointer/PointerSettingsCard.tsx';
@@ -40,6 +49,7 @@ export function SettingsPage() {
   const { t } = useTranslation();
   const languageId = useId();
   const theme = useTheme();
+  const palette = usePalette();
   return (
     <Page title={t('settings.title')} description={t('settings.intro')}>
       <div className="flex max-w-2xl flex-col gap-4">
@@ -76,6 +86,28 @@ export function SettingsPage() {
                       </ToggleGroupItem>
                     );
                   })}
+                </ToggleGroup>
+              </FieldSet>
+              <FieldSeparator />
+              <FieldSet>
+                <FieldLegend variant="label">{t('palette.label')}</FieldLegend>
+                <FieldDescription>{t('settings.palette.description')}</FieldDescription>
+                <ToggleGroup
+                  type="single"
+                  variant="outline"
+                  className="flex-wrap"
+                  value={palette}
+                  onValueChange={(value) => {
+                    if (isPalette(value)) setPalette(value);
+                  }}
+                  aria-label={t('palette.label')}
+                >
+                  {PALETTES.map((option) => (
+                    <ToggleGroupItem key={option} value={option}>
+                      <PaletteSwatch palette={option} />
+                      {t(`palette.${option}`)}
+                    </ToggleGroupItem>
+                  ))}
                 </ToggleGroup>
               </FieldSet>
             </FieldGroup>

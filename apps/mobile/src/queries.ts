@@ -34,10 +34,10 @@ export function useScope(origin: string): Scope | null {
 }
 
 /** A key for a screen that has no signed-in user: never fetched, never saved. */
-const signedOutKey = (origin: string) => ['ol', origin, '-', 'signed-out'] as const;
+export const signedOutKey = (origin: string) => ['ol', origin, '-', 'signed-out'] as const;
 
 /** Runs `call` with the instance's client (and its current token); 401 when signed out. */
-function useCall(origin: string) {
+export function useCall(origin: string) {
   const { client } = useInstances();
   return useMemo(
     () =>

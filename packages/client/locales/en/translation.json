@@ -36,6 +36,14 @@
     "dark": "Dark",
     "system": "System"
   },
+  "palette": {
+    "label": "Palette",
+    "olive": "Olive",
+    "blue": "Blue",
+    "violet": "Violet",
+    "rose": "Rose",
+    "graphite": "Graphite"
+  },
   "common": {
     "comingSoon": "Coming soon",
     "loadFailed": "Could not load this",
@@ -131,6 +139,7 @@
     "notFound": {
       "title": "Space not found"
     },
+    "sectionLabel": "Section",
     "tabs": {
       "rooms": "Rooms",
       "members": "Members",
@@ -432,6 +441,9 @@
     },
     "theme": {
       "description": "System follows your device's light or dark setting."
+    },
+    "palette": {
+      "description": "The accent and neutral colors. Live, error and warning colors stay the same."
     },
     "sessions": {
       "title": "Sessions",

@@ -4,6 +4,8 @@
 // then its space, then a room. Pure, so the rules (what back does, what a lost session does) are
 // tested without a device.
 
+import type { SpaceSection } from './space-view.ts';
+
 export type Route =
   | { name: 'home' }
   | { name: 'add'; origin?: string; invite?: string }
@@ -12,7 +14,14 @@ export type Route =
   /** The settings of the app, with the profile on `origin` when opened from a server. */
   | { name: 'settings'; origin?: string }
   | { name: 'instance'; origin: string; invite?: string; expired?: true }
-  | { name: 'space'; origin: string; spaceId: string; spaceName: string }
+  | {
+      name: 'space';
+      origin: string;
+      spaceId: string;
+      spaceName: string;
+      /** The section on screen (absent: Rooms), kept when a room is opened and closed. */
+      section?: SpaceSection;
+    }
   | { name: 'room'; origin: string; spaceId: string; roomId: string; roomName: string };
 
 export type Stack = readonly Route[];
@@ -30,6 +39,17 @@ export function addRoute(origin: string, invite?: string): Route {
 
 export function spaceRoute(origin: string, spaceId: string, spaceName: string): Route {
   return { name: 'space', origin, spaceId, spaceName };
+}
+
+/** The top space screen shows `section` (Rooms is the absence of one, as the web's ?tab=). */
+export function withSection(stack: Stack, section: SpaceSection): Stack {
+  const route = top(stack);
+  if (route.name !== 'space') return stack;
+  const next: Route =
+    section === 'rooms'
+      ? { name: 'space', origin: route.origin, spaceId: route.spaceId, spaceName: route.spaceName }
+      : { ...route, section };
+  return [...stack.slice(0, -1), next];
 }
 
 export function roomRoute(

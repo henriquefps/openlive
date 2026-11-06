@@ -36,6 +36,14 @@
     "dark": "Escuro",
     "system": "Sistema"
   },
+  "palette": {
+    "label": "Paleta",
+    "olive": "Oliva",
+    "blue": "Azul",
+    "violet": "Violeta",
+    "rose": "Rosa",
+    "graphite": "Grafite"
+  },
   "common": {
     "comingSoon": "Em breve",
     "loadFailed": "Não foi possível carregar",
@@ -131,6 +139,7 @@
     "notFound": {
       "title": "Space não encontrado"
     },
+    "sectionLabel": "Seção",
     "tabs": {
       "rooms": "Salas",
       "members": "Membros",
@@ -432,6 +441,9 @@
     },
     "theme": {
       "description": "Sistema segue a configuração clara ou escura do seu dispositivo."
+    },
+    "palette": {
+      "description": "As cores de destaque e neutras. As cores de ao vivo, erro e aviso não mudam."
     },
     "sessions": {
       "title": "Sessões",

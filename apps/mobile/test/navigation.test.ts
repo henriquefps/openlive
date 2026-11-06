@@ -10,6 +10,7 @@ import {
   sessionLost,
   top,
   type Route,
+  withSection,
 } from '../src/lib/navigation.ts';
 
 const A = 'https://a.example.com';
@@ -47,5 +48,22 @@ describe('navigation', () => {
     expect(instanceRemoved(stack, A)).toEqual([{ name: 'home' }]);
     expect(instanceRemoved(stack, B)).toEqual(stack);
     expect(instanceRemoved([instanceRoute(A)], A)).toEqual(INITIAL_STACK);
+  });
+});
+
+describe('space sections', () => {
+  it('keeps the section on the space route, and rooms is no section', () => {
+    const stack = push(reset(instanceRoute(A)), space);
+    const members = withSection(stack, 'members');
+    expect(top(members)).toEqual({ ...space, section: 'members' });
+    expect(top(withSection(members, 'rooms'))).toEqual(space);
+  });
+  it('keeps the section when a room is opened and closed', () => {
+    const stack = withSection(push(reset(instanceRoute(A)), space), 'invites');
+    expect(top(pop(push(stack, room)))).toEqual({ ...space, section: 'invites' });
+  });
+  it('changes nothing when the top screen is not a space', () => {
+    const stack = push(push(reset(instanceRoute(A)), space), room);
+    expect(withSection(stack, 'members')).toBe(stack);
   });
 });

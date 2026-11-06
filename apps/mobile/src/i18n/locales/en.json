@@ -10,7 +10,15 @@
     "emptyHint": "Add the address of an Openlive server, scan its QR code, or open an invite on this phone.",
     "add": "Add server",
     "signedInAs": "Signed in as {{name}}",
-    "signedOut": "Not signed in"
+    "signedOut": "Not signed in",
+    "update": {
+      "title": "Update available",
+      "version": "Version {{version}}",
+      "versionSize": "Version {{version}} · {{size}} MB",
+      "download": "Download",
+      "downloadLabel": "Download version {{version}}",
+      "dismiss": "Dismiss this update notice"
+    }
   },
   "add": {
     "title": "Add a server",
@@ -91,13 +99,22 @@
       "inVoice": "In voice: {{names}}",
       "someone": "Someone",
       "reconnecting": "Connection lost. Who is here may be out of date until it is back.",
-      "presenceEnded": "Live updates of this space stopped. Pull down to try again."
+      "presenceEnded": "Live updates of this space stopped. Pull down to try again.",
+      "share": "Share link",
+      "targetRoom": "One room"
     },
     "room": {
       "tabLive": "Live",
       "paused": "Paused",
       "viewers": "{{count}}/{{limit}} watching",
-      "replaced": "This room was opened in another place with your account."
+      "replaced": "This room was opened in another place with your account.",
+      "menu": "Room menu",
+      "shareCode": "Code",
+      "shareLink": "Link",
+      "shareCodeA11y": "Share code",
+      "shareLinkA11y": "Share link",
+      "endDone": "Room ended.",
+      "archiveDone": "Room archived."
     },
     "chat": {
       "off": "The chat is off in this room."
@@ -171,6 +188,20 @@
       "reset": "Reset to 100 %",
       "ended": "The voice call ended.",
       "networkWeak": "Weak connection: voice comes first, cameras are paused."
+    },
+    "nav": {
+      "backTo": "Back to {{name}}",
+      "sections": "Sections"
+    },
+    "join": {
+      "entry": "Join a room with a code",
+      "pasteLabel": "Room code or invite link",
+      "hint": "A quick room's code (like OL-4821-0937) or its link, or an invite link or token.",
+      "unknown": "That is not a room code or an invite link.",
+      "unknownCode": "That is not a room code.",
+      "otherServer": "That link is for {{host}}. Open it from that server.",
+      "noServer": "Sign in to a server first to join a room.",
+      "server": "Server"
     }
   },
   "voice": {
@@ -266,10 +297,6 @@
     "app": "This phone",
     "language": "Language",
     "languageSystem": "System",
-    "theme": "Theme",
-    "themeSystem": "System",
-    "themeLight": "Light",
-    "themeDark": "Dark",
     "voice": "Voice",
     "pushToTalk": "Push to talk",
     "pushToTalkHint": "Hold the button to speak, in new calls.",
@@ -277,5 +304,10 @@
     "signOut": "Sign out of this server",
     "signOutConfirm": "Sign out of {{server}}?",
     "open": "Settings"
+  },
+  "notices": {
+    "settings": {
+      "description": "Short sounds in the app, each with a message on screen. They play while the app is open."
+    }
   }
 }

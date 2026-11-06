@@ -46,6 +46,13 @@ export function keys({ origin, userId }: Scope) {
     spaces: () => [...base, 'spaces'] as const,
     rooms: (spaceId: string) => [...base, 'rooms', spaceId] as const,
     unread: (spaceId: string) => [...base, 'unread', spaceId] as const,
+    /** The space itself (GET /api/spaces/:id): the caller's role and the settings. */
+    space: (spaceId: string) => [...base, 'space', spaceId] as const,
+    members: (spaceId: string) => [...base, 'members', spaceId] as const,
+    /** Active invites (no tokens: a token is only in the answer that creates the invite). */
+    invites: (spaceId: string) => [...base, 'invites', spaceId] as const,
+    joinRequests: (spaceId: string) => [...base, 'joinRequests', spaceId] as const,
+    status: (spaceId: string, range: string) => [...base, 'status', spaceId, range] as const,
     invite: (token: string) => [...base, 'invite', token] as const,
     /** The space socket's last snapshot. */
     presence: (spaceId: string) => [...base, 'presence', spaceId] as const,
@@ -53,6 +60,14 @@ export function keys({ origin, userId }: Scope) {
     room: (roomId: string) => [...base, 'room', roomId] as const,
     /** The newest chat messages of a room. */
     chat: (roomId: string) => [...base, 'chat', roomId] as const,
+    /** A room's own record (GET /api/rooms/:id): kind, code, visibility, settings. */
+    roomInfo: (roomId: string) => [...base, 'roomInfo', roomId] as const,
+    /** Who has a grant on a restricted room. */
+    roomAccess: (roomId: string) => [...base, 'roomAccess', roomId] as const,
+    /** The browsers and apps signed in to the account. */
+    sessions: () => [...base, 'sessions'] as const,
+    /** The paired helpers. */
+    devices: () => [...base, 'devices'] as const,
   };
 }
 
@@ -147,8 +162,8 @@ export function persistableChat(snapshot: ChatSnapshot, now: number): ChatSnapsh
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
 
-/** The kinds that are never written to the phone (an invite token is a secret to share). */
-const NEVER_SAVED = new Set(['invite']);
+/** The kinds that are never written to the phone (an invite token is a secret to share; sessions, devices and room grants are read when asked). */
+const NEVER_SAVED = new Set(['invite', 'sessions', 'devices', 'roomAccess']);
 
 /**
  * What goes to (or comes back from) the phone's storage: successful queries of this app that are

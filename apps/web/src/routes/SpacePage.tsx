@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { DoorOpenIcon } from '@phosphor-icons/react';
-import { useQuery } from '@tanstack/react-query';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { spaceAbilities } from '@openlive/client';
-import { joinRequestsQuery } from '../api/spaces.ts';
 import { EmptyState } from '../components/EmptyState.tsx';
 import { spaceTrail } from '../components/breadcrumbs.ts';
 import { Page } from '../components/Page.tsx';
@@ -17,6 +15,7 @@ import { InvitesTab } from './space/InvitesTab.tsx';
 import { MembersTab } from './space/MembersTab.tsx';
 import { RequestsTab } from './space/RequestsTab.tsx';
 import { CreateFixedRoomDialog, QuickRoomButton, RoomsTab } from './space/RoomsTab.tsx';
+import { SpaceSectionSwitcher } from './space/SpaceSectionSwitcher.tsx';
 import { SettingsTab } from './space/SettingsTab.tsx';
 import { StatusTab } from './space/StatusTab.tsx';
 import { SPACE_TABS, type SpaceTab } from './space/tabs.ts';
@@ -96,21 +95,20 @@ export function SpacePage() {
       }
     >
       <Tabs
+        className="@container"
         value={current}
         onValueChange={(value) =>
           void navigate({ search: { tab: value === 'rooms' ? undefined : (value as SpaceTab) } })
         }
       >
-        <div className="-mx-4 [scrollbar-width:none] overflow-x-auto overflow-y-hidden px-4 md:mx-0 md:px-0">
-          <TabsList>
-            {tabs.map((name) => (
-              <TabsTrigger key={name} value={name} data-tour={`space-tab-${name}`}>
-                {t(`space.tabs.${name}`)}
-                {name === 'requests' && <PendingCount spaceId={data.id} />}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </div>
+        <SpaceSectionSwitcher
+          tabs={tabs}
+          current={current}
+          spaceId={data.id}
+          onChange={(value) =>
+            void navigate({ search: { tab: value === 'rooms' ? undefined : value } })
+          }
+        />
         <TabsContent value="rooms" className="pt-4">
           <RoomsTab space={data} />
         </TabsContent>
@@ -138,11 +136,4 @@ export function SpacePage() {
       </Tabs>
     </Page>
   );
-}
-
-function PendingCount({ spaceId }: { spaceId: string }) {
-  const requests = useQuery(joinRequestsQuery(spaceId));
-  const count = requests.data?.length ?? 0;
-  if (count === 0) return null;
-  return <Badge>{count}</Badge>;
 }

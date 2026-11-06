@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { createContext, type ReactNode, useContext, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Image,
   Pressable,
   RefreshControl,
@@ -9,17 +8,24 @@ import {
   StyleSheet,
   Switch,
   Text,
-  TextInput,
-  type TextInputProps,
   View,
 } from 'react-native';
-import { CaretLeft } from 'phosphor-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { avatarSource } from '../lib/avatar.ts';
 import { font, radius, useTheme } from '../theme.ts';
+import { Badge } from './ui/Badge.tsx';
+import { Button } from './ui/Button.tsx';
+import { Card } from './ui/Card.tsx';
+import { EmptyState } from './ui/EmptyState.tsx';
+import { Field } from './ui/Input.tsx';
+import { PageHeader } from './ui/PageHeader.tsx';
 
-// The few building blocks of the screens, on the hfps tokens: a tinted background, content on
-// raised cards, olive primary buttons, Inter.
+// Kept for the screens (and the voice UI) that import them from here; the kit is in ./ui/.
+export { Badge, Button, Card, Field };
+
+// The screens' shell and smaller blocks, on the hfps tokens. The reusable kit (Button, Card, Badge,
+// Input, SectionSelect, PageHeader...) is in ./ui/.
 
 export function Screen({
   title,
@@ -46,36 +52,18 @@ export function Screen({
   headerRight?: ReactNode;
 }) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const body = <View style={styles.body}>{children}</View>;
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        {onBack ? (
-          <Pressable accessibilityRole="button" onPress={onBack} hitSlop={12}>
-            <View style={styles.backRow}>
-              <CaretLeft size={18} color={colors.primary} />
-              <Text style={[styles.back, { color: colors.primary }]}>{backLabel}</Text>
-            </View>
-          </Pressable>
-        ) : null}
-        <View style={styles.titleRow}>
-          <View style={styles.titleText}>
-            <Text
-              accessibilityRole="header"
-              style={[styles.title, { color: colors.foreground }]}
-              numberOfLines={1}
-            >
-              {title}
-            </Text>
-            {subtitle ? (
-              <Text style={[styles.subtitle, { color: colors.mutedForeground }]} numberOfLines={1}>
-                {subtitle}
-              </Text>
-            ) : null}
-          </View>
-          {headerRight}
-        </View>
-      </View>
+      <PageHeader
+        title={title}
+        description={subtitle}
+        onBack={onBack}
+        parentLabel={backLabel}
+        backAccessibilityLabel={backLabel ? t('mobile.nav.backTo', { name: backLabel }) : undefined}
+        actions={headerRight}
+      />
       {scroll ? (
         <ScrollView
           contentContainerStyle={styles.scroll}
@@ -98,95 +86,6 @@ export function Screen({
         body
       )}
     </SafeAreaView>
-  );
-}
-
-export function Card({ children, onPress }: { children: ReactNode; onPress?: () => void }) {
-  const { colors } = useTheme();
-  const style = [styles.card, { backgroundColor: colors.card, borderColor: colors.border }];
-  if (!onPress) return <View style={style}>{children}</View>;
-  return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      style={({ pressed }) => [style, pressed && { opacity: 0.7 }]}
-    >
-      {children}
-    </Pressable>
-  );
-}
-
-export function Button({
-  label,
-  onPress,
-  variant = 'primary',
-  busy = false,
-  disabled = false,
-  compact = false,
-}: {
-  label: string;
-  onPress: () => void;
-  variant?: 'primary' | 'outline' | 'destructive';
-  busy?: boolean;
-  disabled?: boolean;
-  /** 36 px high, for a button beside other content. */
-  compact?: boolean;
-}) {
-  const { colors } = useTheme();
-  const filled = variant === 'primary';
-  const textColor = filled
-    ? colors.primaryForeground
-    : variant === 'destructive'
-      ? colors.destructive
-      : colors.foreground;
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ disabled: disabled || busy, busy }}
-      disabled={disabled || busy}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.button,
-        compact && styles.buttonCompact,
-        filled
-          ? { backgroundColor: colors.primary, borderColor: colors.primary }
-          : { backgroundColor: colors.card, borderColor: colors.border },
-        (pressed || disabled) && { opacity: 0.6 },
-      ]}
-    >
-      {busy ? <ActivityIndicator color={textColor} /> : null}
-      <Text style={[styles.buttonText, { color: textColor }]}>{label}</Text>
-    </Pressable>
-  );
-}
-
-export function Field({ label, ...input }: { label: string } & TextInputProps) {
-  const { colors } = useTheme();
-  const [focused, setFocused] = useState(false);
-  return (
-    <View style={styles.field}>
-      <Text style={[styles.label, { color: colors.foreground }]}>{label}</Text>
-      <TextInput
-        placeholderTextColor={colors.mutedForeground}
-        {...input}
-        onFocus={(e) => {
-          setFocused(true);
-          input.onFocus?.(e);
-        }}
-        onBlur={(e) => {
-          setFocused(false);
-          input.onBlur?.(e);
-        }}
-        style={[
-          styles.input,
-          {
-            color: colors.foreground,
-            backgroundColor: colors.card,
-            borderColor: focused ? colors.primary : colors.border,
-          },
-        ]}
-      />
-    </View>
   );
 }
 
@@ -228,29 +127,6 @@ export function InstanceIcon({ name, iconUrl }: { name: string; iconUrl?: string
       <Text style={[styles.iconLetter, { color: colors.primaryForeground }]}>
         {name.slice(0, 1).toUpperCase()}
       </Text>
-    </View>
-  );
-}
-
-/** A small pill with a count or a word: unread messages, "Live". */
-export function Badge({
-  label,
-  tone = 'primary',
-}: {
-  label: string;
-  tone?: 'primary' | 'muted' | 'destructive';
-}) {
-  const { colors } = useTheme();
-  const background =
-    tone === 'primary'
-      ? colors.primary
-      : tone === 'destructive'
-        ? colors.destructive
-        : colors.muted;
-  const color = tone === 'muted' ? colors.mutedForeground : colors.primaryForeground;
-  return (
-    <View style={[styles.badge, { backgroundColor: background }]}>
-      <Text style={[styles.badgeText, { color }]}>{label}</Text>
     </View>
   );
 }
@@ -367,14 +243,9 @@ export function Banner({
   );
 }
 
-/** Nothing here yet: a title and a hint, centred in a card. */
+/** Nothing here yet: a title and a hint (the kit's EmptyState without an icon). */
 export function Empty({ title, hint }: { title: string; hint?: string | undefined }) {
-  return (
-    <Card>
-      <Heading>{title}</Heading>
-      {hint ? <Body muted>{hint}</Body> : null}
-    </Card>
-  );
+  return <EmptyState title={title} description={hint} />;
 }
 
 /** A card of settings rows, separated by hairlines. */

@@ -9,6 +9,7 @@ import {
   forcedScheme,
   LANGUAGE_KEY,
   loadSettings,
+  PALETTE_KEY,
   resolveLanguage,
   THEME_KEY,
 } from './lib/settings.ts';
@@ -45,6 +46,11 @@ export const settingsReady: Promise<void> = prefsReady.then(() => {
 export function setTheme(theme: AppSettings['theme']): void {
   voicePrefsStore.setItem(THEME_KEY, theme);
   publish({ ...current, theme });
+}
+
+export function setPalette(palette: AppSettings['palette']): void {
+  voicePrefsStore.setItem(PALETTE_KEY, palette);
+  publish({ ...current, palette });
 }
 
 export function setLanguage(language: AppSettings['language']): void {
