@@ -288,6 +288,14 @@ sound), whoever streams installs the **helper** (Linux and macOS today; Windows 
 
 ## 7. Costs in plain words
 
+> [!WARNING]
+> **You are responsible for your instance's usage and costs.** Openlive is open source and comes
+> with no warranty (AGPL-3.0). Every cost Cloudflare charges to your account is yours, whatever the
+> cause. The brakes below are code and can have bugs: one bug already pushed Durable Objects past
+> their daily free limits. On Workers Free that only stops the instance until the reset; on Workers
+> Paid the same bug would have been billed. Bugs are fixed as they show up, but keep an eye on the
+> admin panel and Cloudflare's dashboard, and set billing notifications on your Cloudflare account.
+
 Running Openlive costs **nothing** while your group stays inside Cloudflare's free tiers, which
 for most groups means: Realtime under 1,000 GB of egress a month.
 

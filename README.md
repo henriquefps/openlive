@@ -304,6 +304,15 @@ portable: [docs/why-cloudflare.md](docs/why-cloudflare.md).
 
 ## Self-host
 
+> [!WARNING]
+> **Your instance, your Cloudflare bill.** Openlive is open source and comes with no warranty
+> (AGPL-3.0). Whoever deploys an instance is fully responsible for its usage and for any cost
+> Cloudflare charges to their account. The brakes and the monthly limit help, but they are code
+> and code has bugs: one bug already pushed Durable Objects past their daily free limits. On
+> Workers Free that only stops the instance until the reset; on Workers Paid the same bug would
+> have been billed. Bugs are fixed as they show up, but watch your usage in the admin panel and
+> in Cloudflare's dashboard, and set billing notifications on your Cloudflare account.
+
 Each group deploys to its own Cloudflare account, on its own domain or a free `workers.dev`
 address, without editing any file:
 
