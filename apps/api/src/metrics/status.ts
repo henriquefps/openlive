@@ -46,6 +46,8 @@ export interface StatusSummary {
     idrMaxBytes: number | null;
   };
   topErrors: { code: string; count: number }[];
+  /** Durable Object circuit breaker trips, by object class and cause. */
+  breakerTrips: { object: string; cause: string; count: number }[];
 }
 
 export type StatusResult =
@@ -130,6 +132,8 @@ export function statusQueries(range: StatusRange, spaceId: string | null, bySpac
       FROM ${DATASET} ${where('stream')} ${group()}`,
     errors: `SELECT ${key} AS space, blob6 AS code, sum(${w}) AS n
       FROM ${DATASET} ${where('error')} ${group(', code')} ORDER BY n DESC LIMIT 200`,
+    breaker: `SELECT ${key} AS space, blob5 AS object, blob7 AS cause, sum(${w}) AS n
+      FROM ${DATASET} ${where('breaker')} ${group(', object, cause')} ORDER BY n DESC LIMIT 200`,
   };
 }
 
@@ -164,6 +168,7 @@ export function emptySummary(): StatusSummary {
       idrMaxBytes: null,
     },
     topErrors: [],
+    breakerTrips: [],
   };
 }
 
@@ -221,6 +226,13 @@ export function summarize(rows: Record<keyof ReturnType<typeof statusQueries>, R
     if (s.topErrors.length < 5) {
       s.topErrors.push({ code: String(row['code'] ?? ''), count: Math.round(num(row['n'])) });
     }
+  }
+  for (const row of rows.breaker) {
+    of(row).breakerTrips.push({
+      object: String(row['object'] ?? ''),
+      cause: String(row['cause'] ?? ''),
+      count: Math.round(num(row['n'])),
+    });
   }
   return out;
 }

@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '../../components/EmptyState.tsx';
-import type { StreamCardProps } from '../../components/StreamCard.tsx';
+import { BrowserPill, type StreamCardProps } from '../../components/StreamCard.tsx';
 import { STATUS_DOT, type StatusTone } from '../../components/StatusBadge.tsx';
 import type { CameraClient, CameraClientState } from '../../voice/camera.ts';
 import { CameraVideo } from '../../voice/CameraStrip.tsx';
@@ -472,6 +472,7 @@ function StreamTile({
           <Pill tone={STATUS_TONE[stream.status]} label={t(`stream.status.${stream.status}`)} />
           {full && <Pill tone="warning" label={t('stream.status.full')} />}
           {stream.economy && !small && <Pill tone="warning" label={t('stream.economy')} />}
+          {stream.browser && !small && <BrowserPill />}
         </div>
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-linear-to-t from-player/90 to-transparent p-2 pt-6">
           <div className="flex min-w-0 flex-col">

@@ -55,7 +55,7 @@ async function openHub(userId: string, deviceId?: string): Promise<Client> {
   return Client.adopt(res);
 }
 
-const PROTOCOL = { major: 1, minor: 21 };
+const PROTOCOL = { major: 1, minor: 22 };
 
 async function tab(userId: string, tabId = `t_${crypto.randomUUID().slice(0, 8)}`) {
   const client = await openHub(userId);

@@ -28,6 +28,7 @@ const SUMMARY: StatusSummary = {
     idrMaxBytes: 180_000,
   },
   topErrors: [{ code: 'slot_not_found', count: 5 }],
+  breakerTrips: [{ object: 'RoomDO', cause: 'alarm', count: 2 }],
 };
 
 const value = (label: string) =>
@@ -44,6 +45,7 @@ describe('StatusSummaryView', () => {
     expect(screen.getByText('1 of 4 ended streams')).toBeInTheDocument();
     expect(value('Largest keyframe')).toBe('180 KB');
     expect(screen.getByText('slot_not_found')).toBeInTheDocument();
+    expect(screen.getByText('RoomDO · alarm')).toBeInTheDocument();
   });
 
   it('says when there is nothing yet', () => {
@@ -59,12 +61,14 @@ describe('StatusSummaryView', () => {
           ttff: { ...ttff(null, 0), click: ttff(null, 0), prepull: ttff(null, 0) },
           helper: { ...SUMMARY.helper, minutes: 0 },
           topErrors: [],
+          breakerTrips: [],
         }}
       />,
     );
     expect(screen.getByText('No streams or viewers in this period yet.')).toBeInTheDocument();
     expect(value('Median first frame')).toBe('—');
     expect(screen.getByText('No helper reports in this period.')).toBeInTheDocument();
+    expect(screen.getByText('No object was stopped in this period.')).toBeInTheDocument();
   });
 });
 

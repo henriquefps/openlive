@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import { MonitorIcon, PauseIcon, UsersIcon, WarningCircleIcon } from '@phosphor-icons/react';
+import {
+  GlobeIcon,
+  MonitorIcon,
+  PauseIcon,
+  UsersIcon,
+  WarningCircleIcon,
+} from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,6 +29,8 @@ export interface StreamCardProps {
   thumbnailUrl?: string;
   /** Economy mode caps the stream. */
   economy?: boolean;
+  /** Streamed from a browser tab, not the helper (StreamInfo.origin, protocol 1.22). */
+  browser?: boolean;
   /** Opens the watch view; the whole card is the click target. */
   onOpen?: () => void;
   /** The stream shown in the watch view right now. */
@@ -36,6 +44,21 @@ const STATUS_TONE: Record<StreamStatus, StatusTone> = {
 };
 
 const PLACEHOLDER_ICON = { live: MonitorIcon, paused: PauseIcon, failed: WarningCircleIcon };
+
+/** "Browser" on the thumbnail: a stream a browser tab publishes, at up to 1080p60. */
+export function BrowserPill() {
+  const { t } = useTranslation();
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-md bg-player/70 px-2 py-0.5 text-xs font-medium text-player-foreground"
+      title={t('stream.browserHint')}
+      data-testid="stream-browser-badge"
+    >
+      <GlobeIcon aria-hidden />
+      {t('stream.browser')}
+    </span>
+  );
+}
 
 /** A label on the always-black thumbnail (player exception: dark overlay in any theme). */
 function ThumbnailPill({ tone, label }: { tone: StatusTone; label: string }) {
@@ -57,6 +80,7 @@ export function StreamCard({
   status,
   thumbnailUrl,
   economy = false,
+  browser = false,
   onOpen,
   selected = false,
 }: StreamCardProps) {
@@ -110,6 +134,7 @@ export function StreamCard({
           {economy && status !== 'failed' && (
             <ThumbnailPill tone="warning" label={t('stream.economy')} />
           )}
+          {browser && <BrowserPill />}
         </div>
       </div>
       <CardContent className="flex-1 flex-row items-start justify-between gap-3 py-3">

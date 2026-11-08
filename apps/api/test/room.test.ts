@@ -15,7 +15,9 @@ import {
   OFFER_MS,
   PRESENCE_REFRESH_MS,
   ROOM_TICK_MS,
+  alarmTarget,
   RoomDO,
+  STUCK_DEADLINE_RETRY_MS,
 } from '../src/do/room';
 import worker from '../src/index';
 import { RoomStore } from '../src/room/store';
@@ -108,7 +110,7 @@ describe('handshake', () => {
     const roomId = await newRoom({ settings: { maxViewersPerStream: 4 } });
     await roomStub(roomId).upsertStream(testStream('st_1', 10));
     const { welcome } = await Client.join(roomId, USERS.admin.id);
-    expect(welcome.protocol).toEqual({ major: 1, minor: 21 });
+    expect(welcome.protocol).toEqual({ major: 1, minor: 22 });
     expect(welcome.minProtocol).toEqual({ major: 1, minor: 0 });
     expect(Math.abs(welcome.serverTime - Date.now())).toBeLessThan(5_000);
     expect(welcome.you).toMatchObject({
@@ -186,7 +188,7 @@ describe('handshake', () => {
       payload: {
         code: 'protocol_unsupported',
         minProtocol: { major: 1, minor: 0 },
-        maxProtocol: { major: 1, minor: 21 },
+        maxProtocol: { major: 1, minor: 22 },
       },
     });
     expect((await client.closed).code).toBe(4006);
@@ -603,6 +605,94 @@ describe('admin actions (RPC)', () => {
     expect(await runDurableObjectAlarm(stub)).toBe(true);
     expect((await client.take('room.closed')).payload).toEqual({ reason: 'expired' });
     expect((await client.closed).code).toBe(4005);
+  });
+
+  it('an expired quick room closes once and never re-arms its alarm afterwards', async () => {
+    const roomId = await newRoom();
+    const { client } = await Client.join(roomId, USERS.member1.id);
+    const stub = roomStub(roomId);
+    await stub.setExpiry(Date.now() + 600_000);
+    await client.take('room.expiring');
+    // The ten minutes go by, in D1 (the Worker's view) and in the room's stored snapshot.
+    const expiresAt = Date.now() - 1;
+    await env.DB.prepare("UPDATE rooms SET kind = 'quick', expires_at = ? WHERE id = ?")
+      .bind(expiresAt, roomId)
+      .run();
+    await runInDurableObject(stub, (_, state) => {
+      const store = new RoomStore(state.storage.sql);
+      const room = store.room();
+      if (!room) throw new Error('room not stored');
+      store.setRoom({ ...room, expiresAt });
+    });
+    expect(await runDurableObjectAlarm(stub)).toBe(true);
+    expect((await client.take('room.closed')).payload).toEqual({ reason: 'expired' });
+    expect((await client.closed).code).toBe(4005);
+
+    // The stored room keeps its past expiresAt, but it is no deadline any more: no alarm is left.
+    const alarm = () => runInDurableObject(stub, (_, state) => state.storage.getAlarm());
+    expect(await alarm()).toBeNull();
+    expect(await runDurableObjectAlarm(stub)).toBe(false);
+
+    // A new connection is refused by the Worker (410), before the room is reached.
+    expect((await upgrade(roomId, USERS.member1.id)).status).toBe(410);
+    // RPCs that run a whole event (begin/finish) do not re-arm it, nor close the room again.
+    await stub.visibilityChanged('restricted');
+    expect(await stub.closeRoom('archived')).toBe(0);
+    expect(await alarm()).toBeNull();
+  });
+
+  it('never re-arms the alarm at once for a deadline the alarm left due', async () => {
+    const roomId = await newRoom();
+    const stub = roomStub(roomId);
+    await Client.join(roomId, USERS.member1.id);
+    // A helper grace without its stream: endStream finds nothing to end, so it stays due.
+    await runInDurableObject(stub, async (_, state) => {
+      state.storage.sql.exec(
+        `INSERT INTO stream_sfu (stream_id, sfu_session_id, streamer_role, tracks_json, grace_until)
+         VALUES ('st_stuck', 'sfu_stuck', 'member', '[]', 1)`,
+      );
+      // In the future, so only runDurableObjectAlarm runs it.
+      await state.storage.setAlarm(Date.now() + 60_000);
+    });
+    const before = Date.now();
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(await runDurableObjectAlarm(stub)).toBe(true);
+    const alarm = await runInDurableObject(stub, (_, state) => state.storage.getAlarm());
+    expect(alarm).toBeGreaterThanOrEqual(before + STUCK_DEADLINE_RETRY_MS);
+    expect(errors).toHaveBeenCalled();
+  });
+
+  it('only a deadline due by the time the alarm started counts as stuck', () => {
+    const handledAt = 1_000_000;
+    const now = handledAt + 5;
+    // Not cleared by the handler: retried later.
+    expect(alarmTarget(handledAt, handledAt, now)).toBe(now + STUCK_DEADLINE_RETRY_MS);
+    expect(alarmTarget(handledAt - 1, handledAt, now)).toBe(now + STUCK_DEADLINE_RETRY_MS);
+    // Fell due while the handler ran (a lease expiring meanwhile): kept at its own time.
+    expect(alarmTarget(handledAt + 1, handledAt, now)).toBe(handledAt + 1);
+    expect(alarmTarget(now, handledAt, now)).toBe(now);
+    // Outside the alarm, a past deadline is set as it is.
+    expect(alarmTarget(handledAt - 1, null, now)).toBe(handledAt - 1);
+  });
+
+  it('re-arms a deadline due just after the handled alarm at its own time', async () => {
+    const roomId = await newRoom();
+    const stub = roomStub(roomId);
+    await Client.join(roomId, USERS.member1.id);
+    const graceUntil = Date.now() + 2_000;
+    await runInDurableObject(stub, async (_, state) => {
+      state.storage.sql.exec(
+        `INSERT INTO stream_sfu (stream_id, sfu_session_id, streamer_role, tracks_json, grace_until)
+         VALUES ('st_soon', 'sfu_soon', 'member', '[]', ?)`,
+        graceUntil,
+      );
+      await state.storage.setAlarm(Date.now() + 60_000);
+    });
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(await runDurableObjectAlarm(stub)).toBe(true);
+    const alarm = await runInDurableObject(stub, (_, state) => state.storage.getAlarm());
+    expect(alarm).toBe(graceUntil);
+    expect(errors).not.toHaveBeenCalled();
   });
 });
 

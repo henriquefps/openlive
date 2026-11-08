@@ -557,6 +557,38 @@
       "required": ["sessionDescription", "tracks", "preset", "maxBitrateKbps"],
       "additionalProperties": false
     },
+    "BrowserPublishRequest": {
+      "title": "BrowserPublishRequest",
+      "description": "POST /api/rtc/rooms/:roomId/browser/publish (web session, since 1.22): the helper's PublishRequest plus the tab that will announce the stream. One H.264 video track (rids f, h, q) and at most one audio track; the preset is at most game (1080p60).",
+      "type": "object",
+      "properties": {
+        "tabId": {
+          "$ref": "common.json#/$defs/Id",
+          "description": "The hello.tabId of the room socket that will send stream.announce."
+        },
+        "sessionDescription": {
+          "$ref": "#/$defs/SessionDescription"
+        },
+        "tracks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PublishTrack"
+          },
+          "minItems": 1,
+          "maxItems": 2
+        },
+        "preset": {
+          "$ref": "common.json#/$defs/Preset"
+        },
+        "maxBitrateKbps": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Highest bitrate the tab will send, every encoding and the audio together, as for a helper."
+        }
+      },
+      "required": ["tabId", "sessionDescription", "tracks", "preset", "maxBitrateKbps"],
+      "additionalProperties": false
+    },
     "PublishedTrack": {
       "title": "PublishedTrack",
       "type": "object",

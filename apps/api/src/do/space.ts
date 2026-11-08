@@ -17,6 +17,14 @@ import { DurableObject } from 'cloudflare:workers';
 import { CONNECT_PATH, decodeConnectContext } from '../room/connect';
 import { maySee, presenceAccess } from '../space/access';
 import type { RoomPresenceUpdate, SpaceAttachment, SpaceConnectContext } from '../space/types';
+import { brakeUntil, Dormancy } from './limits-brake';
+import {
+  BREAKER_CLOSE_CODE,
+  BREAKER_CLOSE_REASON,
+  CircuitBreaker,
+  guardRpc,
+  refusedUpgrade,
+} from './breaker';
 
 const MAX_FRAME_CHARS = 64 * 1024;
 const MIN_PROTOCOL = { major: 1, minor: 0 } as const;
@@ -35,6 +43,7 @@ const CLOSE_REASONS: Record<number, string> = {
   [CloseCode.Replaced]: 'replaced',
   [CloseCode.Forbidden]: 'forbidden',
   [CloseCode.ProtocolUnsupported]: 'protocol_unsupported',
+  [BREAKER_CLOSE_CODE]: BREAKER_CLOSE_REASON,
 };
 
 interface PresenceRow extends Record<string, SqlStorageValue> {
@@ -54,8 +63,19 @@ interface PresenceRow extends Record<string, SqlStorageValue> {
  * pushes (WebSocket Hibernation; pings are answered by the runtime).
  */
 export class SpaceDO extends DurableObject<Env> {
+  /** Under the limits brake: no sockets, no alarm until it releases. */
+  private readonly dormancy = new Dormancy();
+  /** Stops this object if it goes wild, see do/breaker.ts. */
+  private readonly breaker: CircuitBreaker;
+
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
+    // idFromName(spaceId): the name is the space id.
+    this.breaker = new CircuitBreaker(this, ctx, env, {
+      object: 'SpaceDO',
+      scope: () => ({ spaceId: ctx.id.name ?? null }),
+      metricId: () => ctx.id.name ?? '',
+    });
     ctx.storage.sql.exec(
       `CREATE TABLE IF NOT EXISTS room_presence (
          room_id    TEXT PRIMARY KEY,
@@ -73,9 +93,12 @@ export class SpaceDO extends DurableObject<Env> {
     if (pathname === '/health') {
       return Response.json({ ok: true, object: 'SpaceDO' });
     }
+    if (!this.breaker.enter('request')) return refusedUpgrade();
     if (pathname !== CONNECT_PATH) {
       return Response.json({ code: 'not_found' }, { status: 404 });
     }
+    // The Worker forwards a connect only while the limits brake is off.
+    this.dormancy.wake();
     const context = decodeConnectContext<SpaceConnectContext>(request);
     if (!context || request.headers.get('Upgrade') !== 'websocket') {
       return Response.json({ code: ErrorCode.InvalidMessage, path: '' }, { status: 400 });
@@ -84,6 +107,7 @@ export class SpaceDO extends DurableObject<Env> {
     const attachment: SpaceAttachment = { ...context, connectionId: newId('c') };
     this.ctx.acceptWebSocket(server, [userTag(context.userId)]);
     server.serializeAttachment(attachment);
+    this.breaker.connected();
     return new Response(null, { status: 101, webSocket: client });
   }
 
@@ -92,6 +116,10 @@ export class SpaceDO extends DurableObject<Env> {
   override webSocketMessage(ws: WebSocket, frame: string | ArrayBuffer): void {
     const me = attachmentOf(ws);
     if (me.closing) return;
+    if (!this.breaker.enter('message') || !this.breaker.socketMessage(me.connectionId)) {
+      this.disconnect(ws, BREAKER_CLOSE_CODE);
+      return;
+    }
     if (typeof frame !== 'string' || frame.length > MAX_FRAME_CHARS) {
       sendError(ws, { code: ErrorCode.InvalidMessage, path: '' });
       return;
@@ -127,8 +155,22 @@ export class SpaceDO extends DurableObject<Env> {
     this.disconnect(ws, CloseCode.Normal);
   }
 
+  /** The limits brake engaged (the cron): sockets closed with 1013, no alarm. */
+  async brakeSleep(until: number): Promise<number> {
+    return this.dormancy.sleep(this.ctx, until);
+  }
+
   /** Drops the summaries whose RoomDO stopped refreshing them. */
   override async alarm(): Promise<void> {
+    // Alarms run without the Worker: the limits brake is checked here too.
+    if (this.dormancy.active) return;
+    const until = await brakeUntil(this.env.DB);
+    if (until !== null) {
+      await this.dormancy.sleep(this.ctx, until);
+      return;
+    }
+    // Tripped: nothing is done and nothing re-arms the alarm (the trip deleted it).
+    if (!this.breaker.enter('alarm')) return;
     const now = Date.now();
     const stale = this.ctx.storage.sql
       .exec<PresenceRow>(
@@ -262,7 +304,7 @@ export class SpaceDO extends DurableObject<Env> {
   }
 
   /** Closes a socket from the server side; also the handler for a client-side close. */
-  private disconnect(ws: WebSocket, code: CloseCode): void {
+  private disconnect(ws: WebSocket, code: CloseCode | typeof BREAKER_CLOSE_CODE): void {
     const me = attachmentOf(ws);
     if (me.closing) return;
     ws.serializeAttachment({ ...me, closing: true } satisfies SpaceAttachment);
@@ -321,6 +363,12 @@ export class SpaceDO extends DurableObject<Env> {
   }
 
   private async scheduleAlarm(): Promise<void> {
+    if (this.dormancy.active) {
+      if ((await this.ctx.storage.getAlarm()) !== null) await this.ctx.storage.deleteAlarm();
+      return;
+    }
+    // A tripped object is not re-armed until the cool-down ends (do/breaker.ts).
+    if (this.breaker.isOpen()) return;
     const row = this.ctx.storage.sql
       .exec<{ oldest: number | null }>('SELECT MIN(updated_at) AS oldest FROM room_presence')
       .toArray()[0];
@@ -365,3 +413,6 @@ function sendFrame(ws: WebSocket, frame: string): void {
     // The socket closed meanwhile.
   }
 }
+
+// Every RPC method counts as a request and is refused while the breaker is open (do/breaker.ts).
+guardRpc(SpaceDO, ['roomPresence', 'accessChanged', 'revokeApp']);

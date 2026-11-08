@@ -224,8 +224,10 @@ deploy it.
 
 ## 6. Install the helper and stream
 
-Viewers need only the browser. Whoever streams installs the **helper** (Linux and macOS today;
-Windows later):
+Viewers need only the browser. Anyone can also go live from a desktop Chromium-based browser
+(Chrome, Edge, …) with nothing to install, up to 1080p60: in a room, **Go live**, then **Stream
+from the browser**. For excellent quality (up to 4K60 and 120 fps, GPU encoding, only the app's
+sound), whoever streams installs the **helper** (Linux and macOS today; Windows later):
 
 - [ ] **Choose the helper version your instance offers** (once per helper version), so members
       can download it from `/download`. From the repository, logged in to wrangler as in step 2:
@@ -334,6 +336,30 @@ hours**, with when the figures were read (Cloudflare's analytics lag a few minut
 Cloudflare has no rows for yet says so next to its 0). A figure Cloudflare refuses shows why, with
 Cloudflare's own message, and "Raw responses from Cloudflare" under the table shows every query
 and its answer: start there if a figure looks wrong.
+
+### The limits brake
+
+Every 5 minutes the instance reads the same figures from Cloudflare and stores them, so the admin
+panel shows them without asking Cloudflare.
+It needs the analytics token the usage cron already uses (`CLOUDFLARE_API_TOKEN` with Account
+Analytics: Read, and `CLOUDFLARE_ACCOUNT_ID`); without them it does nothing.
+
+- **Alerts:** the platform admins get an e-mail (through Resend, like the login link) when a
+  limit reaches 50 %, 70 % and the brake's share, each once a day.
+- **The brake:** at **80 %** of a limit by default (50 to 95 %, in the admin panel's **Limits
+  brake** card), Openlive pauses itself: rooms, spaces and live connections are refused with
+  "Paused by this instance's limits brake", and the rooms that were awake close their sockets and
+  stop their alarms. Login and the admin panel keep working. It releases at 00:00 UTC, or when you
+  press **Release**; **Engage now** pauses the instance by hand.
+- **Why below 100 %:** Cloudflare's figures are for your **whole account**. If you run other
+  Workers on the same account, a runaway Openlive at 100 % would stop them too; the brake leaves
+  them the rest.
+- **On Workers Paid** nothing is refused by Cloudflare: use beyond the included amounts is billed,
+  and there is no spending cap. Pick a budget in the card: the share of the month's included
+  amounts (then it holds until the month turns over) and/or a maximum overage in USD a day. Also
+  turn on Cloudflare's own **billing usage notifications** (dashboard → Notifications → Add →
+  "Usage Based Billing"), so Cloudflare e-mails you too.
+- **Turning it off** keeps the alerts but stops nothing before Cloudflare does; the card warns you.
 
 ### Workers Logs
 

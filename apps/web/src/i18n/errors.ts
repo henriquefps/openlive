@@ -23,6 +23,10 @@ export type { ErrorInput };
 export function translateError(error: ErrorInput, t: TFunction = i18n.t): string {
   const { code, retryAfterMs, preset, ...params } = error;
   if (!isErrorCode(code)) return t('errors.unknown');
+  // The instance's own limits brake answers like Cloudflare's refusal, with its reason.
+  if (code === 'do_quota_exceeded' && (params as { reason?: unknown }).reason === 'limits_brake') {
+    return t('errors.do_quota_exceeded_brake');
+  }
   return t(`errors.${code}`, {
     ...params,
     ...(retryAfterMs !== undefined && {

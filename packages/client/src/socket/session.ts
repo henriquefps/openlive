@@ -13,7 +13,7 @@ import type { CloseCode, HelloMessage, Message, ProtocolVersion } from '@openliv
 
 /** Same bytes as PING_FRAME in @openlive/protocol: the DO answers without waking up. */
 export const PING_FRAME = '{"type":"ping","payload":{}}';
-export const PROTOCOL: ProtocolVersion = { major: 1, minor: 21 };
+export const PROTOCOL: ProtocolVersion = { major: 1, minor: 22 };
 export const CLOSE = {
   Unauthenticated: 4001,
   Replaced: 4002,
@@ -35,6 +35,11 @@ export const BACKOFF_MAX_MS = 30_000;
  * 1013 "try again later".
  */
 export const QUOTA_CLOSE = 1013;
+/**
+ * The reason of a QUOTA_CLOSE (and of the 503's body) when the instance's own limits brake paused
+ * it, before Cloudflare's limit; the wait is the same.
+ */
+export const LIMITS_BRAKE_REASON = 'limits_brake';
 /**
  * After a QUOTA_CLOSE, the next try waits this long (plus jitter): Cloudflare documents a reset at
  * 00:00 UTC, but a block has outlasted it, so the room keeps trying.
@@ -64,7 +69,7 @@ export interface SocketLike {
   readonly readyState: number;
   onopen: Handler<unknown> | null;
   onmessage: Handler<{ data: unknown }> | null;
-  onclose: Handler<{ code: number }> | null;
+  onclose: Handler<{ code: number; reason?: string }> | null;
   onerror: Handler<unknown> | null;
   send(data: string): void;
   close(code?: number, reason?: string): void;
@@ -171,7 +176,8 @@ export abstract class SocketSession<S extends object> {
    * The socket is gone (or never came: the URL failed) and the session was not stopped. Timers
    * are cleared; end for good or call `retryLater`.
    */
-  protected abstract onLost(code: number): void;
+  /** `reason` is the close frame's reason (`limits_brake` for the instance's own brake). */
+  protected abstract onLost(code: number, reason?: string): void;
 
   /** The hello's id: a fresh request id by default. */
   protected helloId(): string {
@@ -288,18 +294,18 @@ export abstract class SocketSession<S extends object> {
       const message = parseFrame(event.data);
       if (message) this.onMessage(message);
     };
-    socket.onclose = (event) => this.onSocketClose(socket, event.code);
+    socket.onclose = (event) => this.onSocketClose(socket, event.code, event.reason);
   }
 
-  private onSocketClose(socket: SocketLike, code: number): void {
+  private onSocketClose(socket: SocketLike, code: number, reason?: string): void {
     if (socket !== this.socket) return;
     this.socket = null;
-    this.lost(code);
+    this.lost(code, reason);
   }
 
-  private lost(code: number): void {
+  private lost(code: number, reason?: string): void {
     this.clearTimers();
     if (this.stopped) return;
-    this.onLost(code);
+    this.onLost(code, reason);
   }
 }

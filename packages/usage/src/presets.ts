@@ -62,6 +62,34 @@ export function cameraLayerKbps(rid: string | null): number {
 /** Most cameras on at once in a room, by default. */
 export const DEFAULT_MAX_CAMERAS = 6;
 
+/**
+ * The presets a browser tab may stream with (protocol 1.22):
+ * 1080p at most, 60 fps at most. The Worker refuses the others on `browser/publish`.
+ */
+export const BROWSER_PRESETS: readonly QualityPreset[] = ['text', 'game'];
+
+export const isBrowserPreset = (preset: string): preset is QualityPreset =>
+  (BROWSER_PRESETS as readonly string[]).includes(preset);
+
+/** One simulcast layer of a stream's H.264 track, with its rid. */
+export interface SimulcastLayer extends PresetLayer {
+  rid: 'f' | 'h' | 'q';
+}
+
+/**
+ * A preset's three simulcast layers, highest first, as the helper encodes them
+ * (helper/internal/media/presets.go, Preset.Layers): the preset's top layer as `f`, the middle one
+ * as `h` (never faster than the top), the low one as `q`.
+ */
+export function simulcastLayers(preset: QualityPreset): SimulcastLayer[] {
+  const top = QUALITY_PRESETS[preset];
+  return [
+    { rid: 'f', ...top },
+    { rid: 'h', ...MIDDLE_LAYER, fps: Math.min(MIDDLE_LAYER.fps, top.fps) },
+    { rid: 'q', ...LOW_LAYER },
+  ];
+}
+
 /** Whether a preset runs faster than 60 fps (off by default). */
 export const isHighFrameRate = (preset: QualityPreset): boolean => QUALITY_PRESETS[preset].fps > 60;
 

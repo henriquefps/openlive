@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import { SquaresFourIcon, UsersIcon, XIcon } from '@phosphor-icons/react';
+import { GlobeIcon, SquaresFourIcon, UsersIcon, XIcon } from '@phosphor-icons/react';
 import type { Preset, StreamInfo } from '@openlive/protocol';
 import { useQuery } from '@tanstack/react-query';
 import { lazy, Suspense, useEffect, useState } from 'react';
@@ -77,6 +77,7 @@ export function streamCards(
           ? { thumbnailUrl: thumbnailUrl(stream.streamId, stream.thumbnailAt) }
           : {}),
         ...(stream.qualityCap ? { economy: true } : {}),
+        ...(stream.origin === 'browser' ? { browser: true } : {}),
       };
     });
 }
@@ -197,8 +198,16 @@ export function WatchPanel({
         <div className="flex min-w-0 flex-col gap-0.5">
           <h2 className="truncate text-lg font-semibold">{name}</h2>
           {info && (
-            <p className="truncate text-[0.8125rem] text-muted-foreground">
-              {info.source.label} · {t(`presets.${info.preset}`)}
+            <p className="flex min-w-0 items-center gap-2 text-[0.8125rem] text-muted-foreground">
+              <span className="truncate">
+                {info.source.label} · {t(`presets.${info.preset}`)}
+              </span>
+              {info.origin === 'browser' && (
+                <Badge variant="outline" title={t('stream.browserHint')}>
+                  <GlobeIcon aria-hidden />
+                  {t('stream.browser')}
+                </Badge>
+              )}
             </p>
           )}
           {viewers && (

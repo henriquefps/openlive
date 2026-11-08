@@ -2,11 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openlive.invalid/protocol/v1/messages/stream.announce.json",
   "title": "StreamAnnounceMessage",
-  "description": "The helper has published tracks to the SFU and announces the stream.",
+  "description": "The helper has published tracks to the SFU and announces the stream. Since 1.22 also the web tab that owns a browser publication (POST .../browser/publish), on its own room socket.",
   "x-openlive": {
     "phase": 2,
     "channels": ["room"],
-    "from": ["helper"],
+    "from": ["helper", "web"],
     "to": ["server"],
     "replies": ["stream.started", "error"]
   },

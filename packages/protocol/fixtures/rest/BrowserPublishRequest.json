@@ -1,0 +1,13 @@
+{
+  "tabId": "t_00000000-0000-0000-0000-000000000001",
+  "sessionDescription": {
+    "type": "offer",
+    "sdp": "v=0\r\no=- 1 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\n"
+  },
+  "tracks": [
+    { "mid": "0", "trackName": "video", "kind": "video", "rids": ["f", "h", "q"] },
+    { "mid": "1", "trackName": "audio", "kind": "audio" }
+  ],
+  "preset": "game",
+  "maxBitrateKbps": 9000
+}

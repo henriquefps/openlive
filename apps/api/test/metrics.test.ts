@@ -311,6 +311,8 @@ describe('status queries', () => {
     expect(q.ttff).toContain('AND double4 = 1');
     expect(q.helper).toContain('max(double11) AS idr_max');
     expect(q.errors).toContain('blob6 AS code');
+    expect(q.breaker).toContain("WHERE blob1 = 'breaker'");
+    expect(q.breaker).toContain('blob5 AS object, blob7 AS cause');
     expect(q.viewer).toContain("SELECT 'all' AS space");
     expect(statusQueries('24h', null, true).viewer).toContain('SELECT index1 AS space');
   });
@@ -346,6 +348,7 @@ describe('status queries', () => {
         { space: 'all', code: 'slot_not_found', n: 5 },
         { space: 'all', code: 'forbidden', n: 2 },
       ],
+      breaker: [{ space: 'all', object: 'RoomDO', cause: 'alarm', n: '1' }],
     }).get('all');
     expect(out).toMatchObject({
       streamsEnded: 4,
@@ -373,6 +376,7 @@ describe('status queries', () => {
         { code: 'slot_not_found', count: 5 },
         { code: 'forbidden', count: 2 },
       ],
+      breakerTrips: [{ object: 'RoomDO', cause: 'alarm', count: 1 }],
     });
   });
 });
@@ -448,7 +452,7 @@ describe('GET /api/spaces/:spaceId/status', () => {
     expect(res.body.available).toBe(true);
     expect(res.body.summary.viewerMinutes).toBe(10);
     expect(res.body.summary.ttff.medianMs).toBeNull();
-    expect(calls.length).toBe(6);
+    expect(calls.length).toBe(7);
     for (const call of calls) {
       expect(call.url).toBe(SQL_ENDPOINT('acc1'));
       expect(call.auth).toBe('Bearer test-token');

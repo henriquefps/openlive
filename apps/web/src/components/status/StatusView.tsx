@@ -234,6 +234,28 @@ export function StatusSummaryView({ summary }: { summary: StatusSummary }) {
             </p>
           )}
         </section>
+        <section className="flex flex-col gap-2" aria-labelledby="status-breaker">
+          <h3 id="status-breaker" className="text-base font-medium">
+            {t('metrics.breaker.title')}
+          </h3>
+          {!summary.breakerTrips?.length ? (
+            <p className="text-[0.9375rem] text-muted-foreground">{t('metrics.breaker.none')}</p>
+          ) : (
+            <>
+              <p className="text-[0.8125rem] text-muted-foreground">{t('metrics.breaker.hint')}</p>
+              <ol className="flex flex-col gap-1 text-[0.9375rem]">
+                {summary.breakerTrips.map((b) => (
+                  <li key={`${b.object}/${b.cause}`} className="flex justify-between gap-4">
+                    <code className="truncate font-mono text-[0.8125rem]">
+                      {b.object} · {b.cause}
+                    </code>
+                    <span className="tabular-nums text-warning">{number(b.count)}</span>
+                  </li>
+                ))}
+              </ol>
+            </>
+          )}
+        </section>
       </div>
     </div>
   );

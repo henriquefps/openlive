@@ -27,6 +27,7 @@ import type {
 import type { ErrorInput } from '../api/client.ts';
 import {
   CLOSE,
+  LIMITS_BRAKE_REASON,
   OPEN,
   QUOTA_CLOSE,
   SocketSession,
@@ -119,6 +120,8 @@ export interface RoomState {
   error: ErrorPayload | null;
   /** The last close was do_quota_exceeded: the instance is down until Cloudflare lifts the limit. */
   quotaExceeded: boolean;
+  /** That close came from the instance's own limits brake, not from Cloudflare. */
+  quotaBrake: boolean;
   /** The voice channel: who is in it, and this connection's place in it. */
   voice: SignalVoice;
 }
@@ -151,6 +154,7 @@ export const INITIAL_STATE: RoomState = {
   ended: null,
   error: null,
   quotaExceeded: false,
+  quotaBrake: false,
   voice: INITIAL_VOICE,
 };
 
@@ -456,6 +460,7 @@ export class RoomConnection extends SocketSession<RoomState> {
           status: 'open',
           attempt: 0,
           quotaExceeded: false,
+          quotaBrake: false,
           you,
           room,
           settings,
@@ -655,7 +660,7 @@ export class RoomConnection extends SocketSession<RoomState> {
     }
   }
 
-  protected onLost(code: number): void {
+  protected onLost(code: number, reason?: string): void {
     const ended = this.endReason(code);
     if (ended) {
       this.voiceWanted = false;
@@ -677,6 +682,7 @@ export class RoomConnection extends SocketSession<RoomState> {
       status: 'reconnecting',
       attempt: attempt + 1,
       quotaExceeded: code === QUOTA_CLOSE,
+      quotaBrake: code === QUOTA_CLOSE && reason === LIMITS_BRAKE_REASON,
       access: {},
       // The room took this tab out of voice with the socket; the welcome joins again.
       voice: {

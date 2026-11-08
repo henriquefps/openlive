@@ -10,7 +10,7 @@ describe('helloClientVersion', () => {
       type: 'hello',
       id: '1',
       payload: {
-        protocol: { major: 1, minor: 21 },
+        protocol: { major: 1, minor: 22 },
         client: 'web',
         clientVersion: helloClientVersion('0.1.0'),
         tabId: '00000000-0000-0000-0000-000000000001',

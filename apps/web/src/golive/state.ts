@@ -9,6 +9,7 @@ import type {
   SourceDescriptor,
 } from '@openlive/protocol';
 import {
+  isBrowserPreset,
   isHighFrameRate,
   type PresetLayer,
   presetSendKbps,
@@ -154,8 +155,14 @@ export function helperFit(
   if (status && isActive(status)) {
     return status.stream?.roomId === roomId ? 'live_here' : 'busy';
   }
-  return helper.protocol.minor < PROTOCOL.minor ? 'outdated' : 'ready';
+  return helper.protocol.minor < HELPER_PROTOCOL_MINOR ? 'outdated' : 'ready';
 }
+
+/**
+ * The newest protocol minor that changed what a helper does (1.21, global voice shortcuts). 1.22
+ * (streaming from the browser) is web and Worker only, so a 1.21 helper is not outdated.
+ */
+export const HELPER_PROTOCOL_MINOR = Math.min(PROTOCOL.minor, 21);
 
 export const isActive = (status: HelperStatusPayload): boolean =>
   status.state === 'starting' ||
@@ -327,3 +334,38 @@ export function startPayload(state: WizardState, roomId: string): HelperStartStr
 /** Wayland's portal pseudo-sources (helper/internal/media/source.go): the system shows a picker. */
 export const isPortalPicker = (sourceId: string): boolean =>
   sourceId === 'portal:screen' || sourceId === 'portal:window';
+
+/**
+ * What the Go live panel leads with (no stored preference, chosen each time):
+ * - `helper`: a helper is paired and online: today's flow, plus a discreet link to the browser;
+ * - `install`: none is: "Install the helper (recommended)" first, the browser as the second
+ *   choice. `download` is false on Windows, where there is no helper yet.
+ * `browser` is false where the browser cannot capture a screen (phones): the option is hidden.
+ */
+export type GoLiveChoice =
+  { kind: 'helper'; browser: boolean } | { kind: 'install'; browser: boolean; download: boolean };
+
+export function goLiveChoice(input: {
+  helpers: number;
+  displayMedia: boolean;
+  os: 'windows' | 'macos' | 'linux' | undefined;
+}): GoLiveChoice {
+  if (input.helpers > 0) return { kind: 'helper', browser: input.displayMedia };
+  return { kind: 'install', browser: input.displayMedia, download: input.os !== 'windows' };
+}
+
+/**
+ * After a browser stream ends, a short nudge to install the helper: not on Windows (no helper
+ * yet) and not on an unknown or mobile system.
+ */
+export function showHelperNudge(
+  ended: boolean,
+  os: 'windows' | 'macos' | 'linux' | undefined,
+): boolean {
+  return ended && (os === 'linux' || os === 'macos');
+}
+
+/** The presets a browser stream offers: 1080p30 and 1080p60, greyed out where the room forbids them. */
+export function browserOffers(settings: RoomSettings): PresetOffer[] {
+  return offeredPresets(settings).filter((o) => isBrowserPreset(o.preset));
+}

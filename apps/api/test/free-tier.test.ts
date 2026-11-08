@@ -3,6 +3,7 @@ import { runInDurableObject } from 'cloudflare:test';
 import { env, exports } from 'cloudflare:workers';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { Json } from './api-helpers';
+import { breakerOf } from '../src/do/breaker';
 import { FakeSfu, offer } from './fake-sfu';
 import { Client, newRoom, roomStub, seed, SPACE_ID, USERS } from './room-helpers';
 import { FREE_TIER_BUDGET, type Budget } from './free-tier-budget';
@@ -29,7 +30,7 @@ afterEach(() => {
 
 const CAPS = { stream: true, voice: true, camera: false, text: true };
 const HELPER = { user: USERS.member1.id, device: 'd_writes_pc' };
-const PROTOCOL = { major: 1, minor: 21 };
+const PROTOCOL = { major: 1, minor: 22 };
 const TRACKS = [
   { mid: '0', trackName: 'video', kind: 'video', rids: ['f', 'h', 'q'] },
   { mid: '1', trackName: 'audio', kind: 'audio' },
@@ -130,7 +131,9 @@ async function resetSpace(): Promise<void> {
 }
 
 /** Runs `shape` on a fake clock and returns what it cost. */
-async function scenario(shape: Shape): Promise<{ report: SqlRecord[]; counter: UsageCounter }> {
+async function scenario(
+  shape: Shape,
+): Promise<{ report: SqlRecord[]; counter: UsageCounter; trips: number }> {
   const sfu = new FakeSfu().install();
   const counter = new UsageCounter().install();
   // A fixed start, not the wall clock: the cost must not depend on the time of day it runs.
@@ -141,6 +144,8 @@ async function scenario(shape: Shape): Promise<{ report: SqlRecord[]; counter: U
   const room = roomStub(roomId);
   await counter.attach(room, 'RoomDO');
   await counter.attach(env.SPACE.get(env.SPACE.idFromName(SPACE_ID)), 'SpaceDO');
+  // Every object the scenario uses, for the circuit breaker check at the end.
+  const objects: DurableObjectStub[] = [room, env.SPACE.get(env.SPACE.idFromName(SPACE_ID))];
 
   // Everyone: the streamer's web tab first, then viewers and voice from the other seeded users.
   const others = [USERS.owner, USERS.admin, USERS.member2, USERS.guest1, USERS.guest2];
@@ -150,7 +155,9 @@ async function scenario(shape: Shape): Promise<{ report: SqlRecord[]; counter: U
   );
   for (const user of users) {
     await counter.attach(env.USER_HUB.get(env.USER_HUB.idFromName(user)), 'UserHubDO');
+    objects.push(env.USER_HUB.get(env.USER_HUB.idFromName(user)));
   }
+  objects.push(env.USER_HUB.get(env.USER_HUB.idFromName(HELPER.user)));
   const deviceRow = await env.DB.prepare('SELECT id FROM devices WHERE id = ?')
     .bind(HELPER.device)
     .first();
@@ -327,9 +334,17 @@ async function scenario(shape: Shape): Promise<{ report: SqlRecord[]; counter: U
     await runDueAlarms();
   }
   counter.pause();
+  // Real use never trips a circuit breaker, see src/do/breaker.ts.
+  let trips = 0;
+  for (const stub of objects) {
+    trips += await runInDurableObject(stub, (instance) => {
+      const breaker = breakerOf(instance);
+      return (breaker?.trips ?? 0) + (breaker?.isOpen() ? 1 : 0);
+    });
+  }
   for (const s of sockets) s.close();
   void sfu;
-  return { report: counter.report(), counter };
+  return { report: counter.report(), counter, trips };
 }
 
 const fmt = (n: number) => Math.round(n).toLocaleString('en-US');
@@ -338,8 +353,8 @@ const fmt = (n: number) => Math.round(n).toLocaleString('en-US');
 const invocations = (t: Totals) => t.workerRequests + t.doRequests + t.doWsMessages;
 /** Workers Logs events, unsampled. */
 const unsampledLogEvents = (t: Totals) => logEvents(invocations(t), t.consoleLines, 1);
-/** The cron runs every 15 minutes: 96 invocations a day, silent when there is nothing to do. */
-const CRON_RUNS_PER_DAY = 96;
+/** The cron runs every 5 minutes: 288 invocations a day, silent when nothing happens. */
+const CRON_RUNS_PER_DAY = 288;
 
 function table(title: string, report: SqlRecord[], t: Totals, days = 1): string {
   const rows = report
@@ -404,7 +419,7 @@ function check(counter: UsageCounter, budget: Budget): void {
 
 describe('free-tier budget', () => {
   it('an hour of a room: 1 streamer, 3 viewers, 3 in voice, chat, sidebar and hub', async () => {
-    const { report, counter } = await scenario({
+    const { report, counter, trips } = await scenario({
       viewers: 3,
       voice: 3,
       chatMessages: 6,
@@ -413,10 +428,11 @@ describe('free-tier budget', () => {
     });
     console.log(table('One hour of a room', report, counter.totals()));
     check(counter, FREE_TIER_BUDGET.hour);
+    expect(trips, 'circuit breaker trips').toBe(0);
   }, 300_000);
 
   it('a normal group: 5 friends, 1 streams, 4 watch, all in voice, 3 hours a day', async () => {
-    const { report, counter } = await scenario({
+    const { report, counter, trips } = await scenario({
       viewers: 4,
       voice: 5,
       chatMessages: 20,
@@ -425,6 +441,7 @@ describe('free-tier budget', () => {
     });
     console.log(table('A normal group, one hour (x3 for 3 h a day)', report, counter.totals(), 3));
     check(counter, FREE_TIER_BUDGET.groupHour);
+    expect(trips, 'circuit breaker trips').toBe(0);
     // The day: three such hours, each with its setup, well inside every limit.
     const t = counter.totals();
     expect(t.doRowsWritten * 3).toBeLessThan(FREE_TIER_BUDGET.groupDayDoRowsWritten);
@@ -436,7 +453,7 @@ describe('free-tier budget', () => {
   }, 300_000);
 
   it('a tab left open: 1 stream, 1 viewer, 24 hours', async () => {
-    const { report, counter } = await scenario({
+    const { report, counter, trips } = await scenario({
       viewers: 1,
       voice: 0,
       chatMessages: 0,
@@ -446,5 +463,6 @@ describe('free-tier budget', () => {
     });
     console.log(table('A tab left open for a day', report, counter.totals()));
     check(counter, FREE_TIER_BUDGET.idleDay);
+    expect(trips, 'circuit breaker trips').toBe(0);
   }, 600_000);
 });

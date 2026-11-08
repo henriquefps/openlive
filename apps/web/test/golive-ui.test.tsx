@@ -8,8 +8,8 @@ import {
 } from '@tanstack/react-router';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeAll, describe, expect, it } from 'vitest';
-import { GoLiveArea } from '../src/golive/GoLive.tsx';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { type BrowserContext, GoLiveArea } from '../src/golive/GoLive.tsx';
 import type { HubConnection } from '../src/hub/connection.ts';
 import { HubContext } from '../src/hub/use-hub.ts';
 import type { FakeSocket } from './fake-socket.ts';
@@ -27,7 +27,7 @@ const SETTINGS: RoomSettings = {
 
 async function renderArea(
   hub: HubConnection,
-  props: { canStream?: boolean; settings?: RoomSettings } = {},
+  props: { canStream?: boolean; settings?: RoomSettings; browser?: BrowserContext } = {},
 ) {
   const rootRoute = createRootRoute({
     component: () => (
@@ -36,6 +36,7 @@ async function renderArea(
           roomId="rm_1"
           settings={props.settings ?? SETTINGS}
           canStream={props.canStream ?? true}
+          {...(props.browser ? { browser: props.browser } : {})}
         />
       </HubContext>
     ),
@@ -193,14 +194,74 @@ describe('Go live', () => {
     expect(screen.getByText('You cannot stream here yet')).toBeInTheDocument();
   });
 
-  it('explains an offline helper, with the way to get one', async () => {
+  it('leads with installing the helper when none is online, with the way to get one', async () => {
     const { hub } = connectedHub([]);
     await userEvent.click(await renderArea(hub));
-    expect(screen.getByText('Your helper is offline')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Get the helper' })).toHaveAttribute(
+    expect(screen.getByText('Install the helper (recommended)')).toBeInTheDocument();
+    expect(screen.getByText('Up to 1440p and 120 fps')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Download the helper' })).toHaveAttribute(
       'href',
       '/download',
     );
+    // No browser context (or no getDisplayMedia): no browser option.
+    expect(screen.queryByRole('button', { name: 'Stream from the browser' })).toBeNull();
+  });
+
+  describe('from the browser', () => {
+    const context: BrowserContext = {
+      socket: { listen: () => () => {}, sendRequest: () => null, onEnded: () => () => {} },
+      hold: () => () => {},
+    };
+    const withDisplayMedia = () =>
+      Object.defineProperty(navigator, 'mediaDevices', {
+        configurable: true,
+        value: { getDisplayMedia: vi.fn() },
+      });
+    afterEach(() => {
+      Reflect.deleteProperty(navigator, 'mediaDevices');
+      vi.restoreAllMocks();
+    });
+
+    it('offers the browser as the second choice without a helper, limited to 1080p60', async () => {
+      withDisplayMedia();
+      const { hub } = connectedHub([]);
+      await userEvent.click(await renderArea(hub, { browser: context }));
+      expect(screen.getByText('Install the helper (recommended)')).toBeInTheDocument();
+      expect(
+        screen.getByText('Limited quality (up to 1080p60). Keep this tab open while you stream.'),
+      ).toBeInTheDocument();
+      await userEvent.click(screen.getByRole('button', { name: 'Stream from the browser' }));
+      const step = screen.getByTestId('golive-browser');
+      expect(within(step).getByRole('button', { name: 'Start streaming' })).toBeEnabled();
+      // Only 1080p: no 1440p in the resolution select.
+      await userEvent.click(within(step).getByRole('combobox', { name: 'Resolution' }));
+      expect(screen.queryByRole('option', { name: '1440p' })).toBeNull();
+    });
+
+    it('says the Windows helper is not available yet instead of a download', async () => {
+      withDisplayMedia();
+      vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue(
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140.0 Safari/537.36',
+      );
+      const { hub } = connectedHub([]);
+      await userEvent.click(await renderArea(hub, { browser: context }));
+      expect(screen.getByTestId('golive-no-windows-helper')).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Download the helper' })).toBeNull();
+      expect(screen.getByRole('button', { name: 'Stream from the browser' })).toBeInTheDocument();
+    });
+
+    it('keeps the helper flow when one is online, with a discreet link to the browser', async () => {
+      withDisplayMedia();
+      const { hub } = connectedHub();
+      await userEvent.click(await renderArea(hub, { browser: context }));
+      expect(
+        screen.getByText('Asking your helper for its screens and windows…'),
+      ).toBeInTheDocument();
+      await userEvent.click(screen.getByTestId('golive-browser-link'));
+      expect(screen.getByTestId('golive-browser')).toBeInTheDocument();
+      await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+      expect(screen.queryByTestId('golive-browser')).toBeNull();
+    });
   });
 
   it('lets the user choose among helpers and marks outdated and busy ones', async () => {

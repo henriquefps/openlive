@@ -51,7 +51,7 @@ describe('HubConnection', () => {
     expect(last().url).toBe('ws://localhost/ws/hub');
     expect(last().hello).toMatchObject({
       type: 'hello',
-      payload: { client: 'web', tabId: 't_tab', protocol: { major: 1, minor: 21 } },
+      payload: { client: 'web', tabId: 't_tab', protocol: { major: 1, minor: 22 } },
     });
     expect(hub.getState()).toMatchObject({ status: 'open', helpers: { d_pc: PC } });
   });

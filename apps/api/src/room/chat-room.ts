@@ -142,7 +142,8 @@ export class RoomChat {
   /** The alarm: messages older than the retention go, without telling anyone. */
   sweep(now: number): void {
     const days = this.retentionDays();
-    if (days > 0) this.store.deleteBefore(now - retentionMs(days));
+    // Up to and including the deadline nextDeadline gave, so none is left due after the sweep.
+    if (days > 0) this.store.deleteBefore(now - retentionMs(days) + 1);
   }
 
   /** Account deletion: the user's messages are deleted (and everyone told) or anonymized. */

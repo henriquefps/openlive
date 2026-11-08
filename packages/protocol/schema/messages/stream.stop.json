@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openlive.invalid/protocol/v1/messages/stream.stop.json",
   "title": "StreamStopMessage",
-  "description": "The room ends this helper's stream (moderator, revoked permission, room closing, quota). The helper stops publishing and closes its SFU session.",
-  "x-openlive": { "phase": 2, "channels": ["room"], "from": ["server"], "to": ["helper"] },
+  "description": "The room ends this helper's stream (moderator, revoked permission, room closing, quota). The helper stops publishing and closes its SFU session. Since 1.22 also sent to the web tab that publishes a browser stream.",
+  "x-openlive": { "phase": 2, "channels": ["room"], "from": ["server"], "to": ["helper", "web"] },
   "type": "object",
   "properties": {
     "type": { "const": "stream.stop" },

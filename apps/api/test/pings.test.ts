@@ -218,6 +218,9 @@ describe('pointer.ping', () => {
     const { roomId, streamId } = await roomWithStream({ pingOverlay: true, pings: true });
     const { helper, viewer } = await cast(roomId, streamId);
     const ping = { streamId, x: 0.5, y: 0.5, style: STYLE };
+    // One instant for the whole burst: under a loaded test run no token refills in between.
+    const now = Date.now();
+    vi.spyOn(Date, 'now').mockReturnValue(now);
     for (let i = 0; i < PING_BURST; i++) viewer.send('pointer.ping', ping);
     const limited = await viewer.request('pointer.ping', ping);
     expect(limited).toMatchObject({ type: 'error', payload: { code: 'rate_limited' } });

@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { platformRoomLimits } from '../db/platform';
 import { listRoomsForActor, roomRef } from '../db/rooms';
 import { allowed, type AppEnv, authorize, loadSpace, requireUser, spaceRef } from './context';
+import { isBreakerOpenError } from '../do/breaker';
 import { roomLimits } from './settings';
 
 // The text chat's REST side (docs/PROTOCOL.md 7.6). Messages travel on the room socket; this only
@@ -11,6 +12,19 @@ import { roomLimits } from './settings';
 export const chat = new Hono<AppEnv>();
 
 const roomStub = (env: Env, roomId: string) => env.ROOM.get(env.ROOM.idFromName(roomId));
+
+/** A room whose circuit breaker is open counts as nothing unread, not as a failed list. */
+async function countsOf(
+  room: ReturnType<typeof roomStub>,
+  userId: string,
+): Promise<{ unread: number; mentions: number }> {
+  try {
+    return await room.chatCounts(userId);
+  } catch (error) {
+    if (isBreakerOpenError(error)) return { unread: 0, mentions: 0 };
+    throw error;
+  }
+}
 
 /**
  * GET /api/spaces/:spaceId/chat/unread: `{ rooms: { [roomId]: number }, mentions: { [roomId]:
@@ -28,9 +42,7 @@ chat.get('/spaces/:spaceId/chat/unread', async (c) => {
     return capabilities?.text === true && allowed(actor, 'chat.read', { room: roomRef(room) });
   });
   const counts = await Promise.all(
-    list.map(
-      async (room) => [room.id, await roomStub(c.env, room.id).chatCounts(user.id)] as const,
-    ),
+    list.map(async (room) => [room.id, await countsOf(roomStub(c.env, room.id), user.id)] as const),
   );
   const only = (pick: (n: { unread: number; mentions: number }) => number) =>
     Object.fromEntries(counts.flatMap(([id, n]) => (pick(n) > 0 ? [[id, pick(n)] as const] : [])));

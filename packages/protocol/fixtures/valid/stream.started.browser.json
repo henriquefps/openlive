@@ -1,0 +1,19 @@
+{
+  "type": "stream.started",
+  "id": "3",
+  "payload": {
+    "stream": {
+      "streamId": "st_2",
+      "userId": "u_ana",
+      "deviceId": "wb_1",
+      "source": { "kind": "screen", "label": "Entire screen" },
+      "preset": "game",
+      "hasAudio": false,
+      "paused": false,
+      "startedAt": 1793142000000,
+      "viewerLimit": 6,
+      "viewerCount": 0,
+      "origin": "browser"
+    }
+  }
+}

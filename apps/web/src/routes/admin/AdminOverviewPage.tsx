@@ -36,6 +36,7 @@ import { Page } from '../../components/Page.tsx';
 import { StatusBadge } from '../../components/StatusBadge.tsx';
 import { AdminStatus } from '../../components/status/AdminStatus.tsx';
 import { CloudflareLimits } from '../../components/status/CloudflareLimits.tsx';
+import { LimitsBrake } from '../../components/status/LimitsBrake.tsx';
 import { translateError } from '../../i18n/errors.ts';
 import { formatDate } from '../../i18n/format.ts';
 
@@ -74,6 +75,7 @@ export function AdminOverviewPage() {
         <>
           <Summary data={overview.data} />
           <Spaces spaces={overview.data.spaces} />
+          <LimitsBrake />
           <CloudflareLimits />
           <AdminStatus />
           <UnattachedUsers />

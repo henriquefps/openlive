@@ -61,14 +61,37 @@ export function secondsToUtcMidnight(now = Date.now()): number {
  * accepted instead, gets error { code: do_quota_exceeded } and is closed with 1013 ("try again
  * later"), which the web app waits out (PROTOCOL.md 6, 1.15).
  */
-export function doQuotaResponse(c: Context): Response {
-  const retryAfter = secondsToUtcMidnight();
+export function doQuotaResponse(
+  c: Context,
+  brake?: { retryAfter: number; releasesAt: number },
+  retryAfterS?: number,
+): Response {
+  const retryAfter = brake?.retryAfter ?? retryAfterS ?? secondsToUtcMidnight();
+  // The instance's own limits brake answers the same, with a reason the clients
+  // show apart ("paused by the instance's limits brake") and its release time.
+  const params = brake ? { reason: LIMITS_BRAKE_REASON, releasesAt: brake.releasesAt } : {};
   if (c.req.header('Upgrade')?.toLowerCase() === 'websocket') {
     const { 0: client, 1: server } = new WebSocketPair();
     server.accept();
-    server.send(JSON.stringify({ type: 'error', payload: { code: 'do_quota_exceeded' } }));
-    server.close(1013, 'do_quota_exceeded');
+    server.send(
+      JSON.stringify({ type: 'error', payload: { code: 'do_quota_exceeded', ...params } }),
+    );
+    server.close(1013, brake ? LIMITS_BRAKE_REASON : 'do_quota_exceeded');
     return new Response(null, { status: 101, webSocket: client });
   }
-  return c.json(apiError('do_quota_exceeded'), 503, { 'Retry-After': String(retryAfter) });
+  return c.json(apiError('do_quota_exceeded', params), 503, { 'Retry-After': String(retryAfter) });
+}
+
+/** The close reason and error `reason` of a refusal by the limits brake. */
+export const LIMITS_BRAKE_REASON = 'limits_brake';
+
+/**
+ * Thrown when a request handler reaches for a Durable Object while the limits brake is engaged
+ * (the Worker's guarded bindings, usage/brake-guard.ts); the app's onError answers it like
+ * do_quota_exceeded with the brake's reason.
+ */
+export class LimitsBrakeError extends Error {
+  constructor(readonly releasesAt: number) {
+    super('limits brake engaged');
+  }
 }

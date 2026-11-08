@@ -124,10 +124,11 @@ describe('upload (helper)', () => {
       return { status: r.status, body: await r.json() };
     };
 
-    // A web session, another device of the same user, another user's device: not this stream.
+    // A web session (which uploads only its own browser stream's since 1.22), another device of
+    // the same user, another user's device: not this stream.
     expect(await status(upload(roomId, streamId, { user: HELPER.user }, jpeg()))).toMatchObject({
-      status: 403,
-      body: { code: 'forbidden' },
+      status: 404,
+      body: { code: 'stream_not_found', streamId },
     });
     expect(
       await status(upload(roomId, streamId, { user: HELPER.user, device: 'd_other' }, jpeg())),

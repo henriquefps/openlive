@@ -17,6 +17,13 @@ import {
 import { DurableObject } from 'cloudflare:workers';
 import type { AppTarget, HubAttachment, HubConnectContext } from '../hub/types';
 import {
+  BREAKER_CLOSE_CODE,
+  BREAKER_CLOSE_REASON,
+  CircuitBreaker,
+  guardRpc,
+  refusedUpgrade,
+} from './breaker';
+import {
   addHelperSample,
   emptyHelperWindow,
   HELPER_WINDOW_MS,
@@ -25,6 +32,7 @@ import {
   writeHelper,
 } from '../metrics/points';
 import { CONNECT_PATH, decodeConnectContext } from '../room/connect';
+import { closeForBrake } from './limits-brake';
 
 const MAX_FRAME_CHARS = 512 * 1024;
 const MIN_PROTOCOL = { major: 1, minor: 0 } as const;
@@ -41,6 +49,7 @@ const CLOSE_REASONS: Record<number, string> = {
   [CloseCode.Unauthenticated]: 'unauthenticated',
   [CloseCode.Replaced]: 'replaced',
   [CloseCode.ProtocolUnsupported]: 'protocol_unsupported',
+  [BREAKER_CLOSE_CODE]: BREAKER_CLOSE_REASON,
 };
 
 /** Web → helper commands (PROTOCOL.md 8.2). */
@@ -100,9 +109,15 @@ export class UserHubDO extends DurableObject<Env> {
   >();
   /** Room → space, for the points' space id (rooms never move). */
   private readonly roomSpaces = new Map<string, string | null>();
+  /**
+   * Stops this object if it goes wild, see do/breaker.ts. Its metric names no id: a hub is one
+   * user's.
+   */
+  private readonly breaker: CircuitBreaker;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
+    this.breaker = new CircuitBreaker(this, ctx, env, { object: 'UserHubDO' });
     ctx.storage.sql.exec(
       `CREATE TABLE IF NOT EXISTS device_rooms (
          device_id TEXT NOT NULL,
@@ -145,6 +160,7 @@ export class UserHubDO extends DurableObject<Env> {
     if (pathname === '/health') {
       return Response.json({ ok: true, object: 'UserHubDO' });
     }
+    if (!this.breaker.enter('request')) return refusedUpgrade();
     if (pathname !== CONNECT_PATH) {
       return Response.json({ code: 'not_found' }, { status: 404 });
     }
@@ -162,7 +178,16 @@ export class UserHubDO extends DurableObject<Env> {
     };
     this.ctx.acceptWebSocket(server, [connTag(attachment.connectionId)]);
     server.serializeAttachment(attachment);
+    this.breaker.connected();
     return new Response(null, { status: 101, webSocket: client });
+  }
+
+  /**
+   * The limits brake engaged (the cron): sockets closed with 1013. The hub has no
+   * alarm, and the Worker refuses new connections until the brake releases.
+   */
+  brakeSleep(): number {
+    return closeForBrake(this.ctx);
   }
 
   // --- WebSocket events ---
@@ -170,6 +195,10 @@ export class UserHubDO extends DurableObject<Env> {
   override webSocketMessage(ws: WebSocket, frame: string | ArrayBuffer): void {
     const me = attachmentOf(ws);
     if (me.closing) return;
+    if (!this.breaker.enter('message') || !this.breaker.socketMessage(me.connectionId)) {
+      this.disconnect(ws, BREAKER_CLOSE_CODE);
+      return;
+    }
     if (typeof frame !== 'string' || frame.length > MAX_FRAME_CHARS) {
       sendError(ws, { code: ErrorCode.InvalidMessage, path: '' });
       return;
@@ -392,7 +421,7 @@ export class UserHubDO extends DurableObject<Env> {
    * Closes a socket from the server side and cleans up after it at once; also the handler for a
    * client-side close. Idempotent: the runtime may report a close after we started one.
    */
-  private disconnect(ws: WebSocket, code: CloseCode): void {
+  private disconnect(ws: WebSocket, code: CloseCode | typeof BREAKER_CLOSE_CODE): void {
     const me = attachmentOf(ws);
     if (me.closing) return;
     ws.serializeAttachment({ ...me, closing: true } satisfies HubAttachment);
@@ -690,3 +719,14 @@ function sendFrame(ws: WebSocket, frame: string): void {
     // The socket closed meanwhile; its close handler cleans up.
   }
 }
+
+// Every RPC method counts as a request and is refused while the breaker is open (do/breaker.ts).
+guardRpc(UserHubDO, [
+  'deviceJoinedRoom',
+  'takeDeviceRooms',
+  'appJoined',
+  'revokeApp',
+  'notice',
+  'revokeDevice',
+  'revokeAll',
+]);

@@ -49,7 +49,7 @@ import type { RoomState } from '../../room/connection.ts';
 import { ChatPanel } from '../../chat/ChatPanel.tsx';
 import { useChat } from '../../chat/use-chat.ts';
 import { useBreakpoint } from '../../hooks/use-breakpoint.ts';
-import { useRoomSession } from '../../voice/use-voice-session.ts';
+import { useRoomSession, useVoiceSessions } from '../../voice/use-voice-session.ts';
 import type { RoomLink } from '../../voice/session.ts';
 import { type CameraBarProps, JoinVoiceButton, VoiceBar } from '../../voice/VoiceBar.tsx';
 import type { VoicePeopleProps } from '../../voice/VoicePeople.tsx';
@@ -66,6 +66,7 @@ import { RoomStage } from './RoomStage.tsx';
 import { streamCards, WatchPanel } from './RoomStreams.tsx';
 import { useTutorialScreen } from '../../tutorial/context.ts';
 import { GoLiveArea, useLiveHere } from '../../golive/GoLive.tsx';
+import { browserContextOf } from '../../golive/browser-context.ts';
 
 /**
  * A room: who is here (live), the stream grid and the room's actions, laid out by what
@@ -86,6 +87,9 @@ export function RoomView({ roomId, space }: { roomId: string; space: Space | nul
     link: roomLink(space, room.data, roomId),
   });
   const { actions, moderation, chat: chatSocket, pointer } = session.parts.socket;
+  // Streaming from the browser announces on this room's socket.
+  const sessions = useVoiceSessions();
+  const browserContext = useMemo(() => browserContextOf(session, sessions), [session, sessions]);
   const reconnect = () => session.parts.connection.reconnect();
   // The text chat; a mention while it is out of sight is a toast.
   const chat = useChat(roomId, chatSocket, (message) =>
@@ -377,6 +381,7 @@ export function RoomView({ roomId, space }: { roomId: string; space: Space | nul
                   open={goLiveOpen}
                   onOpenChange={setGoLiveOpen}
                   pings={{ streams: state.streams, selfId: state.you?.userId ?? '', pointer }}
+                  browser={browserContext}
                 />
               </div>
             )}
@@ -492,14 +497,18 @@ function ConnectionBanner({
       <Alert>
         <WifiSlashIcon />
         <AlertTitle>
-          {state.quotaExceeded
-            ? t('room.connection.quotaExceeded')
-            : t('room.connection.reconnecting')}
+          {state.quotaBrake
+            ? t('room.connection.quotaBrake')
+            : state.quotaExceeded
+              ? t('room.connection.quotaExceeded')
+              : t('room.connection.reconnecting')}
         </AlertTitle>
         <AlertDescription>
-          {state.quotaExceeded
-            ? t('room.connection.quotaExceededHint')
-            : t('room.connection.reconnectingHint')}
+          {state.quotaBrake
+            ? t('room.connection.quotaBrakeHint')
+            : state.quotaExceeded
+              ? t('room.connection.quotaExceededHint')
+              : t('room.connection.reconnectingHint')}
         </AlertDescription>
         <AlertAction>
           <Button variant="outline" onClick={reconnect}>

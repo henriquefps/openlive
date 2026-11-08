@@ -87,6 +87,10 @@ describe('roomNotice', () => {
   });
   it('reports why it ended', () => {
     const end = { kind: 'forbidden' } as const;
+    // The instance's own limits brake says so apart.
+    expect(
+      roomNotice({ status: 'reconnecting', ended: null, quotaExceeded: true, quotaBrake: true }),
+    ).toEqual({ kind: 'reconnecting', quota: true, brake: true });
     expect(roomNotice({ status: 'ended', ended: end, quotaExceeded: false })).toEqual({
       kind: 'ended',
       end,

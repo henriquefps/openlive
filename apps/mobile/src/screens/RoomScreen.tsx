@@ -207,9 +207,11 @@ export function RoomScreen({
             {notice.kind === 'connecting'
               ? t('room.connection.connecting')
               : notice.kind === 'reconnecting'
-                ? notice.quota
-                  ? t('room.connection.quotaExceeded')
-                  : t('room.connection.reconnecting')
+                ? notice.brake
+                  ? t('room.connection.quotaBrake')
+                  : notice.quota
+                    ? t('room.connection.quotaExceeded')
+                    : t('room.connection.reconnecting')
                 : t(endedText(notice.end).key)}
           </Banner>
         ) : null}
@@ -381,6 +383,7 @@ function StreamCardView({
               {name}
             </Text>
             {card.paused ? <Badge label={t('mobile.room.paused')} tone="muted" /> : null}
+            {card.browser ? <Badge label={t('stream.browser')} tone="muted" /> : null}
           </View>
           <Text style={[styles.meta, { color: colors.mutedForeground }]} numberOfLines={1}>
             {meta} · {viewers}

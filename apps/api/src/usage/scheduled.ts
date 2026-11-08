@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-// The scheduled handler. The usage cron copies real Realtime egress
-// for yesterday and today (UTC) into usage_real_daily. Inert until the
-// instance has an Analytics token, the account id and the Realtime app id.
+// The scheduled handler. The cron fires every 5 minutes: each run
+// is the limits monitor, and every third one (on the quarter hour) also the usage
+// copy and the housekeeping sweeps, which kept their 15 minutes. The usage cron copies real
+// Realtime egress for yesterday and today (UTC) into usage_real_daily. Inert until the instance
+// has an Analytics token, the account id and the Realtime app id.
 
 import { runSweeps } from '../maintenance/sweep';
+import { runLimitsMonitor } from './limits-monitor';
 import { recordRealUsage } from './meter';
 import { fetchRealtimeUsage } from './realtime-usage';
 
@@ -64,16 +67,31 @@ export async function runUsageCron(
   return { status: 'stored', rows: usage.rows.length, totalEgressBytes: usage.totalEgressBytes };
 }
 
-/** Every cron tick: the usage copy and the housekeeping sweeps, each on its own. */
+/** The cron's period, and the usage copy's and sweeps' (they run on the quarter hours). */
+export const CRON_PERIOD_MS = 5 * 60_000;
+export const QUARTER_MS = 15 * 60_000;
+
+/** Whether a run at `now` is the quarter hour's (the first run in each 15 minutes of the clock). */
+export const onQuarterHour = (now: number): boolean => now % QUARTER_MS < CRON_PERIOD_MS;
+
+/** Every cron tick: the limits monitor, then on the quarter hour the usage copy and the sweeps. */
 export const scheduled: ExportedHandlerScheduledHandler<Env> = async (controller, env) => {
   const now = new Date(controller.scheduledTime);
-  let failure: unknown = null;
+  const failures: unknown[] = [];
   try {
-    await runUsageCron(env as Env & UsageCronEnv, now);
+    await runLimitsMonitor(env, now.getTime());
   } catch (err) {
-    failure = err;
+    console.error('limits monitor failed', err);
+    failures.push(err);
   }
-  await runSweeps(env, now.getTime());
-  // A failed usage copy still marks the run as failed, after the sweeps had their turn.
-  if (failure !== null) throw failure;
+  if (onQuarterHour(now.getTime())) {
+    try {
+      await runUsageCron(env as Env & UsageCronEnv, now);
+    } catch (err) {
+      failures.push(err);
+    }
+    await runSweeps(env, now.getTime());
+  }
+  // A failed step still marks the run as failed, after the others had their turn.
+  if (failures.length > 0) throw failures[0];
 };

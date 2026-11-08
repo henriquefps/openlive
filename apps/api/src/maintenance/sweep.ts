@@ -7,6 +7,7 @@
 
 import { RoomCloseReason } from '@openlive/protocol';
 import { closeRooms } from '../api/sync';
+import { isBreakerOpenError } from '../do/breaker';
 import { streamIdOfKey, THUMBNAIL_PREFIX } from '../room/thumbnails';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -129,11 +130,19 @@ export async function sweepThumbnails(env: Env, now: number): Promise<number> {
   } while (cursor && listed < SWEEP_LIMITS.thumbnails);
 
   const live = new Map<string, Set<string>>();
+  /** Rooms whose circuit breaker is open: their thumbnails wait for the next sweep. */
+  const unknown = new Set<string>();
   for (const roomId of new Set(stale.flatMap((s) => (s.roomId ? [s.roomId] : [])))) {
     const room = env.ROOM.get(env.ROOM.idFromName(roomId));
-    live.set(roomId, new Set(await room.liveStreamIds()));
+    try {
+      live.set(roomId, new Set(await room.liveStreamIds()));
+    } catch (error) {
+      if (!isBreakerOpenError(error)) throw error;
+      unknown.add(roomId);
+    }
   }
   const orphans = stale
+    .filter((s) => !s.roomId || !unknown.has(s.roomId))
     .filter((s) => !s.streamId || !s.roomId || !live.get(s.roomId)?.has(s.streamId))
     .map((s) => s.key);
   if (orphans.length > 0) await env.THUMBNAILS.delete(orphans);

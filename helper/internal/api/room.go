@@ -29,8 +29,10 @@ import (
 // 1.17), the do_quota_exceeded code (1.15), the voice sink (1.16), the encoded layers (1.19)
 // and pointer pings (1.20). It stayed at 1.12 by mistake until 1.20, so the web hid the voice
 // sink and the go-live pings switch and called the helper outdated; it must follow the
-// protocol package now (TestProtocolVersionIsCurrent). Kept as a literal: helper:publish reads it.
-var ProtocolVersion = protocol.ProtocolVersion{Major: 1, Minor: 21}
+// protocol package now (TestProtocolVersionIsCurrent). 1.22 (streaming from a browser tab) needs
+// nothing here: its routes and StreamInfo.origin are the web's. Kept as a literal: helper:publish
+// reads it.
+var ProtocolVersion = protocol.ProtocolVersion{Major: 1, Minor: 22}
 
 // PingInterval is how often the client pings (PROTOCOL.md §4).
 const PingInterval = 30 * time.Second

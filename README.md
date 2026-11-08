@@ -9,9 +9,11 @@ Openlive is a private alternative to Discord for groups of friends: rooms with s
 voice, text and cameras, on a server you own. Each group runs its own instance on its own
 Cloudflare account, so the rooms, the members, the messages and the bandwidth bill are theirs.
 
-Someone in a room clicks **Go live**, a small helper on their computer captures and encodes the
-screen with the app's sound, Cloudflare Realtime carries it, and everyone else in the room watches
-in the browser about a tenth of a second behind, with nothing to install. The same room can have a
+Someone in a room clicks **Go live** and streams straight from a desktop Chromium-based browser
+(Chrome, Edge, …) in good quality, or, for excellent quality, through a small helper on their
+computer that captures and encodes the screen with the app's sound. Cloudflare Realtime carries
+it, and everyone else in the room watches in the browser about a tenth of a second behind, with
+nothing to install. The same room can have a
 voice channel with cameras and a text chat.
 
 ## Why Openlive
@@ -224,7 +226,10 @@ by the real helper.
 
 **Stream**
 
-- A native helper captures a screen or a single window with that app's sound: on Linux with Go,
+- From the browser, with nothing to install: a desktop Chromium-based browser (Chrome, Edge, …)
+  shares a screen, window or tab, up to 1080p60 with simulcast, with sound where the browser
+  shares it (the whole system's on Windows). Works on Windows today.
+- For excellent quality, a native helper captures a screen or a single window with that app's sound: on Linux with Go,
   GStreamer and PipeWire, encoding on the GPU (NVENC, VA-API) or with x264; on macOS with
   ScreenCaptureKit and VideoToolbox.
 - Start, pause (privacy curtain), change quality and stop from the web; the helper sits in the
@@ -283,7 +288,7 @@ by the real helper.
 One Cloudflare Worker serves the web app, the REST API and the room WebSockets. Each room is a
 Durable Object that knows who is here, who is live and who holds a viewer slot; D1 keeps the
 accounts, spaces and usage; R2 keeps the stream thumbnails. Media never touches the Worker: the
-helper publishes to the Realtime SFU and viewers subscribe to it.
+helper (or the streamer's browser) publishes to the Realtime SFU and viewers subscribe to it.
 
 The wire protocol is in [docs/PROTOCOL.md](docs/PROTOCOL.md). Why it is all on Cloudflare, what that costs and what keeps it
 portable: [docs/why-cloudflare.md](docs/why-cloudflare.md).
@@ -315,7 +320,10 @@ troubleshooting.
 
 ## The helper
 
-Viewers need only the browser; whoever streams installs the helper. Releases ship a tarball
+Viewers need only the browser, and anyone can go live from a desktop Chromium-based browser
+(Chrome, Edge, …) in good quality, up to 1080p60. The helper is for excellent quality: up to 4K60
+and 120 fps, GPU encoding, only the chosen app's sound, less CPU. The Go live panel offers it
+first and the browser as the alternative. Releases ship a tarball
 (`./install.sh` into `~/.local`) and a Flatpak for Linux, and a disk image for macOS; see
 [packaging/linux/README.md](packaging/linux/README.md) and
 [packaging/macos/README.md](packaging/macos/README.md). The official builds are on
@@ -335,9 +343,10 @@ openlive-helper doctor   # desktop, GPU, encoders and an encode test, for bug re
 | ------- | --------------------------------------------------------------------------------------- |
 | Linux   | ✅ Wayland (KDE tested; GNOME, Hyprland, Sway expected) through the portal and PipeWire |
 | macOS   | ✅ macOS 13 or later, ScreenCaptureKit and VideoToolbox; a signed, notarized disk image |
-| Windows | Last                                                                                    |
+| Windows | Last; stream from the browser meanwhile                                                 |
 
-Watching works on every system with a recent browser.
+Watching works on every system with a recent browser; streaming from the browser works on every
+desktop with a Chromium-based browser.
 
 ## Android app (beta)
 

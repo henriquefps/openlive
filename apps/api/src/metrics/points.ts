@@ -12,7 +12,7 @@
 
 import type { HelperStatsPayload, ViewerMetricsRequest } from '@openlive/protocol';
 
-export type MetricKind = 'viewer' | 'helper' | 'stream' | 'error';
+export type MetricKind = 'viewer' | 'helper' | 'stream' | 'error' | 'breaker';
 
 /** Where a point belongs. */
 export interface MetricScope {
@@ -62,6 +62,12 @@ export const STREAM_DOUBLES = ['durationS', 'dropped'] as const;
 
 export const ERROR_DOUBLES = ['status'] as const;
 /** blob5: method, blob6: error code. */
+
+export const BREAKER_DOUBLES = ['alarms', 'requests', 'messages', 'cooldownS'] as const;
+/**
+ * blob5: object class, blob6: object id (room or space id; empty for a user hub), blob7: cause
+ * (alarm | request | message | total | socket), blob8: window (minute | hour | second).
+ */
 
 const INSTANCE = 'instance';
 
@@ -260,5 +266,31 @@ export function writeHelper(
       w.keyframeRequests,
       w.idrMaxBytes,
     ],
+  );
+}
+
+/** A Durable Object circuit breaker trip, from do/breaker.ts. */
+export interface BreakerTrip {
+  object: string;
+  objectId: string;
+  cause: string;
+  window: string;
+  alarm: number;
+  request: number;
+  message: number;
+  cooldownS: number;
+}
+
+export function writeBreakerTrip(
+  dataset: MetricsDataset,
+  scope: MetricScope,
+  t: BreakerTrip,
+): void {
+  writePoint(
+    dataset,
+    'breaker',
+    scope,
+    [t.object, t.objectId, t.cause, t.window],
+    [t.alarm, t.request, t.message, t.cooldownS],
   );
 }

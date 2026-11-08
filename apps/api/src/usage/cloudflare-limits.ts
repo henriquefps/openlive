@@ -320,7 +320,8 @@ function floorToHour(iso: string): string {
   return new Date(Math.floor(Date.parse(iso) / hour) * hour).toISOString();
 }
 
-async function readFigures(
+/** Every metric over one window (one GraphQL query each), and their traces. */
+export async function readFigures(
   config: { token: string; accountId: string },
   range: Range,
   fetchFn: typeof fetch,
@@ -421,6 +422,28 @@ let planCache: { at: number; value: { plan: WorkersPlan } | Unavailable } | null
 export function resetLimitsCache(): void {
   figuresCache = null;
   planCache = null;
+}
+
+/**
+ * The plan the panel and the limits monitor use: the admin's setting, or the account's detected
+ * plan (cached an hour per isolate); null when neither answers.
+ */
+export async function resolvePlan(
+  token: string,
+  accountId: string,
+  setting: WorkersPlanSetting,
+  now: number,
+  fetchFn: typeof fetch = fetch,
+): Promise<PlanInfo> {
+  if (setting !== 'detect') {
+    return { setting, detected: null, detection: null, effective: setting };
+  }
+  if (!planCache || now - planCache.at >= PLAN_CACHE_MS) {
+    planCache = { at: now, value: await detectWorkersPlan(token, accountId, fetchFn) };
+  }
+  const detected = 'plan' in planCache.value ? planCache.value.plan : null;
+  const detection = 'plan' in planCache.value ? null : planCache.value;
+  return { setting, detected, detection, effective: detected };
 }
 
 export async function loadLimits(

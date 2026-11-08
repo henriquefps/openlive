@@ -21,6 +21,8 @@ export interface StreamCard {
   viewers: number;
   viewerLimit: number;
   startedAt: number;
+  /** Streamed from a browser tab, not the helper (StreamInfo.origin, protocol 1.22). */
+  browser: boolean;
 }
 
 /** The room's streams, oldest first, with the streamer's name from the members. */
@@ -44,6 +46,7 @@ export function streamCards(
       viewers: viewers[s.streamId]?.used ?? s.viewerCount,
       viewerLimit: s.viewerLimit,
       startedAt: s.startedAt,
+      browser: s.origin === 'browser',
     }));
 }
 
@@ -58,13 +61,13 @@ export function sortedMembers(members: readonly Member[], selfId: string | null)
 
 export type RoomNotice =
   | { kind: 'connecting' }
-  | { kind: 'reconnecting'; quota: boolean }
+  | { kind: 'reconnecting'; quota: boolean; brake?: boolean }
   | { kind: 'ended'; end: EndReason }
   | null;
 
 /** The banner above the room: connecting, reconnecting, or why the socket stopped for good. */
 export function roomNotice(
-  state: Pick<RoomState, 'status' | 'ended' | 'quotaExceeded'>,
+  state: Pick<RoomState, 'status' | 'ended' | 'quotaExceeded'> & { quotaBrake?: boolean },
 ): RoomNotice {
   switch (state.status) {
     case 'open':
@@ -72,7 +75,9 @@ export function roomNotice(
     case 'connecting':
       return { kind: 'connecting' };
     case 'reconnecting':
-      return { kind: 'reconnecting', quota: state.quotaExceeded };
+      return state.quotaBrake
+        ? { kind: 'reconnecting', quota: state.quotaExceeded, brake: true }
+        : { kind: 'reconnecting', quota: state.quotaExceeded };
     case 'ended':
       return state.ended
         ? { kind: 'ended', end: state.ended }

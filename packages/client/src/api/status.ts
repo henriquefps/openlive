@@ -33,6 +33,11 @@ export interface StatusSummary {
     idrMaxBytes: number | null;
   };
   topErrors: { code: string; count: number }[];
+  /**
+   * Durable Object circuit breaker trips, by object class (RoomDO, SpaceDO, UserHubDO) and cause
+   * (alarm, request, message, total, socket). Absent from an older Worker.
+   */
+  breakerTrips?: { object: string; cause: string; count: number }[];
 }
 
 /** Why there is nothing to show: no token, a token without the permission, or the API failed. */

@@ -66,6 +66,12 @@ CREATE TABLE IF NOT EXISTS publications (
   announce_by      INTEGER,
   stream_id        TEXT UNIQUE
 );
+-- A publication made by a web tab (since 1.22, docs/PROTOCOL.md 7.2): the tab (hello.tabId) that
+-- announces it and gets its stream.stop. Its own table, so rooms created before keep their schema.
+CREATE TABLE IF NOT EXISTS browser_publications (
+  sfu_session_id TEXT PRIMARY KEY,
+  tab_id         TEXT NOT NULL
+);
 -- What the room knows about a live stream beyond its StreamInfo; never sent to clients.
 CREATE TABLE IF NOT EXISTS stream_sfu (
   stream_id      TEXT PRIMARY KEY,
@@ -158,7 +164,10 @@ export interface PublishedTrackRow extends Track {
 export interface PublicationRow {
   sfu_session_id: string;
   user_id: string;
+  /** The helper's device; for a browser publication, an id of its own that names no device. */
   device_id: string;
+  /** The web tab of a browser publication (since 1.22); null for a helper's. */
+  tab_id: string | null;
   tracks: PublishedTrackRow[];
   max_bitrate_kbps: number;
   created_at: number;
@@ -258,6 +267,10 @@ export interface QueueRow {
 export const queuePriority = (role: Role): number => (role === 'guest' ? 1 : 0);
 
 type Row = Record<string, SqlStorageValue>;
+
+/** Publications with the tab of the browser ones (null for a helper's). */
+const PUBLICATIONS = `SELECT p.*, b.tab_id AS tab_id FROM publications p
+  LEFT JOIN browser_publications b USING (sfu_session_id)`;
 
 export class RoomStore {
   /** The meter's running totals, ahead of the stored row between saveMeter calls. */
@@ -528,6 +541,13 @@ export class RoomStore {
       p.announce_by,
       p.stream_id,
     );
+    if (p.tab_id !== null) {
+      this.sql.exec(
+        'INSERT INTO browser_publications (sfu_session_id, tab_id) VALUES (?, ?)',
+        p.sfu_session_id,
+        p.tab_id,
+      );
+    }
   }
 
   private publicationOf(row: Row | null): PublicationRow | null {
@@ -535,25 +555,52 @@ export class RoomStore {
     const { tracks_json, ...rest } = row as unknown as Omit<PublicationRow, 'tracks'> & {
       tracks_json: string;
     };
-    return { ...rest, tracks: JSON.parse(tracks_json) as PublishedTrackRow[] };
+    return {
+      ...rest,
+      tab_id: (rest.tab_id as string | null | undefined) ?? null,
+      tracks: JSON.parse(tracks_json) as PublishedTrackRow[],
+    };
   }
 
   publication(sfuSessionId: string): PublicationRow | null {
     return this.publicationOf(
-      this.first<Row>('SELECT * FROM publications WHERE sfu_session_id = ?', sfuSessionId),
+      this.first<Row>(`${PUBLICATIONS} WHERE p.sfu_session_id = ?`, sfuSessionId),
     );
   }
 
   publicationOfStream(streamId: string): PublicationRow | null {
+    return this.publicationOf(this.first<Row>(`${PUBLICATIONS} WHERE p.stream_id = ?`, streamId));
+  }
+
+  /** The browser publication whose own device id this is (since 1.22), if any. */
+  browserPublicationOfDevice(deviceId: string): PublicationRow | null {
     return this.publicationOf(
-      this.first<Row>('SELECT * FROM publications WHERE stream_id = ?', streamId),
+      this.first<Row>(`${PUBLICATIONS} WHERE p.device_id = ? AND b.tab_id IS NOT NULL`, deviceId),
     );
+  }
+
+  /** The user's browser publications, announced or not (since 1.22). */
+  browserPublicationsOf(userId: string): PublicationRow[] {
+    return this.all<Row>(
+      `${PUBLICATIONS} WHERE p.user_id = ? AND b.tab_id IS NOT NULL`,
+      userId,
+    ).map((r) => this.publicationOf(r) as PublicationRow);
+  }
+
+  /** The streams a web tab publishes from the browser (since 1.22). */
+  browserStreamsOfTab(userId: string, tabId: string): string[] {
+    return this.all<{ stream_id: string }>(
+      `SELECT p.stream_id FROM publications p JOIN browser_publications b USING (sfu_session_id)
+       WHERE p.user_id = ? AND b.tab_id = ? AND p.stream_id IS NOT NULL`,
+      userId,
+      tabId,
+    ).map((r) => r.stream_id);
   }
 
   /** Publications not announced yet whose deadline passed. */
   expiredPublications(now: number): PublicationRow[] {
     return this.all<Row>(
-      'SELECT * FROM publications WHERE stream_id IS NULL AND announce_by <= ?',
+      `${PUBLICATIONS} WHERE p.stream_id IS NULL AND p.announce_by <= ?`,
       now,
     ).map((r) => this.publicationOf(r) as PublicationRow);
   }
@@ -578,6 +625,7 @@ export class RoomStore {
 
   deletePublication(sfuSessionId: string): void {
     this.sql.exec('DELETE FROM publications WHERE sfu_session_id = ?', sfuSessionId);
+    this.sql.exec('DELETE FROM browser_publications WHERE sfu_session_id = ?', sfuSessionId);
   }
 
   insertStreamSfu(row: StreamSfuRow): void {
@@ -1046,6 +1094,7 @@ export class RoomStore {
     this.sql.exec('DELETE FROM streams');
     this.sql.exec('DELETE FROM stream_sfu');
     this.sql.exec('DELETE FROM publications');
+    this.sql.exec('DELETE FROM browser_publications');
     this.sql.exec('DELETE FROM subscriptions');
     this.sql.exec('DELETE FROM viewer_sessions');
     this.sql.exec('DELETE FROM voice_participants');
@@ -1056,9 +1105,7 @@ export class RoomStore {
   }
 
   allPublications(): PublicationRow[] {
-    return this.all<Row>('SELECT * FROM publications').map(
-      (r) => this.publicationOf(r) as PublicationRow,
-    );
+    return this.all<Row>(PUBLICATIONS).map((r) => this.publicationOf(r) as PublicationRow);
   }
 
   allSubscriptions(): SubscriptionRow[] {

@@ -3,7 +3,7 @@
 package protocol
 
 // CurrentProtocol is the protocol version implemented by this package.
-var CurrentProtocol = ProtocolVersion{Major: 1, Minor: 21}
+var CurrentProtocol = ProtocolVersion{Major: 1, Minor: 22}
 
 // ID: Opaque identifier (user, space, room, stream, device, slot, offer, connection). Clients never parse it.
 type ID = string
@@ -86,6 +86,17 @@ const (
 
 // PresetValues lists every Preset in schema order.
 var PresetValues = []Preset{PresetText, PresetGame, PresetMax, PresetNative, PresetGame120, PresetMax120}
+
+// StreamOrigin: Who publishes a stream (since 1.22): the native helper, or a desktop browser tab (a fallback with limited quality, up to 1080p60). Absent on StreamInfo means helper.
+type StreamOrigin string
+
+const (
+	StreamOriginHelper  StreamOrigin = "helper"
+	StreamOriginBrowser StreamOrigin = "browser"
+)
+
+// StreamOriginValues lists every StreamOrigin in schema order.
+var StreamOriginValues = []StreamOrigin{StreamOriginHelper, StreamOriginBrowser}
 
 // VideoCodec: A video codec (since 1.14). Every stream publishes H.264; a stream may also publish its top layer in AV1 on a second video track, which only viewers whose browser decodes AV1 pull, on the top layer.
 type VideoCodec string
@@ -389,6 +400,8 @@ type StreamInfo struct {
 	Pings *bool `json:"pings,omitempty"`
 	// The publishing helper can draw pointer pings (since 1.20, from stream.announce). Absent means false.
 	PingOverlay *bool `json:"pingOverlay,omitempty"`
+	// Who publishes the stream (since 1.22). Absent means helper; a browser stream's deviceId names no paired device.
+	Origin *StreamOrigin `json:"origin,omitempty"`
 }
 
 // HelperInfo: A paired helper that is connected to the user's hub.
@@ -530,6 +543,7 @@ const (
 	ErrorCodeQuotaExhausted           ErrorCode = "quota_exhausted"
 	ErrorCodeHelperOffline            ErrorCode = "helper_offline"
 	ErrorCodeHelperBusy               ErrorCode = "helper_busy"
+	ErrorCodeBrowserStreamBusy        ErrorCode = "browser_stream_busy"
 	ErrorCodeSourceNotFound           ErrorCode = "source_not_found"
 	ErrorCodeNotFound                 ErrorCode = "not_found"
 	ErrorCodeSpaceNotFound            ErrorCode = "space_not_found"
@@ -588,7 +602,7 @@ const (
 )
 
 // ErrorCodeValues lists every ErrorCode in schema order.
-var ErrorCodeValues = []ErrorCode{ErrorCodeUnauthenticated, ErrorCodeSessionExpired, ErrorCodeForbidden, ErrorCodeHelloRequired, ErrorCodeProtocolUnsupported, ErrorCodeInvalidMessage, ErrorCodeUnknownMessageType, ErrorCodeRateLimited, ErrorCodeInternalError, ErrorCodeRoomNotFound, ErrorCodeRoomClosed, ErrorCodeStreamNotFound, ErrorCodeStreamPermissionRequired, ErrorCodeStreamLimitReached, ErrorCodeStreamPaused, ErrorCodePingsDisabled, ErrorCodePresetNotAllowed, ErrorCodeViewerLimitReached, ErrorCodeViewerLimitTooHigh, ErrorCodeSlotNotFound, ErrorCodeOfferNotFound, ErrorCodeQuotaExhausted, ErrorCodeHelperOffline, ErrorCodeHelperBusy, ErrorCodeSourceNotFound, ErrorCodeNotFound, ErrorCodeSpaceNotFound, ErrorCodeMemberNotFound, ErrorCodeUserNotFound, ErrorCodeSlugTaken, ErrorCodeAlreadyMember, ErrorCodeBanned, ErrorCodeOwnerMustTransfer, ErrorCodeSettingAboveCeiling, ErrorCodeInviteNotFound, ErrorCodeInviteExpired, ErrorCodeInviteRevoked, ErrorCodeInviteExhausted, ErrorCodeJoinRequestNotFound, ErrorCodeJoinRequestDecided, ErrorCodeOriginNotAllowed, ErrorCodeAuthNotConfigured, ErrorCodeOauthStateInvalid, ErrorCodeOauthFailed, ErrorCodeMagicLinkInvalid, ErrorCodeEmailSendFailed, ErrorCodeSessionNotFound, ErrorCodeAdminClaimUnavailable, ErrorCodeAdminAlreadyClaimed, ErrorCodeInstallCodeInvalid, ErrorCodeSpaceSuspended, ErrorCodeRoomCodeInvalid, ErrorCodeAuthorizationPending, ErrorCodeSlowDown, ErrorCodeExpiredToken, ErrorCodeDeviceCodeInvalid, ErrorCodeDeviceNotFound, ErrorCodeAppCodeInvalid, ErrorCodeRtcNotConfigured, ErrorCodeSFUError, ErrorCodeSFUSessionNotFound, ErrorCodeBitrateNotAllowed, ErrorCodeSignupInviteRequired, ErrorCodeSpaceCreationRestricted, ErrorCodeUserNotRemovable, ErrorCodeAccountBanned, ErrorCodeCannotTargetSelf, ErrorCodeLastPlatformAdmin, ErrorCodeCapabilityDisabled, ErrorCodeVoiceFull, ErrorCodeVoiceSpeakNotAllowed, ErrorCodeVoiceNotJoined, ErrorCodeVoiceTrackNotFound, ErrorCodeCameraNotAllowed, ErrorCodeCameraLimitReached, ErrorCodeChatMessageTooLong, ErrorCodeChatWriteNotAllowed, ErrorCodeChatMessageNotFound, ErrorCodeDoQuotaExceeded}
+var ErrorCodeValues = []ErrorCode{ErrorCodeUnauthenticated, ErrorCodeSessionExpired, ErrorCodeForbidden, ErrorCodeHelloRequired, ErrorCodeProtocolUnsupported, ErrorCodeInvalidMessage, ErrorCodeUnknownMessageType, ErrorCodeRateLimited, ErrorCodeInternalError, ErrorCodeRoomNotFound, ErrorCodeRoomClosed, ErrorCodeStreamNotFound, ErrorCodeStreamPermissionRequired, ErrorCodeStreamLimitReached, ErrorCodeStreamPaused, ErrorCodePingsDisabled, ErrorCodePresetNotAllowed, ErrorCodeViewerLimitReached, ErrorCodeViewerLimitTooHigh, ErrorCodeSlotNotFound, ErrorCodeOfferNotFound, ErrorCodeQuotaExhausted, ErrorCodeHelperOffline, ErrorCodeHelperBusy, ErrorCodeBrowserStreamBusy, ErrorCodeSourceNotFound, ErrorCodeNotFound, ErrorCodeSpaceNotFound, ErrorCodeMemberNotFound, ErrorCodeUserNotFound, ErrorCodeSlugTaken, ErrorCodeAlreadyMember, ErrorCodeBanned, ErrorCodeOwnerMustTransfer, ErrorCodeSettingAboveCeiling, ErrorCodeInviteNotFound, ErrorCodeInviteExpired, ErrorCodeInviteRevoked, ErrorCodeInviteExhausted, ErrorCodeJoinRequestNotFound, ErrorCodeJoinRequestDecided, ErrorCodeOriginNotAllowed, ErrorCodeAuthNotConfigured, ErrorCodeOauthStateInvalid, ErrorCodeOauthFailed, ErrorCodeMagicLinkInvalid, ErrorCodeEmailSendFailed, ErrorCodeSessionNotFound, ErrorCodeAdminClaimUnavailable, ErrorCodeAdminAlreadyClaimed, ErrorCodeInstallCodeInvalid, ErrorCodeSpaceSuspended, ErrorCodeRoomCodeInvalid, ErrorCodeAuthorizationPending, ErrorCodeSlowDown, ErrorCodeExpiredToken, ErrorCodeDeviceCodeInvalid, ErrorCodeDeviceNotFound, ErrorCodeAppCodeInvalid, ErrorCodeRtcNotConfigured, ErrorCodeSFUError, ErrorCodeSFUSessionNotFound, ErrorCodeBitrateNotAllowed, ErrorCodeSignupInviteRequired, ErrorCodeSpaceCreationRestricted, ErrorCodeUserNotRemovable, ErrorCodeAccountBanned, ErrorCodeCannotTargetSelf, ErrorCodeLastPlatformAdmin, ErrorCodeCapabilityDisabled, ErrorCodeVoiceFull, ErrorCodeVoiceSpeakNotAllowed, ErrorCodeVoiceNotJoined, ErrorCodeVoiceTrackNotFound, ErrorCodeCameraNotAllowed, ErrorCodeCameraLimitReached, ErrorCodeChatMessageTooLong, ErrorCodeChatWriteNotAllowed, ErrorCodeChatMessageNotFound, ErrorCodeDoQuotaExceeded}
 
 // ErrorPayload: An error code plus the parameters the client needs to render it, flat: { "code": "viewer_limit_reached", "limit": 6 }. Which parameters each code carries is listed in docs/PROTOCOL.md.
 type ErrorPayload struct {
@@ -964,6 +978,17 @@ type PublishRequest struct {
 	Tracks             []PublishTrack     `json:"tracks"`
 	Preset             Preset             `json:"preset"`
 	// Highest bitrate the helper will send (all encodings and audio together). Refused above the room's maxBitrateKbps; also the meter's bitrate for the top layer. With an AV1 track (since 1.14) this is the H.264 track with the audio; the AV1 track sends about 65 % of its top layer on top, or as much in the quality mode (since 1.17, RoomSettings.av1QualityPresets; its viewers pull one of the two).
+	MaxBitrateKbps int `json:"maxBitrateKbps"`
+}
+
+// BrowserPublishRequest: POST /api/rtc/rooms/:roomId/browser/publish (web session, since 1.22): the helper's PublishRequest plus the tab that will announce the stream. One H.264 video track (rids f, h, q) and at most one audio track; the preset is at most game (1080p60).
+type BrowserPublishRequest struct {
+	// The hello.tabId of the room socket that will send stream.announce.
+	TabID              ID                 `json:"tabId"`
+	SessionDescription SessionDescription `json:"sessionDescription"`
+	Tracks             []PublishTrack     `json:"tracks"`
+	Preset             Preset             `json:"preset"`
+	// Highest bitrate the tab will send, every encoding and the audio together, as for a helper.
 	MaxBitrateKbps int `json:"maxBitrateKbps"`
 }
 
@@ -2163,15 +2188,15 @@ var Messages = map[MessageType]MessageInfo{
 	MessageTypeSlotRequest:           {Phase: 1, Channels: []string{"room"}, From: []string{"web"}, To: []string{"server"}, Replies: []MessageType{MessageTypeSlotGranted, MessageTypeError}},
 	MessageTypeSpacePresence:         {Phase: 6, Channels: []string{"space"}, From: []string{"server"}, To: []string{"web"}, Replies: []MessageType{}},
 	MessageTypeSpacePresenceUpdated:  {Phase: 6, Channels: []string{"space"}, From: []string{"server"}, To: []string{"web"}, Replies: []MessageType{}},
-	MessageTypeStreamAnnounce:        {Phase: 2, Channels: []string{"room"}, From: []string{"helper"}, To: []string{"server"}, Replies: []MessageType{MessageTypeStreamStarted, MessageTypeError}},
-	MessageTypeStreamEnd:             {Phase: 2, Channels: []string{"room"}, From: []string{"helper"}, To: []string{"server"}, Replies: []MessageType{MessageTypeAck}},
+	MessageTypeStreamAnnounce:        {Phase: 2, Channels: []string{"room"}, From: []string{"helper", "web"}, To: []string{"server"}, Replies: []MessageType{MessageTypeStreamStarted, MessageTypeError}},
+	MessageTypeStreamEnd:             {Phase: 2, Channels: []string{"room"}, From: []string{"helper", "web"}, To: []string{"server"}, Replies: []MessageType{MessageTypeAck}},
 	MessageTypeStreamEnded:           {Phase: 2, Channels: []string{"room"}, From: []string{"server"}, To: []string{"web", "helper"}, Replies: []MessageType{}},
 	MessageTypeStreamSetPings:        {Phase: 2, Channels: []string{"room"}, From: []string{"web"}, To: []string{"server"}, Replies: []MessageType{MessageTypeAck, MessageTypeError}},
 	MessageTypeStreamSetViewerLimit:  {Phase: 2, Channels: []string{"room"}, From: []string{"web", "helper"}, To: []string{"server"}, Replies: []MessageType{MessageTypeAck, MessageTypeError}},
 	MessageTypeStreamStarted:         {Phase: 2, Channels: []string{"room"}, From: []string{"server"}, To: []string{"web", "helper"}, Replies: []MessageType{}},
-	MessageTypeStreamStop:            {Phase: 2, Channels: []string{"room"}, From: []string{"server"}, To: []string{"helper"}, Replies: []MessageType{}},
+	MessageTypeStreamStop:            {Phase: 2, Channels: []string{"room"}, From: []string{"server"}, To: []string{"helper", "web"}, Replies: []MessageType{}},
 	MessageTypeStreamTerminate:       {Phase: 2, Channels: []string{"room"}, From: []string{"web"}, To: []string{"server"}, Replies: []MessageType{MessageTypeAck, MessageTypeError}},
-	MessageTypeStreamUpdate:          {Phase: 2, Channels: []string{"room"}, From: []string{"helper"}, To: []string{"server"}, Replies: []MessageType{MessageTypeAck, MessageTypeError}},
+	MessageTypeStreamUpdate:          {Phase: 2, Channels: []string{"room"}, From: []string{"helper", "web"}, To: []string{"server"}, Replies: []MessageType{MessageTypeAck, MessageTypeError}},
 	MessageTypeStreamUpdated:         {Phase: 2, Channels: []string{"room"}, From: []string{"server"}, To: []string{"web", "helper"}, Replies: []MessageType{}},
 	MessageTypeViewers:               {Phase: 1, Channels: []string{"room"}, From: []string{"server"}, To: []string{"web", "helper"}, Replies: []MessageType{}},
 	MessageTypeVoiceCameraOff:        {Phase: 6, Channels: []string{"room"}, From: []string{"web"}, To: []string{"server"}, Replies: []MessageType{MessageTypeAck, MessageTypeError}},
@@ -2235,6 +2260,8 @@ func NewRestBody(name string) any {
 		return &PublishTrack{}
 	case "PublishRequest":
 		return &PublishRequest{}
+	case "BrowserPublishRequest":
+		return &BrowserPublishRequest{}
 	case "PublishedTrack":
 		return &PublishedTrack{}
 	case "PublishResponse":

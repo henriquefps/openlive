@@ -11,6 +11,7 @@ import { devices } from './devices';
 import { helper } from './helper';
 import { invites } from './invites';
 import { joinRequests } from './join-requests';
+import { limitsBrake } from './limits-brake';
 import { me } from './me';
 import { members } from './members';
 import { metrics } from './metrics';
@@ -41,4 +42,5 @@ export const api = new Hono<AppEnv>()
   .route('/', rtc)
   .route('/', thumbnails)
   .route('/', helper)
-  .route('/', metrics);
+  .route('/', metrics)
+  .route('/', limitsBrake);

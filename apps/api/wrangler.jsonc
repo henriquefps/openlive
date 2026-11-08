@@ -36,8 +36,9 @@
     // The space sidebar's room presence (docs/PROTOCOL.md 7.8).
     { "tag": "v2", "new_sqlite_classes": ["SpaceDO"] },
   ],
-  // Copies real Realtime egress into D1 (src/usage/scheduled.ts); inert until configured.
-  "triggers": { "crons": ["*/15 * * * *"] },
+  // Every 5 minutes: the limits monitor and brake; on the quarter hours also the
+  // copy of real Realtime egress into D1 and the sweeps (src/usage/scheduled.ts).
+  "triggers": { "crons": ["*/5 * * * *"] },
   // In dev the web app runs on Vite (5179) and proxies /api to this Worker.
   "vars": {
     "APP_ORIGIN": "http://localhost:5179",
@@ -91,7 +92,7 @@
           { "name": "SPACE", "class_name": "SpaceDO" },
         ],
       },
-      "triggers": { "crons": ["*/15 * * * *"] },
+      "triggers": { "crons": ["*/5 * * * *"] },
       // PLACEHOLDERS, replaced by the setup. Never DEV_AUTH: the setup refuses to deploy it.
       "vars": {
         "APP_ORIGIN": "https://openlive.example.com",

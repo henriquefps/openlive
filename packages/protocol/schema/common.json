@@ -67,6 +67,12 @@
       "type": "string",
       "enum": ["text", "game", "max", "native", "game120", "max120"]
     },
+    "StreamOrigin": {
+      "title": "StreamOrigin",
+      "description": "Who publishes a stream (since 1.22): the native helper, or a desktop browser tab (a fallback with limited quality, up to 1080p60). Absent on StreamInfo means helper.",
+      "type": "string",
+      "enum": ["helper", "browser"]
+    },
     "VideoCodec": {
       "title": "VideoCodec",
       "description": "A video codec (since 1.14). Every stream publishes H.264; a stream may also publish its top layer in AV1 on a second video track, which only viewers whose browser decodes AV1 pull, on the top layer.",
@@ -645,6 +651,10 @@
         "pingOverlay": {
           "type": "boolean",
           "description": "The publishing helper can draw pointer pings (since 1.20, from stream.announce). Absent means false."
+        },
+        "origin": {
+          "$ref": "#/$defs/StreamOrigin",
+          "description": "Who publishes the stream (since 1.22). Absent means helper; a browser stream's deviceId names no paired device."
         }
       },
       "required": [

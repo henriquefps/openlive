@@ -129,3 +129,72 @@ export async function setWorkersPlan(plan: WorkersPlanSetting): Promise<void> {
   await apiSend('PUT', '/api/admin/workers-plan', { plan });
   await queryClient.invalidateQueries({ queryKey: limitsQuery.queryKey });
 }
+
+// The limits monitor and brake (apps/api/src/usage/limits-brake.ts).
+
+export interface BrakeSetting {
+  enabled: boolean;
+  /** Whole percent, 50-95. */
+  percent: number;
+  paid: { includedShare: boolean; usdPerDay: number | null };
+}
+
+export type BrakeMetric = LimitMetric | 'paidUsdPerDay';
+
+export interface BrakeEngagement {
+  since: number;
+  metric: BrakeMetric | null;
+  share: number | null;
+  window: 'day' | 'month';
+  until: number;
+  by: 'monitor' | 'admin';
+}
+
+/** The figures the monitor stored last (no Cloudflare query when the panel opens). */
+export interface LimitsSnapshot {
+  fetchedAt: number;
+  day: string;
+  plan: 'free' | 'paid' | null;
+  today: Record<LimitMetric, LimitFigure>;
+  month: {
+    start: string;
+    figures: Record<LimitMetric, LimitFigure>;
+    overageUsd: number;
+    todayUsd: number;
+  } | null;
+  shares: Record<LimitMetric, number | null>;
+}
+
+export interface BrakeView {
+  setting: BrakeSetting;
+  state: { engaged: BrakeEngagement | null; releasedUntil: number | null };
+  snapshot: LimitsSnapshot | null;
+  alertLevels: number[];
+  alertsSentToday: number[];
+  bounds: { percentMin: number; percentMax: number; usdPerDayMax: number };
+  now: number;
+}
+
+export const brakeQuery = queryOptions({
+  queryKey: ['admin', 'limits', 'brake'],
+  queryFn: () => apiGet<BrakeView>('/api/admin/limits/brake'),
+  // The monitor runs every 5 minutes; the state can change by hand in between.
+  refetchInterval: 60_000,
+});
+
+async function afterBrake(view: BrakeView): Promise<BrakeView> {
+  queryClient.setQueryData(brakeQuery.queryKey, view);
+  return view;
+}
+
+export async function saveBrakeSetting(setting: BrakeSetting): Promise<BrakeView> {
+  return afterBrake(await apiSend<BrakeView>('PUT', '/api/admin/limits/brake', setting));
+}
+
+export async function releaseBrake(): Promise<BrakeView> {
+  return afterBrake(await apiSend<BrakeView>('POST', '/api/admin/limits/brake/release', {}));
+}
+
+export async function engageBrake(): Promise<BrakeView> {
+  return afterBrake(await apiSend<BrakeView>('POST', '/api/admin/limits/brake/engage', {}));
+}

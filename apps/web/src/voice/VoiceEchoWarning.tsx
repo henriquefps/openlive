@@ -64,3 +64,21 @@ export function VoiceEchoWarning({
     </Alert>
   );
 }
+
+/**
+ * The same warning for a browser stream: a shared screen with sound carries the whole
+ * system's audio, the voice this tab plays included, unless the voice goes to the helper's sink.
+ */
+export function BrowserEchoWarning({ systemAudio }: { systemAudio: boolean }) {
+  const { t } = useTranslation();
+  const active = useActiveVoice();
+  const risk = systemAudio && active?.voice.phase === 'joined' && active.voice.voiceSinkId == null;
+  if (!risk) return null;
+  return (
+    <Alert variant="destructive" data-testid="voice-echo-warning">
+      <WarningIcon />
+      <AlertTitle>{t('voice.echo.title')}</AlertTitle>
+      <AlertDescription>{t('voice.echo.body')}</AlertDescription>
+    </Alert>
+  );
+}

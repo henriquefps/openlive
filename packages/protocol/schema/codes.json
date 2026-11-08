@@ -33,6 +33,7 @@
         "quota_exhausted",
         "helper_offline",
         "helper_busy",
+        "browser_stream_busy",
         "source_not_found",
         "not_found",
         "space_not_found",

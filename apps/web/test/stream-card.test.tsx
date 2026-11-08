@@ -145,6 +145,35 @@ describe('StreamCard in the room grid', () => {
     expect(screen.getByText('No preview')).toBeInTheDocument();
   });
 
+  it('marks a stream from a browser tab with a small badge (protocol 1.22)', () => {
+    const { rerender } = render(<StreamCard {...stream} />);
+    expect(screen.queryByTestId('stream-browser-badge')).toBeNull();
+    rerender(<StreamCard {...stream} browser />);
+    expect(screen.getByTestId('stream-browser-badge')).toHaveTextContent('Browser');
+    const [card] = streamCards(
+      {
+        ...INITIAL_STATE,
+        streams: [
+          {
+            streamId: 'st_2',
+            userId: 'u_ana',
+            deviceId: 'wb_1',
+            source: { kind: 'screen', label: 'Screen' },
+            preset: 'game',
+            hasAudio: false,
+            paused: false,
+            startedAt: 10,
+            viewerLimit: 6,
+            viewerCount: 0,
+            origin: 'browser',
+          },
+        ],
+      },
+      'Someone',
+    );
+    expect(card?.browser).toBe(true);
+  });
+
   it('marks a stream capped by economy mode', () => {
     render(<StreamCard {...stream} economy />);
     expect(screen.getByText('Economy')).toBeInTheDocument();

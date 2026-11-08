@@ -14,7 +14,7 @@ const WELL_KNOWN = {
   iconUrl: 'https://openlive.example.com/icon-512.png',
   version: '0.1.3',
   commit: 'abc1234',
-  protocol: { min: { major: 1, minor: 0 }, max: { major: 1, minor: 21 } },
+  protocol: { min: { major: 1, minor: 0 }, max: { major: 1, minor: 22 } },
   features: ['app_login', 'ws_ticket', 'invite_deep_link', 'capability:voice', 'future_thing'],
 };
 
@@ -69,7 +69,7 @@ describe('parseInstanceInfo', () => {
       null,
       'openlive',
       { ...WELL_KNOWN, name: ' ' },
-      { ...WELL_KNOWN, protocol: { min: { major: 1 }, max: { major: 1, minor: 21 } } },
+      { ...WELL_KNOWN, protocol: { min: { major: 1 }, max: { major: 1, minor: 22 } } },
       { ...WELL_KNOWN, protocol: undefined },
       { ...WELL_KNOWN, features: 'app_login' },
       { ...WELL_KNOWN, features: [1] },

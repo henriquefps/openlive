@@ -336,6 +336,8 @@
       "reconnectingHint": "Who is here may be out of date until the connection is back.",
       "quotaExceeded": "This server hit a Cloudflare daily free limit. Cloudflare documents a reset at 00:00 UTC, but it can take up to 24 hours to clear.",
       "quotaExceededHint": "The room will try again every 15 minutes. Nothing you do here can fix it sooner.",
+      "quotaBrake": "Paused by this instance's limits brake: a Cloudflare limit is close to running out. It releases at 00:00 UTC, or sooner if the admin releases it.",
+      "quotaBrakeHint": "The room will try again every 15 minutes. Nothing you do here can fix it sooner.",
       "retryNow": "Retry now",
       "replaced": "Opened in another tab",
       "replacedHint": "This room is open in another tab or window of this browser.",
@@ -673,6 +675,46 @@
           "last24h": "last 24 hours",
           "month": "this month"
         }
+      },
+      "brake": {
+        "title": "Limits brake",
+        "intro": "Every 5 minutes Openlive reads the Cloudflare figures, e-mails the platform admins at 50 %, 70 % and the brake's share, and pauses the instance before a limit runs out, so a bug cannot use up the free tier (and the account's other projects with it) or run up a bill on Workers Paid.",
+        "state": {
+          "armed": "Armed",
+          "engaged": "Engaged",
+          "released": "Released for today",
+          "off": "Off"
+        },
+        "armedAt": "Pauses rooms, spaces and live connections when any limit reaches {{share}}. Login and this panel keep working.",
+        "engagedSince": "Paused since {{since}} by {{what}}. Releases by itself at {{until}}, or release it now.",
+        "byHand": "an admin, by hand",
+        "byMetric": "{{metric}} at {{share}}",
+        "byUsd": "today's overage reaching {{usd}}",
+        "releasedUntil": "Released by hand: the monitor will not engage it again before {{until}}. Alerts still arrive.",
+        "offHint": "Nothing is paused before Cloudflare's own limits; the alerts still arrive.",
+        "release": "Release",
+        "engage": "Engage now",
+        "engageTitle": "Pause the instance now?",
+        "engageBody": "Every room, space and live connection is paused until 00:00 UTC or until you release it. People see that the instance's limits brake paused it. Login and the admin panel keep working.",
+        "noSnapshot": "No figures stored yet: the monitor needs CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID, and runs every 5 minutes.",
+        "snapshotFree": "Today (UTC) against the daily free limits, as the monitor read them at {{time}}.",
+        "snapshotPaid": "This month against what Workers Paid includes, as the monitor read them at {{time}}.",
+        "unknown": "not available",
+        "todayUsd": "Overage today: {{usd}} (this month: {{month}}), list prices.",
+        "accountWide": "These figures are for the whole Cloudflare account, every Worker in it, not only Openlive: the brake stops below 100 % so the account's other projects keep their share.",
+        "enabled": "Limits brake",
+        "enabledHint": "Pause the instance before a Cloudflare limit runs out.",
+        "offTitle": "Turn the limits brake off?",
+        "offWarning": "Without the brake nothing stops before Cloudflare does. On Workers Free a runaway bug can use up a daily limit for the whole account, this instance and every other project on it, until Cloudflare lifts it (up to 24 hours). On Workers Paid use beyond the included amounts is billed, and Cloudflare has no spending cap.",
+        "turnOff": "Turn off",
+        "percent": "Engage at (% of a limit)",
+        "percentHint": "From {{min}} to {{max}}. On Workers Free, of each daily free limit; on Workers Paid, of the month's included amounts (when chosen below). Alerts at {{levels}}.",
+        "paidIncluded": "Workers Paid: the month's included amounts",
+        "paidIncludedHint": "Apply the share above to what Workers Paid includes each month; it then holds until the month turns over.",
+        "paidUsd": "Workers Paid: overage a day (USD)",
+        "paidUsdNone": "No cap",
+        "paidUsdHint": "Also pause when today's use beyond the included amounts reaches this much at list prices; it holds until 00:00 UTC. Leave empty for no cap.",
+        "save": "Save brake"
       }
     },
     "settings": {
@@ -1186,7 +1228,9 @@
       "failed": "Failed"
     },
     "watch": "Watch {{name}}'s stream",
-    "economy": "Economy"
+    "economy": "Economy",
+    "browser": "Browser",
+    "browserHint": "Streamed from a browser tab, at up to 1080p60"
   },
   "status": {
     "ok": "OK",
@@ -1238,6 +1282,7 @@
     "quota_exhausted": "This space has used up its bandwidth for the month.",
     "helper_offline": "Your helper is offline. Open it on your computer.",
     "helper_busy": "Your helper is already streaming.",
+    "browser_stream_busy": "You are already streaming from a browser tab in this room.",
     "source_not_found": "That window or screen is no longer available.",
     "not_found": "This page or resource does not exist.",
     "space_not_found": "This space does not exist or you are not a member.",
@@ -1292,7 +1337,8 @@
     "chat_message_too_long": "The message is too long (at most {{limit}} characters).",
     "chat_write_not_allowed": "Guests cannot write in this chat.",
     "chat_message_not_found": "That message no longer exists.",
-    "do_quota_exceeded": "This server hit a Cloudflare daily free limit. Cloudflare documents a reset at 00:00 UTC, but it can take up to 24 hours to clear."
+    "do_quota_exceeded": "This server hit a Cloudflare daily free limit. Cloudflare documents a reset at 00:00 UTC, but it can take up to 24 hours to clear.",
+    "do_quota_exceeded_brake": "Paused by this instance's limits brake: a Cloudflare limit is close to running out. It releases at 00:00 UTC, or sooner if the admin releases it."
   },
   "roles": {
     "owner": "Owner",
@@ -1738,6 +1784,45 @@
       "encoder": "Encoder",
       "layers": "Layers",
       "layer": "{{rid}} {{height}}p{{fps}} {{rate}}"
+    },
+    "browser": {
+      "link": "or stream from the browser",
+      "install": {
+        "title": "Install the helper (recommended)",
+        "body": "The Openlive helper streams with your computer’s hardware encoder.",
+        "benefitQuality": "Up to 1440p and 120 fps",
+        "benefitAudio": "Sound from one app only, not your whole computer",
+        "benefitCpu": "Lower CPU use, and the stream keeps going if this tab closes",
+        "download": "Download the helper",
+        "windows": "The Windows helper is not available yet. You can stream from the browser for now.",
+        "devices": "Paired devices"
+      },
+      "start": "Stream from the browser",
+      "note": "Limited quality (up to 1080p60). Keep this tab open while you stream.",
+      "title": "Stream from the browser",
+      "description": "Your browser asks what to share: a screen, a window or a tab. Its sound is shared where the browser allows it.",
+      "back": "Back to the helper",
+      "starting": "Waiting for your choice…",
+      "label": {
+        "monitor": "Screen",
+        "window": "Window",
+        "browser": "Browser tab"
+      },
+      "live": {
+        "on": "Streaming from this browser tab",
+        "keepOpen": "keep this tab open",
+        "limited": "The browser sends less: {{reason}}.",
+        "limitedCpu": "your computer is busy",
+        "limitedBandwidth": "your connection is slow",
+        "limitedOther": "{{reason}}",
+        "noAudio": "No sound: your browser did not share any."
+      },
+      "nudge": {
+        "title": "Stream better with the helper",
+        "body": "Up to 1440p and 120 fps, one app’s sound, lower CPU, and no tab to keep open.",
+        "download": "Get the helper",
+        "dismiss": "Dismiss"
+      }
     }
   },
   "metrics": {
@@ -1782,6 +1867,11 @@
       "none": "No errors in this period.",
       "decode_one": "{{count}} playback error in the players",
       "decode_other": "{{count}} playback errors in the players"
+    },
+    "breaker": {
+      "title": "Circuit breaker trips",
+      "none": "No object was stopped in this period.",
+      "hint": "A Durable Object was stopped for 10 minutes (or one socket closed) because it was invoked far beyond normal use. The Worker logs name the object."
     },
     "table": {
       "space": "Space",

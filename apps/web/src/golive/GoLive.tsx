@@ -3,7 +3,10 @@ import {
   AppWindowIcon,
   ArrowLeftIcon,
   BroadcastIcon,
+  CheckIcon,
   DesktopIcon,
+  DownloadSimpleIcon,
+  GlobeIcon,
   EyeClosedIcon,
   EyeIcon,
   MonitorIcon,
@@ -24,7 +27,7 @@ import type {
 import { cappedTopKbps } from '@openlive/usage';
 import { Link } from '@tanstack/react-router';
 import type { TFunction } from 'i18next';
-import { useEffect, useId, useReducer, useState } from 'react';
+import { useEffect, useId, useReducer, useState, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -50,6 +53,17 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
+import { detectDesktopOs } from '../lib/os.ts';
+import { TAB_ID } from '../room/connection.ts';
+import { browserPublishApi } from './browser-api.ts';
+import { defaultBrowserPreset } from './browser-encodings.ts';
+import {
+  type BrowserLiveState,
+  type BrowserStats,
+  browserLive,
+  canStreamFromBrowser,
+  type PublisherSocket,
+} from './browser-live.ts';
 import { formatBitrate } from '../i18n/format.ts';
 import { translateError } from '../i18n/errors.ts';
 import { HubError, type HubState, thumbnailKey } from '../hub/connection.ts';
@@ -62,9 +76,11 @@ import {
   audioChoices,
   audioKey,
   blockerOf,
+  browserOffers,
   capturedAppName,
   defaultPreset,
   failureOf,
+  goLiveChoice,
   helperFit,
   INITIAL_WIZARD,
   isPortalPicker,
@@ -72,11 +88,12 @@ import {
   offeredPresets,
   PRESETS,
   roomCapKbps,
+  showHelperNudge,
   startPayload,
   uploadNeededKbps,
   wizard,
 } from './state.ts';
-import { VoiceEchoWarning } from '../voice/VoiceEchoWarning.tsx';
+import { BrowserEchoWarning, VoiceEchoWarning } from '../voice/VoiceEchoWarning.tsx';
 import { QualitySelects } from './QualitySelects.tsx';
 
 // The room's "Go live" panel and, while one of the user's helpers streams in the room, its live
@@ -98,14 +115,34 @@ export interface PingsContext {
   pointer: PointerSocket;
 }
 
+/**
+ * What streaming from the browser needs of the room page: the room socket, which the
+ * tab announces on, and a way to keep the room's session open while live.
+ */
+export interface BrowserContext {
+  socket: PublisherSocket;
+  hold: () => () => void;
+}
+
+/** The tab's browser stream, as React state. */
+function useBrowserLive(): BrowserLiveState {
+  return useSyncExternalStore(browserLive.subscribe, browserLive.getState);
+}
+
 /** This user's stream in the room from `deviceId`, as the room knows it. */
 const ownStream = (pings: PingsContext | undefined, deviceId: string): StreamInfo | undefined =>
   pings?.streams.find((s) => s.deviceId === deviceId && s.userId === pings.selfId);
 
-/** Whether one of this user's helpers streams in the room now (the live controls show). */
+/**
+ * Whether one of this user's helpers, or this tab's browser stream, streams in the room now (the
+ * live controls show).
+ */
 export function useLiveHere(roomId: string): boolean {
   const { state } = useHub();
-  return liveHere(state.statuses, roomId) !== null;
+  const browser = useBrowserLive();
+  const browserHere =
+    browser.roomId === roomId && (browser.phase === 'live' || browser.phase === 'starting');
+  return browserHere || liveHere(state.statuses, roomId) !== null;
 }
 
 /**
@@ -119,13 +156,17 @@ export function GoLiveArea({
   open: controlled,
   onOpenChange,
   pings,
+  browser: browserContext,
 }: RoomContext & {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   pings?: PingsContext;
+  browser?: BrowserContext;
 }) {
   const { t } = useTranslation();
   const { state, hub } = useHub();
+  const browser = useBrowserLive();
+  const browserHere = browser.roomId === roomId;
   const [own, setOwn] = useState(false);
   const open = controlled ?? own;
   const setOpen = onOpenChange ?? setOwn;
@@ -139,17 +180,28 @@ export function GoLiveArea({
     if (!pointer || !streams || !selfId) return;
     for (const s of pingsIntent.due(roomId, selfId, streams)) pointer.setPings(s.streamId, true);
   }, [pointer, streams, selfId, roomId]);
+  if (browserHere && browser.phase === 'live') {
+    return <BrowserLiveControls state={browser} settings={settings} />;
+  }
   if (live) {
     return <LiveControls status={live} state={state} settings={settings} hub={hub} pings={pings} />;
   }
+  const nudge =
+    browserHere &&
+    showHelperNudge(browser.phase === 'ended', detectDesktopOs(navigator.userAgent)) ? (
+      <HelperNudge onDismiss={() => browserLive.dismiss()} />
+    ) : null;
   if (!open) {
-    if (controlled !== undefined) return null;
+    if (controlled !== undefined) return nudge;
     return (
-      <div>
-        <Button onClick={() => setOpen(true)} data-tour="room-go-live">
-          <BroadcastIcon data-icon="inline-start" />
-          {t('golive.action')}
-        </Button>
+      <div className="flex flex-col gap-4">
+        {nudge}
+        <div>
+          <Button onClick={() => setOpen(true)} data-tour="room-go-live">
+            <BroadcastIcon data-icon="inline-start" />
+            {t('golive.action')}
+          </Button>
+        </div>
       </div>
     );
   }
@@ -161,6 +213,7 @@ export function GoLiveArea({
       state={state}
       hub={hub}
       onClose={() => setOpen(false)}
+      {...(browserContext ? { browser: browserContext } : {})}
     />
   );
 }
@@ -174,12 +227,22 @@ export function GoLivePanel({
   state,
   hub,
   onClose,
-}: RoomContext & { state: HubState; hub: Hub; onClose: () => void }) {
+  browser,
+}: RoomContext & { state: HubState; hub: Hub; onClose: () => void; browser?: BrowserContext }) {
   const { t } = useTranslation();
   const [w, dispatch] = useReducer(wizard, INITIAL_WIZARD);
   const [allowPings, setAllowPings] = useState(false);
+  // "Stream from the browser" chosen: not remembered, the panel starts over each time.
+  const [fromBrowser, setFromBrowser] = useState(false);
   const helpers = Object.values(state.helpers);
   const blocker = blockerOf({ canStream, hubOpen: state.status === 'open', helpers });
+  const os = detectDesktopOs(navigator.userAgent);
+  const choice = goLiveChoice({
+    helpers: helpers.length,
+    displayMedia: browser !== undefined && canStreamFromBrowser(),
+    os,
+  });
+  const browserMode = fromBrowser && choice.browser && blocker !== 'no_permission';
   const usable = helpers.filter((h) => {
     const fit = helperFit(h, state.statuses[h.deviceId], roomId);
     return fit === 'ready' || fit === 'outdated';
@@ -218,11 +281,29 @@ export function GoLivePanel({
       .then(onClose, (e: unknown) => dispatch({ type: 'failed', error: errorOf(e) }));
   };
 
-  const screen = blocker ? 'golive-blocked' : `golive-${w.step}`;
+  const screen = browserMode ? 'golive-browser' : blocker ? 'golive-blocked' : `golive-${w.step}`;
   useTutorialScreen(
     screen,
-    !blocker && w.step !== 'starting' && (w.step !== 'source' || w.sources !== null),
+    !browserMode &&
+      !blocker &&
+      w.step !== 'starting' &&
+      (w.step !== 'source' || w.sources !== null),
   );
+  const browserLink =
+    choice.browser && !browserMode && w.step !== 'starting' && blocker !== 'no_permission' ? (
+      <div>
+        <Button
+          variant="link"
+          size="sm"
+          className="h-auto px-0 text-muted-foreground"
+          onClick={() => setFromBrowser(true)}
+          data-testid="golive-browser-link"
+        >
+          <GlobeIcon data-icon="inline-start" />
+          {t('golive.browser.link')}
+        </Button>
+      </div>
+    ) : null;
 
   return (
     <Card data-testid="golive-panel">
@@ -236,8 +317,25 @@ export function GoLivePanel({
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        {blocker ? (
-          <BlockerView blocker={blocker} hubStatus={state.status} />
+        {browserMode && browser ? (
+          <BrowserStep
+            roomId={roomId}
+            settings={settings}
+            context={browser}
+            onBack={() => setFromBrowser(false)}
+            onStarted={onClose}
+          />
+        ) : blocker === 'no_helper' && choice.kind === 'install' ? (
+          <InstallView
+            download={choice.download}
+            browser={choice.browser}
+            onBrowser={() => setFromBrowser(true)}
+          />
+        ) : blocker ? (
+          <>
+            <BlockerView blocker={blocker} hubStatus={state.status} />
+            {browserLink}
+          </>
         ) : w.step === 'helper' ? (
           <HelperStep helpers={helpers} state={state} roomId={roomId} onChoose={chooseHelper} />
         ) : w.step === 'source' ? (
@@ -273,8 +371,323 @@ export function GoLivePanel({
             onStart={start}
           />
         )}
+        {!blocker && !browserMode && browserLink}
       </CardContent>
     </Card>
+  );
+}
+
+/**
+ * No helper online: installing it comes first, with what it gives; the browser is the
+ * second choice. On Windows there is no helper to download yet.
+ */
+function InstallView({
+  download,
+  browser,
+  onBrowser,
+}: {
+  download: boolean;
+  browser: boolean;
+  onBrowser: () => void;
+}) {
+  const { t } = useTranslation();
+  const benefits = ['benefitQuality', 'benefitAudio', 'benefitCpu'] as const;
+  return (
+    <div className="flex flex-col gap-4" data-testid="golive-install">
+      <section
+        className="flex flex-col gap-3 rounded-xl border p-4"
+        aria-labelledby="golive-install-title"
+      >
+        <h3 id="golive-install-title" className="flex items-center gap-2 text-base font-medium">
+          <DesktopIcon className="size-5 text-muted-foreground" aria-hidden />
+          {t('golive.browser.install.title')}
+        </h3>
+        <p className="text-[0.9375rem] text-muted-foreground">{t('golive.browser.install.body')}</p>
+        <ul className="flex flex-col gap-1.5 text-[0.9375rem]">
+          {benefits.map((b) => (
+            <li key={b} className="flex items-start gap-2">
+              <CheckIcon className="mt-1 size-4 shrink-0 text-primary" aria-hidden />
+              {t(`golive.browser.install.${b}`)}
+            </li>
+          ))}
+        </ul>
+        {download ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <Button asChild>
+              <Link to="/download">
+                <DownloadSimpleIcon data-icon="inline-start" />
+                {t('golive.browser.install.download')}
+              </Link>
+            </Button>
+            <Link to="/settings" className="text-sm underline underline-offset-4">
+              {t('golive.browser.install.devices')}
+            </Link>
+          </div>
+        ) : (
+          <p
+            className="text-[0.9375rem] text-muted-foreground"
+            data-testid="golive-no-windows-helper"
+          >
+            {t('golive.browser.install.windows')}
+          </p>
+        )}
+      </section>
+      {browser && (
+        <div className="flex flex-col gap-2">
+          <div>
+            <Button variant="outline" onClick={onBrowser} data-testid="golive-browser-start">
+              <GlobeIcon data-icon="inline-start" />
+              {t('golive.browser.start')}
+            </Button>
+          </div>
+          <p className="text-[0.8125rem] text-muted-foreground">{t('golive.browser.note')}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** The browser's own options: the quality (at most 1080p60), then the browser's picker. */
+function BrowserStep({
+  roomId,
+  settings,
+  context,
+  onBack,
+  onStarted,
+}: {
+  roomId: string;
+  settings: RoomSettings | null;
+  context: BrowserContext;
+  onBack: () => void;
+  onStarted: () => void;
+}) {
+  const { t } = useTranslation();
+  const [preset, setPreset] = useState<Preset | null>(() =>
+    settings ? defaultBrowserPreset(settings) : null,
+  );
+  const [error, setError] = useState<ErrorPayload | null>(null);
+  const browser = useBrowserLive();
+  const starting = browser.phase === 'starting';
+  const offers = settings ? browserOffers(settings) : [];
+  const start = () => {
+    if (!settings || !preset) return;
+    setError(null);
+    browserLive
+      .start({
+        roomId,
+        tabId: TAB_ID,
+        settings,
+        preset,
+        socket: context.socket,
+        api: browserPublishApi(roomId),
+        hold: context.hold,
+        labels: {
+          monitor: t('golive.browser.label.monitor'),
+          window: t('golive.browser.label.window'),
+          browser: t('golive.browser.label.browser'),
+        },
+      })
+      .then(() => {
+        if (browserLive.getState().phase === 'live') onStarted();
+      })
+      .catch((e: unknown) => setError(e as ErrorPayload));
+  };
+  return (
+    <section
+      className="flex flex-col gap-4"
+      aria-labelledby="golive-browser"
+      data-testid="golive-browser"
+    >
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onBack}
+          disabled={starting}
+          aria-label={t('common.back')}
+        >
+          <ArrowLeftIcon />
+        </Button>
+        <h3 id="golive-browser" className="eyebrow text-muted-foreground">
+          {t('golive.browser.title')}
+        </h3>
+      </div>
+      <p className="text-[0.9375rem] text-muted-foreground">{t('golive.browser.description')}</p>
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">{t('golive.options.preset')}</span>
+        <QualitySelects
+          labelled
+          offers={offers}
+          preset={preset}
+          onPreset={setPreset}
+          disabled={starting}
+        />
+      </div>
+      <Alert>
+        <GlobeIcon />
+        <AlertDescription>{t('golive.browser.note')}</AlertDescription>
+      </Alert>
+      {error && <StartError error={error} />}
+      <div>
+        <Button onClick={start} disabled={starting || !preset} data-testid="golive-browser-go">
+          {starting ? (
+            <Spinner data-icon="inline-start" />
+          ) : (
+            <BroadcastIcon data-icon="inline-start" />
+          )}
+          {starting ? t('golive.browser.starting') : t('golive.options.start')}
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+/** While this tab streams from the browser: status, stats and controls. */
+function BrowserLiveControls({
+  state,
+  settings,
+}: {
+  state: BrowserLiveState;
+  settings: RoomSettings | null;
+}) {
+  const { t } = useTranslation();
+  const [busy, setBusy] = useState(false);
+  const run = (p: Promise<unknown>) => {
+    setBusy(true);
+    p.catch((e: unknown) => toast.error(translateError(e as ErrorPayload, t))).finally(() =>
+      setBusy(false),
+    );
+  };
+  const offers = settings ? browserOffers(settings) : [];
+  const paused = state.paused;
+  return (
+    <Card data-testid="golive-browser-live" data-state={paused ? 'paused' : 'live'}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <span
+            className={cn('size-2.5 rounded-full', paused ? 'bg-muted-foreground' : 'bg-live')}
+            aria-hidden
+          />
+          {t(paused ? 'golive.state.paused' : 'golive.state.live')}
+          <BrowserBadge />
+        </CardTitle>
+        <CardDescription>
+          {t('golive.browser.live.on')} · {t('golive.browser.live.keepOpen')}
+          {paused && ` · ${t('golive.live.curtainHint')}`}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <BrowserEchoWarning systemAudio={state.hasAudio && state.surface === 'monitor'} />
+        {!state.hasAudio && (
+          <p className="text-[0.8125rem] text-muted-foreground">
+            {t('golive.browser.live.noAudio')}
+          </p>
+        )}
+        {state.stats && !paused && <BrowserStatsView stats={state.stats} />}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            disabled={busy}
+            onClick={() => run(browserLive.setPaused(!paused))}
+          >
+            {paused ? (
+              <EyeIcon data-icon="inline-start" />
+            ) : (
+              <EyeClosedIcon data-icon="inline-start" />
+            )}
+            {paused ? t('golive.live.resume') : t('golive.live.pause')}
+          </Button>
+          {state.preset && (
+            <QualitySelects
+              offers={offers}
+              preset={state.preset}
+              onPreset={(p) => run(browserLive.setPreset(p))}
+              disabled={busy || paused}
+            />
+          )}
+          <Button variant="destructive" disabled={busy} onClick={() => run(browserLive.stop())}>
+            <StopIcon data-icon="inline-start" />
+            {t('golive.live.stop')}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function BrowserStatsView({ stats }: { stats: BrowserStats }) {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.resolvedLanguage ?? i18n.language;
+  const rate = (kbps: number) => formatBitrate(kbps * 1000, locale);
+  const reason =
+    stats.limitation === 'cpu'
+      ? t('golive.browser.live.limitedCpu')
+      : stats.limitation === 'bandwidth'
+        ? t('golive.browser.live.limitedBandwidth')
+        : stats.limitation
+          ? t('golive.browser.live.limitedOther', { reason: stats.limitation })
+          : null;
+  return (
+    <div className="flex flex-col gap-2">
+      <dl
+        className="grid grid-cols-2 gap-x-4 gap-y-1 text-[0.8125rem] sm:grid-cols-4"
+        data-testid="golive-browser-stats"
+      >
+        <dt className="text-muted-foreground">{t('golive.stats.video')}</dt>
+        <dd>
+          {t('golive.stats.videoValue', {
+            width: stats.width,
+            height: stats.height,
+            fps: Math.round(stats.fps),
+          })}
+        </dd>
+        <dt className="text-muted-foreground">{t('golive.stats.bitrate')}</dt>
+        <dd>
+          {t('golive.stats.bitrateValue', {
+            sent: rate(stats.sentKbps),
+            target: rate(stats.targetKbps),
+          })}
+        </dd>
+      </dl>
+      {reason && (
+        <p className="text-[0.8125rem] text-warning">
+          {t('golive.browser.live.limited', { reason })}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** "Browser": a stream that a browser tab publishes (StreamInfo.origin, since 1.22). */
+function BrowserBadge() {
+  const { t } = useTranslation();
+  return (
+    <Badge variant="outline" title={t('stream.browserHint')}>
+      <GlobeIcon aria-hidden />
+      {t('stream.browser')}
+    </Badge>
+  );
+}
+
+/** After a browser stream ended: once, dismissible (not on Windows: no helper yet). */
+function HelperNudge({ onDismiss }: { onDismiss: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <Alert data-testid="golive-helper-nudge">
+      <DesktopIcon />
+      <AlertTitle>{t('golive.browser.nudge.title')}</AlertTitle>
+      <AlertDescription>
+        <p>{t('golive.browser.nudge.body')}</p>
+        <p className="flex flex-wrap items-center gap-3">
+          <Link to="/download" className="underline underline-offset-4">
+            {t('golive.browser.nudge.download')}
+          </Link>
+          <button type="button" className="underline underline-offset-4" onClick={onDismiss}>
+            {t('golive.browser.nudge.dismiss')}
+          </button>
+        </p>
+      </AlertDescription>
+    </Alert>
   );
 }
 

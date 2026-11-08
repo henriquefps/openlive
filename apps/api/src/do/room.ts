@@ -24,6 +24,7 @@ import {
   PROTOCOL_VERSION,
   type Permissions,
   type Preset,
+  type BrowserPublishRequest,
   type PublishRequest,
   type PublishResponse,
   type QualityCap,
@@ -59,6 +60,7 @@ import {
   codecKbps,
   DEFAULT_MAX_CAMERAS,
   ECONOMY_CAP,
+  isBrowserPreset,
   overheads,
 } from '@openlive/usage';
 import { DurableObject } from 'cloudflare:workers';
@@ -110,7 +112,15 @@ import { chunks, Realtime, realtimeConfig, SfuError, type SfuTrack } from '../rt
 import { mediaKindOfMid, sendRidsOfMid } from '../rtc/sdp';
 import type { RoomPresenceUpdate } from '../space/types';
 import { recordEstimate } from '../usage/meter';
+import { brakeUntil, Dormancy } from './limits-brake';
 import { instanceQuota } from '../usage/quota';
+import {
+  BREAKER_CLOSE_CODE,
+  BREAKER_CLOSE_REASON,
+  CircuitBreaker,
+  guardRpc,
+  refusedUpgrade,
+} from './breaker';
 
 export { LEASE_MS, LEASE_PERSIST_MS } from '../room/store';
 /**
@@ -143,6 +153,19 @@ export const PRESENCE_DEBOUNCE_MS = 1_000;
 export const PRESENCE_REFRESH_MS = 10 * 60_000;
 /** A failed presence push is retried after this long. */
 export const PRESENCE_RETRY_MS = 5_000;
+/**
+ * A deadline still due after the alarm handled it (a bug: the handler did not clear it) is retried
+ * this long later instead of at once, so it can never spin the alarm in a hot loop.
+ */
+export const STUCK_DEADLINE_RETRY_MS = 60_000;
+/**
+ * When to set the alarm for the earliest deadline `next`. From an alarm handled at `handledAt`
+ * (its start), a deadline at or before that time is one the handler did not clear: retried
+ * STUCK_DEADLINE_RETRY_MS after `now` instead of at once. One that fell due while the handler ran
+ * is kept as it is.
+ */
+export const alarmTarget = (next: number, handledAt: number | null, now: number): number =>
+  handledAt !== null && next <= handledAt ? now + STUCK_DEADLINE_RETRY_MS : next;
 /** Pointer pings per second per user, and the burst (PROTOCOL.md 7.9). */
 export const PING_RATE_PER_S = 4;
 export const PING_BURST = 8;
@@ -182,6 +205,8 @@ const ROOM_ENDS: ReadonlySet<RoomCloseReason> = new Set<RoomCloseReason>([
   'deleted',
 ]);
 const METER_DUE_KEY = 'meter_due';
+/** The quick room expiry the alarm already closed the room for: it is never handled again. */
+const EXPIRED_KEY = 'expired_at';
 const QUOTA_BLOCKED_KEY = 'quota_blocked_at';
 /** 1 while the instance's quota state is in economy mode (brake 3); absent otherwise. */
 const ECONOMY_KEY = 'economy';
@@ -201,6 +226,7 @@ const CLOSE_REASONS: Record<number, string> = {
   [CloseCode.Kicked]: 'kicked',
   [CloseCode.RoomClosed]: 'room_closed',
   [CloseCode.ProtocolUnsupported]: 'protocol_unsupported',
+  [BREAKER_CLOSE_CODE]: BREAKER_CLOSE_REASON,
 };
 
 /** A role or permission change pushed by the Worker after D1 changed. */
@@ -247,6 +273,8 @@ export class RoomDO extends DurableObject<Env> {
   private flushPending = false;
   /** Publishes between their limit check and their stored publication. */
   private publishing = 0;
+  /** Users whose browser publish is between its checks and its stored publication. */
+  private readonly browserPublishing = new Set<string>();
   /** Users whose camera publish is between its limit check and its stored track. */
   private readonly cameraPublishing = new Set<string>();
   /** R2 thumbnails to delete at the end of the current event (streams that ended or paused). */
@@ -265,10 +293,22 @@ export class RoomDO extends DurableObject<Env> {
   private presenceDue: number | null = null;
   /** Pointer ping rate limit per user (PROTOCOL.md 7.9). In memory: hibernation refills it. */
   private readonly pingBuckets = new TokenBuckets(PING_RATE_PER_S, PING_BURST);
+  /** Under the limits brake: no sockets, no alarm until it releases. */
+  private readonly dormancy = new Dormancy();
+  /** Stops this object if it goes wild, see do/breaker.ts. */
+  private readonly breaker: CircuitBreaker;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     this.store = new RoomStore(ctx.storage.sql);
+    this.breaker = new CircuitBreaker(this, ctx, env, {
+      object: 'RoomDO',
+      scope: () => {
+        const room = this.store.room();
+        return { spaceId: room?.spaceId ?? null, roomId: room?.roomId ?? null };
+      },
+      metricId: () => this.store.room()?.roomId ?? '',
+    });
     this.chat = new RoomChat(ctx.storage.sql, {
       settings: () => this.store.settings(),
       send,
@@ -291,9 +331,12 @@ export class RoomDO extends DurableObject<Env> {
     if (pathname === '/health') {
       return Response.json({ ok: true, object: 'RoomDO' });
     }
+    if (!this.breaker.enter('request')) return refusedUpgrade();
     if (pathname !== CONNECT_PATH) {
       return Response.json({ code: 'not_found' }, { status: 404 });
     }
+    // The Worker forwards a connect only while the limits brake is off.
+    this.dormancy.wake();
     const context = decodeConnectContext(request);
     if (!context || request.headers.get('Upgrade') !== 'websocket') {
       return Response.json({ code: ErrorCode.InvalidMessage, path: '' }, { status: 400 });
@@ -317,6 +360,7 @@ export class RoomDO extends DurableObject<Env> {
       connTag(attachment.connectionId),
     ]);
     server.serializeAttachment(attachment);
+    this.breaker.connected();
     await this.finish();
     return new Response(null, { status: 101, webSocket: client });
   }
@@ -326,6 +370,14 @@ export class RoomDO extends DurableObject<Env> {
   override async webSocketMessage(ws: WebSocket, frame: string | ArrayBuffer): Promise<void> {
     const me = attachmentOf(ws);
     if (me.closing) return;
+    if (await this.brakeStops()) return;
+    if (!this.breaker.enter('message') || !this.breaker.socketMessage(me.connectionId)) {
+      // Closed once, with the usual clean-up; its later frames stop at `closing` above.
+      this.begin();
+      this.disconnect(ws, BREAKER_CLOSE_CODE);
+      await this.finish();
+      return;
+    }
     if (typeof frame !== 'string' || frame.length > MAX_FRAME_CHARS) {
       this.sendError(ws, { code: ErrorCode.InvalidMessage, path: '' });
       return;
@@ -488,12 +540,18 @@ export class RoomDO extends DurableObject<Env> {
   // --- Alarm: leases, offers, announce deadlines, helper grace, meter, quick room expiry ---
 
   override async alarm(): Promise<void> {
+    // Alarms run without the Worker: the limits brake is checked here too.
+    if (await this.brakeStops()) return;
+    // Tripped: nothing is done and nothing re-arms the alarm (the trip deleted it).
+    if (!this.breaker.enter('alarm')) return;
     this.begin();
     const now = Date.now();
-    const expiresAt = this.store.room()?.expiresAt;
-    if (expiresAt !== undefined && expiresAt <= now) {
+    const expiresAt = this.pendingExpiry();
+    if (expiresAt !== null && expiresAt <= now) {
       this.close('expired');
-      await this.finish();
+      // Handled once: the stored room keeps its expiresAt, which is no longer a deadline.
+      this.store.setNumber(EXPIRED_KEY, expiresAt);
+      await this.finish(now);
       return;
     }
     this.expire(now, true);
@@ -508,7 +566,31 @@ export class RoomDO extends DurableObject<Env> {
       this.store.deletePublication(pub.sfu_session_id);
     }
     this.chat.sweep(now);
-    await this.finish();
+    await this.finish(now);
+  }
+
+  /**
+   * Whether the limits brake is engaged (the isolate's cached copy): then the room goes dormant,
+   * closing every socket with 1013 and deleting its alarm, and the event is not handled.
+   */
+  private async brakeStops(): Promise<boolean> {
+    if (this.dormancy.active) return true;
+    const until = await brakeUntil(this.env.DB);
+    if (until === null) return false;
+    await this.dormancy.sleep(this.ctx, until);
+    return true;
+  }
+
+  /** The limits brake engaged (the cron): sockets closed with 1013, no alarm. */
+  async brakeSleep(until: number): Promise<number> {
+    return this.dormancy.sleep(this.ctx, until);
+  }
+
+  /** The quick room's expiry while still to come; null for a fixed room or once it closed it. */
+  private pendingExpiry(): number | null {
+    const expiresAt = this.store.room()?.expiresAt;
+    if (expiresAt === undefined || this.store.getNumber(EXPIRED_KEY) === expiresAt) return null;
+    return expiresAt;
   }
 
   /** Releases expired leases and, with `offers`, expired queue offers. */
@@ -674,7 +756,7 @@ export class RoomDO extends DurableObject<Env> {
     if (!room) return;
     this.store.setRoom({ ...room, expiresAt });
     this.broadcast('room.expiring', { expiresAt });
-    await this.scheduleAlarm();
+    await this.scheduleAlarm(null);
   }
 
   /** A user's role or permissions changed in D1: tell their connections and everyone else. */
@@ -784,7 +866,7 @@ export class RoomDO extends DurableObject<Env> {
    */
   async putThumbnail(
     context: ConnectContext,
-    deviceId: string,
+    deviceId: string | null,
     streamId: string,
     image: ArrayBuffer,
     placeholder: boolean,
@@ -793,7 +875,12 @@ export class RoomDO extends DurableObject<Env> {
     this.refresh(context);
     try {
       const stream = this.store.stream(streamId);
-      if (!stream || stream.deviceId !== deviceId || stream.userId !== context.userId) {
+      // A helper's own stream, or (deviceId null, since 1.22) the caller's own browser stream.
+      const owned =
+        stream &&
+        stream.userId === context.userId &&
+        (deviceId === null ? stream.origin === 'browser' : stream.deviceId === deviceId);
+      if (!stream || !owned) {
         return fail(404, { code: ErrorCode.StreamNotFound, streamId });
       }
       if (stream.paused && !placeholder) {
@@ -844,70 +931,130 @@ export class RoomDO extends DurableObject<Env> {
     return this.rpc(context, async (rt, now) => {
       // The Worker just read the quota state: brake 3 applies from this publish on.
       this.setEconomy(economy);
-      const limit = context.settings.maxStreams;
-      const live = this.store.streams();
-      if (live.length + this.store.pendingPublications(now) + this.publishing >= limit) {
-        return fail(409, { code: ErrorCode.StreamLimitReached, limit });
-      }
-      if (live.some((s) => s.deviceId === deviceId)) {
+      const full = this.streamLimitRefusal(context, now);
+      if (full) return full;
+      if (this.store.streams().some((s) => s.deviceId === deviceId)) {
         return fail(409, { code: ErrorCode.HelperBusy, deviceId });
       }
-      this.publishing += 1;
+      return this.publishSession(rt, now, context, { deviceId, tabId: null }, req);
+    });
+  }
+
+  /**
+   * POST .../browser/publish (since 1.22, docs/PROTOCOL.md 7.2): the helper's publish for a web
+   * tab. The Worker checked the permission, quota, preset (at most 1080p60), bitrate and tracks;
+   * here the room's stream limit and one browser stream per user in the room. The publication
+   * gets a device id of its own, which names no paired device, and remembers the tab.
+   */
+  async rtcBrowserPublish(
+    context: ConnectContext,
+    req: BrowserPublishRequest,
+    economy = false,
+  ): Promise<RtcResult<PublishResponse>> {
+    return this.rpc(context, async (rt, now) => {
+      this.setEconomy(economy);
+      const full = this.streamLimitRefusal(context, now);
+      if (full) return full;
+      const mine = this.store
+        .browserPublicationsOf(context.userId)
+        .filter((p) => p.stream_id !== null || (p.announce_by ?? 0) > now);
+      if (mine.length > 0 || this.browserPublishing.has(context.userId)) {
+        return fail(409, { code: ErrorCode.BrowserStreamBusy, roomId: context.room.roomId });
+      }
+      this.browserPublishing.add(context.userId);
       try {
-        const session = await rt.newSession();
-        const sfuSessionId = session.sessionId;
-        await this.recordSession(sfuSessionId, context, 'publish', deviceId);
-        const res = await this.sfuQueue.run(sfuSessionId, () =>
-          rt.newTracks(
-            sfuSessionId,
-            req.tracks.map((t) => ({ location: 'local', mid: t.mid, trackName: t.trackName })),
-            req.sessionDescription,
-          ),
-        );
-        if (res.sessionDescription?.type !== 'answer') throw new SfuError('body', 200, null);
-        const tracks: PublishedTrackRow[] = req.tracks.map((t) => ({
-          name: t.trackName,
-          kind: t.kind,
-          mid: res.tracks?.find((r) => r.trackName === t.trackName)?.mid ?? t.mid,
-          ...(t.rids?.length ? { rids: t.rids } : {}),
-          ...(t.codec ? { codec: t.codec } : {}),
-        }));
-        this.store.insertPublication({
-          sfu_session_id: sfuSessionId,
-          user_id: context.userId,
-          device_id: deviceId,
-          tracks,
-          max_bitrate_kbps: req.maxBitrateKbps,
-          created_at: now,
-          announce_by: Date.now() + ANNOUNCE_MS,
-          stream_id: null,
-        });
-        return okResult(
-          {
-            sfuSessionId,
-            sessionDescription: res.sessionDescription,
-            tracks: tracks.map((t) => ({ mid: t.mid, trackName: t.name })),
-            announceWithinMs: ANNOUNCE_MS,
-            ...(this.qualityCap() ? { qualityCap: ECONOMY_CAP } : {}),
-          },
-          201,
+        const { tabId, ...publish } = req;
+        return await this.publishSession(
+          rt,
+          now,
+          context,
+          { deviceId: newId('wb'), tabId },
+          publish,
         );
       } finally {
-        this.publishing -= 1;
+        this.browserPublishing.delete(context.userId);
       }
     });
   }
 
-  /** PUT .../publish/renegotiate. */
+  /** The room's stream limit, publications not announced yet and publishes in flight included. */
+  private streamLimitRefusal(context: ConnectContext, now: number): Failure | null {
+    const limit = context.settings.maxStreams;
+    const live = this.store.streams().length;
+    return live + this.store.pendingPublications(now) + this.publishing >= limit
+      ? fail(409, { code: ErrorCode.StreamLimitReached, limit })
+      : null;
+  }
+
+  /** sessions/new, then tracks/new with the publisher's offer, and the stored publication. */
+  private async publishSession(
+    rt: Realtime,
+    now: number,
+    context: ConnectContext,
+    owner: { deviceId: string; tabId: string | null },
+    req: PublishRequest,
+  ): Promise<RtcResult<PublishResponse>> {
+    this.publishing += 1;
+    try {
+      const session = await rt.newSession();
+      const sfuSessionId = session.sessionId;
+      await this.recordSession(
+        sfuSessionId,
+        context,
+        owner.tabId === null ? 'publish' : 'browser_publish',
+        owner.tabId === null ? owner.deviceId : null,
+      );
+      const res = await this.sfuQueue.run(sfuSessionId, () =>
+        rt.newTracks(
+          sfuSessionId,
+          req.tracks.map((t) => ({ location: 'local', mid: t.mid, trackName: t.trackName })),
+          req.sessionDescription,
+        ),
+      );
+      if (res.sessionDescription?.type !== 'answer') throw new SfuError('body', 200, null);
+      const tracks: PublishedTrackRow[] = req.tracks.map((t) => ({
+        name: t.trackName,
+        kind: t.kind,
+        mid: res.tracks?.find((r) => r.trackName === t.trackName)?.mid ?? t.mid,
+        ...(t.rids?.length ? { rids: t.rids } : {}),
+        ...(t.codec ? { codec: t.codec } : {}),
+      }));
+      this.store.insertPublication({
+        sfu_session_id: sfuSessionId,
+        user_id: context.userId,
+        device_id: owner.deviceId,
+        tab_id: owner.tabId,
+        tracks,
+        max_bitrate_kbps: req.maxBitrateKbps,
+        created_at: now,
+        announce_by: Date.now() + ANNOUNCE_MS,
+        stream_id: null,
+      });
+      return okResult(
+        {
+          sfuSessionId,
+          sessionDescription: res.sessionDescription,
+          tracks: tracks.map((t) => ({ mid: t.mid, trackName: t.name })),
+          announceWithinMs: ANNOUNCE_MS,
+          ...(this.qualityCap() ? { qualityCap: ECONOMY_CAP } : {}),
+        },
+        201,
+      );
+    } finally {
+      this.publishing -= 1;
+    }
+  }
+
+  /** PUT .../publish/renegotiate (a helper's device), or .../browser/publish/renegotiate (null). */
   async rtcPublishRenegotiate(
     context: ConnectContext,
-    deviceId: string,
+    deviceId: string | null,
     sfuSessionId: string,
     sessionDescription: SessionDescription,
   ): Promise<RtcResult<RenegotiateResponse>> {
     return this.rpc(context, async (rt) => {
       const pub = this.store.publication(sfuSessionId);
-      if (!pub || pub.user_id !== context.userId || pub.device_id !== deviceId) {
+      if (!pub || !ownsPublication(pub, context.userId, deviceId)) {
         return fail(404, { code: ErrorCode.SfuSessionNotFound, sessionId: sfuSessionId });
       }
       const res = await this.sfuQueue.run(sfuSessionId, () =>
@@ -917,16 +1064,19 @@ export class RoomDO extends DurableObject<Env> {
     });
   }
 
-  /** POST .../unpublish: closes every track of the publication and ends its stream. */
+  /**
+   * POST .../unpublish (a helper's device) or .../browser/unpublish (null): closes every track of
+   * the publication and ends its stream.
+   */
   async rtcUnpublish(
     context: ConnectContext,
-    deviceId: string,
+    deviceId: string | null,
     sfuSessionId: string,
   ): Promise<RtcResult<null>> {
     return this.rpc(context, async () => {
       const pub = this.store.publication(sfuSessionId);
       if (!pub) return okResult(null, 204);
-      if (pub.user_id !== context.userId || pub.device_id !== deviceId) {
+      if (!ownsPublication(pub, context.userId, deviceId)) {
         return fail(404, { code: ErrorCode.SfuSessionNotFound, sessionId: sfuSessionId });
       }
       if (pub.stream_id) this.endStream(pub.stream_id, StreamEndReason.EndedByStreamer);
@@ -1618,7 +1768,7 @@ export class RoomDO extends DurableObject<Env> {
   private async recordSession(
     sessionId: string,
     context: ConnectContext,
-    kind: 'publish' | 'view',
+    kind: 'publish' | 'browser_publish' | 'view',
     deviceId: string | null,
   ): Promise<void> {
     try {
@@ -1681,7 +1831,8 @@ export class RoomDO extends DurableObject<Env> {
     return { topKbps, rids, av1Modes };
   }
 
-  private async finish(): Promise<void> {
+  /** `handledAt`: the event is the alarm, started at that time (see scheduleAlarm). */
+  private async finish(handledAt: number | null = null): Promise<void> {
     for (const sub of this.store.takeOrphanSubscriptions()) {
       this.closeLater(
         sub.session_id,
@@ -1714,7 +1865,7 @@ export class RoomDO extends DurableObject<Env> {
       this.savedRateKey = key;
     }
     await this.pushPresence();
-    await this.scheduleAlarm();
+    await this.scheduleAlarm(handledAt);
   }
 
   // --- Presence in the space sidebar (PROTOCOL.md 7.8) ---
@@ -1970,13 +2121,15 @@ export class RoomDO extends DurableObject<Env> {
         }
       }
     }
-    // A helper back within the grace period keeps its streams.
+    // A helper back within the grace period keeps its streams; so does a browser tab's.
     if (hello.client === 'helper' && me.deviceId) {
       const deviceId = me.deviceId;
       this.store.setGrace(
         this.streamIdsOf((s) => s.deviceId === deviceId),
         null,
       );
+    } else if (hello.client === 'web' && hello.tabId) {
+      this.store.setGrace(this.store.browserStreamsOfTab(me.userId, hello.tabId), null);
     }
 
     const room = this.store.room();
@@ -2016,7 +2169,7 @@ export class RoomDO extends DurableObject<Env> {
    * Closes a socket from the server side and cleans up after it at once; also the handler for a
    * client-side close. Idempotent: the runtime may report a close after we started one.
    */
-  private disconnect(ws: WebSocket, code: CloseCode): void {
+  private disconnect(ws: WebSocket, code: CloseCode | typeof BREAKER_CLOSE_CODE): void {
     const me = attachmentOf(ws);
     if (me.closing) return;
     ws.serializeAttachment({ ...me, closing: true } satisfies Attachment);
@@ -2041,6 +2194,14 @@ export class RoomDO extends DurableObject<Env> {
     if (me.hello.client === 'helper' && deviceId && !this.helperSockets(deviceId).length) {
       this.store.setGrace(
         this.streamIdsOf((s) => s.deviceId === deviceId),
+        Date.now() + HELPER_GRACE_MS,
+      );
+    }
+    // The last socket of a tab streaming from the browser: the same grace (since 1.22).
+    const tabId = me.hello.tabId;
+    if (me.hello.client === 'web' && tabId && !this.tabSockets(me.userId, tabId).length) {
+      this.store.setGrace(
+        this.store.browserStreamsOfTab(me.userId, tabId),
         Date.now() + HELPER_GRACE_MS,
       );
     }
@@ -2100,15 +2261,28 @@ export class RoomDO extends DurableObject<Env> {
   ): void {
     const roomId = this.store.room()?.roomId;
     const settings = this.store.settings();
-    if (me.hello?.client !== 'helper' || !me.deviceId || !settings) {
+    const pub = this.store.publication(a.sfuSessionId);
+    // A web tab announces only its own browser publication (since 1.22); anything else from the
+    // web is forbidden, as before, without saying whether the session exists.
+    const browser =
+      me.hello?.client === 'web' &&
+      !!me.hello.tabId &&
+      !!pub &&
+      pub.user_id === me.userId &&
+      pub.tab_id === me.hello.tabId;
+    if ((me.hello?.client !== 'helper' || !me.deviceId) && !browser) {
       return this.sendError(ws, { code: ErrorCode.Forbidden, ...(roomId ? { roomId } : {}) }, id);
     }
-    const pub = this.store.publication(a.sfuSessionId);
+    if (!settings) {
+      return this.sendError(ws, { code: ErrorCode.Forbidden, ...(roomId ? { roomId } : {}) }, id);
+    }
     if (
       !pub ||
       pub.stream_id !== null ||
       pub.user_id !== me.userId ||
-      pub.device_id !== me.deviceId
+      (browser
+        ? pub.tab_id !== me.hello?.tabId
+        : pub.device_id !== me.deviceId || pub.tab_id !== null)
     ) {
       return this.sendError(
         ws,
@@ -2139,7 +2313,7 @@ export class RoomDO extends DurableObject<Env> {
         id,
       );
     }
-    if (!settings.allowedPresets.includes(a.preset)) {
+    if (!settings.allowedPresets.includes(a.preset) || (browser && !isBrowserPreset(a.preset))) {
       return this.sendError(ws, { code: ErrorCode.PresetNotAllowed, preset: a.preset }, id);
     }
     if (this.store.streams().length >= settings.maxStreams) {
@@ -2154,7 +2328,7 @@ export class RoomDO extends DurableObject<Env> {
     const stream: RoomStream = {
       streamId,
       userId: me.userId,
-      deviceId: me.deviceId,
+      deviceId: pub.device_id,
       source: a.source,
       preset: a.preset,
       hasAudio: a.hasAudio,
@@ -2162,8 +2336,9 @@ export class RoomDO extends DurableObject<Env> {
       startedAt: Date.now(),
       viewerLimit: Math.min(a.viewerLimit ?? roomLimit, roomLimit),
       ...(a.layers ? { layers: a.layers } : {}),
-      // A new stream always starts with pings off (PROTOCOL.md 7.9).
-      ...(a.pingOverlay ? { pingOverlay: true } : {}),
+      // A new stream always starts with pings off (PROTOCOL.md 7.9); a browser draws none.
+      ...(a.pingOverlay && !browser ? { pingOverlay: true } : {}),
+      ...(browser ? { origin: 'browser' as const } : {}),
     };
     this.store.upsertStream(stream);
     this.store.insertStreamSfu({
@@ -2187,10 +2362,14 @@ export class RoomDO extends DurableObject<Env> {
     u: PayloadOf<'stream.update'>,
     id?: MessageId,
   ): void {
-    const stream = this.ownHelperStream(ws, me, u.streamId, id);
+    const stream = this.ownPublisherStream(ws, me, u.streamId, id);
     if (!stream) return;
     const allowed = this.store.settings()?.allowedPresets ?? [];
-    if (u.preset !== undefined && !allowed.includes(u.preset)) {
+    const browserCap = stream.origin === 'browser' && u.preset !== undefined;
+    if (
+      u.preset !== undefined &&
+      (!allowed.includes(u.preset) || (browserCap && !isBrowserPreset(u.preset)))
+    ) {
       return this.sendError(ws, { code: ErrorCode.PresetNotAllowed, preset: u.preset }, id);
     }
     if (u.layers && !layersMatch(u.layers, this.store.streamSfu(u.streamId)?.tracks ?? [])) {
@@ -2219,7 +2398,7 @@ export class RoomDO extends DurableObject<Env> {
   }
 
   private onStreamEnd(ws: WebSocket, me: Attachment, streamId: string, id?: MessageId): void {
-    if (!this.ownHelperStream(ws, me, streamId, id)) return;
+    if (!this.ownPublisherStream(ws, me, streamId, id)) return;
     this.endStream(streamId, StreamEndReason.EndedByStreamer);
     if (id) send(ws, 'ack', {}, id);
   }
@@ -2337,8 +2516,11 @@ export class RoomDO extends DurableObject<Env> {
     return me.role === 'admin' && target !== 'owner' && target !== 'admin';
   }
 
-  /** The stream, when it belongs to this helper connection's device; else replies the error. */
-  private ownHelperStream(
+  /**
+   * The stream, when this connection publishes it: the helper of its device, or (since 1.22) the
+   * web tab of its browser publication. Else replies the error.
+   */
+  private ownPublisherStream(
     ws: WebSocket,
     me: Attachment,
     streamId: string,
@@ -2349,11 +2531,15 @@ export class RoomDO extends DurableObject<Env> {
       this.sendError(ws, { code: ErrorCode.StreamNotFound, streamId }, id);
       return null;
     }
-    if (
-      me.hello?.client !== 'helper' ||
-      stream.deviceId !== me.deviceId ||
-      stream.userId !== me.userId
-    ) {
+    const tabId = me.hello?.client === 'web' ? me.hello.tabId : undefined;
+    const owns =
+      stream.userId === me.userId &&
+      (me.hello?.client === 'helper'
+        ? stream.origin !== 'browser' && stream.deviceId === me.deviceId
+        : stream.origin === 'browser' &&
+          !!tabId &&
+          this.store.publicationOfStream(streamId)?.tab_id === tabId);
+    if (!owns) {
       this.forbidden(ws, id);
       return null;
     }
@@ -2911,13 +3097,23 @@ export class RoomDO extends DurableObject<Env> {
    * Sets the alarm to the earliest deadline, but only moves it earlier: setAlarm is a write, and
    * deadlines that move later all the time (leases, the presence refresh) would rewrite it on
    * every event. An alarm left earlier than needed fires, finds nothing due and is set again.
+   *
+   * From the alarm (`handledAt`, when it started), a deadline due by then is one the handler did
+   * not clear: re-arming it at once would fire the alarm again and again (an expired quick room
+   * once did, burning the quota), so it is retried STUCK_DEADLINE_RETRY_MS later (alarmTarget).
    */
-  private async scheduleAlarm(): Promise<void> {
+  private async scheduleAlarm(handledAt: number | null): Promise<void> {
+    if (this.dormancy.active) {
+      if ((await this.ctx.storage.getAlarm()) !== null) await this.ctx.storage.deleteAlarm();
+      return;
+    }
+    // A tripped object is not re-armed until the cool-down ends (do/breaker.ts).
+    if (this.breaker.isOpen()) return;
     const lease = this.store.nextLeaseExpiry();
     const deadlines = [
       this.store.nextDeadline(),
       lease === null || this.store.anyQueued() ? lease : nextTick(lease - 1),
-      this.store.room()?.expiresAt ?? null,
+      this.pendingExpiry(),
       this.store.getNumber(METER_DUE_KEY),
       this.presenceDue,
       this.chat.nextDeadline(),
@@ -2927,9 +3123,17 @@ export class RoomDO extends DurableObject<Env> {
       if (current !== null) await this.ctx.storage.deleteAlarm();
       return;
     }
-    const next = Math.min(...deadlines);
+    const now = Date.now();
+    const earliest = Math.min(...deadlines);
+    const next = alarmTarget(earliest, handledAt, now);
+    if (next !== earliest) {
+      console.error('room alarm: a deadline is still due after the alarm', {
+        roomId: this.store.room()?.roomId ?? null,
+        next: earliest,
+      });
+    }
     // An alarm already due (the one being handled, if the runtime still reports it) is re-armed.
-    if (current === null || next < current || (current <= Date.now() && next > current)) {
+    if (current === null || next < current || (current <= now && next > current)) {
       await this.ctx.storage.setAlarm(next);
     }
   }
@@ -2967,12 +3171,28 @@ export class RoomDO extends DurableObject<Env> {
       .map(({ ws }) => ws);
   }
 
+  /** Open sockets of a web tab (hello.tabId) of a user. */
+  private tabSockets(userId: string, tabId: string): WebSocket[] {
+    return this.present()
+      .filter(
+        ({ a }) => a.hello?.client === 'web' && a.userId === userId && a.hello.tabId === tabId,
+      )
+      .map(({ ws }) => ws);
+  }
+
+  /**
+   * Sends to the publisher of a stream's device id: the helper's sockets, or for a browser
+   * publication's own id the sockets of its tab (since 1.22).
+   */
   private sendToDevice<T extends MessageType>(
     deviceId: string,
     type: T,
     payload: PayloadOf<T>,
   ): void {
-    for (const ws of this.helperSockets(deviceId)) send(ws, type, payload);
+    const pub = this.store.browserPublicationOfDevice(deviceId);
+    const sockets =
+      pub?.tab_id != null ? this.tabSockets(pub.user_id, pub.tab_id) : this.helperSockets(deviceId);
+    for (const ws of sockets) send(ws, type, payload);
   }
 
   private sendTo<T extends MessageType>(
@@ -3164,6 +3384,21 @@ function remoteTrack(
   };
 }
 
+/**
+ * Whether a publication is the caller's: a helper's of that device (`deviceId`), or the caller's
+ * browser publication (`deviceId` null, since 1.22).
+ */
+function ownsPublication(
+  pub: { user_id: string; device_id: string; tab_id: string | null },
+  userId: string,
+  deviceId: string | null,
+): boolean {
+  if (pub.user_id !== userId) return false;
+  return deviceId === null
+    ? pub.tab_id !== null
+    : pub.tab_id === null && pub.device_id === deviceId;
+}
+
 function attachmentOf(ws: WebSocket): Attachment {
   return ws.deserializeAttachment() as Attachment;
 }
@@ -3224,3 +3459,44 @@ function remoteCamera(track: CameraTrackRow, rid: string | null): SfuTrack {
       : {}),
   };
 }
+
+// Every RPC method counts as a request and is refused while the breaker is open (do/breaker.ts).
+guardRpc(RoomDO, [
+  'upsertStream',
+  'checkSlot',
+  'kick',
+  'streamsOf',
+  'revokeAccess',
+  'revokeDevice',
+  'revokeApp',
+  'closeRoom',
+  'visibilityChanged',
+  'setExpiry',
+  'permissionsChanged',
+  'settingsChanged',
+  'flushUsage',
+  'chatUnread',
+  'chatCounts',
+  'eraseChatAuthor',
+  'liveStreamIds',
+  'putThumbnail',
+  'rtcPublish',
+  'rtcBrowserPublish',
+  'rtcPublishRenegotiate',
+  'rtcUnpublish',
+  'rtcViewerSession',
+  'rtcSubscribe',
+  'rtcViewerRenegotiate',
+  'rtcLayer',
+  'rtcUnsubscribe',
+  'rtcLeave',
+  'rtcVoicePublish',
+  'rtcVoiceUnpublish',
+  'rtcVoiceSubscribe',
+  'rtcVoiceUnsubscribe',
+  'rtcCameraPublish',
+  'rtcCameraUnpublish',
+  'rtcCameraSubscribe',
+  'rtcCameraLayer',
+  'rtcCameraUnsubscribe',
+]);

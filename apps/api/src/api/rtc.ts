@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { type IceServersResponse, Preset, VideoCodec } from '@openlive/protocol';
+import { isBrowserPreset } from '@openlive/usage';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { canJoinVoiceAs } from '../auth/can';
@@ -30,9 +31,8 @@ const preset = z.enum(Preset);
 const codec = z.enum(VideoCodec);
 
 // Receivers ignore unknown fields (docs/PROTOCOL.md 1): z.object strips them.
-const publishRequest = z.object({
-  sessionDescription,
-  tracks: z
+const publishTracks = (max: number) =>
+  z
     .array(
       z.object({
         mid: z.string().min(1).max(32),
@@ -47,11 +47,29 @@ const publishRequest = z.object({
       }),
     )
     .min(1)
-    .max(4)
-    .refine((t) => new Set(t.map((x) => x.trackName)).size === t.length),
+    .max(max)
+    .refine((t) => new Set(t.map((x) => x.trackName)).size === t.length);
+const publishRequest = z.object({
+  sessionDescription,
+  tracks: publishTracks(4),
   preset,
   maxBitrateKbps: z.number().int().min(1),
 });
+const browserPublishRequest = z.object({
+  tabId: id,
+  sessionDescription,
+  tracks: publishTracks(2),
+  preset,
+  maxBitrateKbps: z.number().int().min(1),
+});
+/** A browser stream's simulcast layers: the helper's, highest first. */
+const BROWSER_RIDS = ['f', 'h', 'q'];
+
+/** Some of the browser layers, at least one, highest first. */
+function browserRids(rids: readonly string[]): boolean {
+  const at = rids.map((r) => BROWSER_RIDS.indexOf(r));
+  return at.length > 0 && at.every((n, i) => n >= 0 && (i === 0 || n > (at[i - 1] ?? -1)));
+}
 const sfuSessionRequest = z.object({ sfuSessionId: id });
 const publishRenegotiate = z.object({ sfuSessionId: id, sessionDescription });
 const viewerSessionRequest = z.object({ sessionDescription: sessionDescription.optional() });
@@ -174,17 +192,21 @@ rtc.post('/rtc/rooms/:roomId/ice', async (c) => {
   return c.json({ iceServers } satisfies IceServersResponse);
 });
 
-/** POST /api/rtc/rooms/:roomId/publish (helper). */
-rtc.post('/rtc/rooms/:roomId/publish', async (c) => {
-  const s = await streamScope(c);
-  const deviceId = helperOf(s);
-  const input = await body(c, publishRequest);
+/**
+ * The checks every publish runs before the room (helper and browser): the permission to stream,
+ * the quota brake, the preset and the bitrate. Returns whether economy mode is on.
+ */
+async function publishChecks(
+  c: Ctx,
+  s: Scope,
+  input: { preset: Preset; maxBitrateKbps: number },
+): Promise<boolean> {
   const { settings, permissions } = s.context;
   if (!permissions.canStream) {
     throw new ApiError(403, 'stream_permission_required', { roomId: s.roomId });
   }
   // Quota brake 4: no new streams once the quota blocks them. Brake 3
-  // (economy mode) does not refuse: the answer carries the cap the helper fits under.
+  // (economy mode) does not refuse: the answer carries the cap the publisher fits under.
   const { state: quota } = await instanceQuota(c.env.DB, new Date());
   if (quota.blockNewStreams) {
     throw new ApiError(403, 'quota_exhausted');
@@ -195,6 +217,15 @@ rtc.post('/rtc/rooms/:roomId/publish', async (c) => {
   if (input.maxBitrateKbps > settings.maxBitrateKbps) {
     throw new ApiError(403, 'bitrate_not_allowed', { limit: settings.maxBitrateKbps });
   }
+  return quota.economyMode;
+}
+
+/** POST /api/rtc/rooms/:roomId/publish (helper). */
+rtc.post('/rtc/rooms/:roomId/publish', async (c) => {
+  const s = await streamScope(c);
+  const deviceId = helperOf(s);
+  const input = await body(c, publishRequest);
+  const economy = await publishChecks(c, s, input);
   // One video track per codec, an H.264 one among them (the AV1 one is its top layer).
   const videos = input.tracks.filter((t) => t.kind === 'video');
   const codecs = videos.map((t) => t.codec ?? 'h264');
@@ -212,12 +243,7 @@ rtc.post('/rtc/rooms/:roomId/publish', async (c) => {
   }));
   return reply(
     c,
-    await room(c, s.roomId).rtcPublish(
-      s.context,
-      deviceId,
-      { ...input, tracks },
-      quota.economyMode,
-    ),
+    await room(c, s.roomId).rtcPublish(s.context, deviceId, { ...input, tracks }, economy),
   );
 });
 
@@ -243,6 +269,76 @@ rtc.post('/rtc/rooms/:roomId/unpublish', async (c) => {
   const deviceId = helperOf(s);
   const { sfuSessionId } = await body(c, sfuSessionRequest);
   return reply(c, await room(c, s.roomId).rtcUnpublish(s.context, deviceId, sfuSessionId));
+});
+
+/** A web session, not a helper: the browser routes are the tab's own (since 1.22). */
+function webOf(s: Scope): void {
+  if (s.deviceId) throw new ApiError(403, 'forbidden', { roomId: s.roomId });
+}
+
+/**
+ * POST /api/rtc/rooms/:roomId/browser/publish (web, since 1.22; docs/PROTOCOL.md 7.2, 11.2): a
+ * desktop tab streams in place of a helper, with limited quality. The helper's checks, plus at
+ * most 1080p60 and one H.264 video track (f, h, q) with at most one audio track.
+ */
+rtc.post('/rtc/rooms/:roomId/browser/publish', async (c) => {
+  const s = await streamScope(c);
+  webOf(s);
+  const input = await body(c, browserPublishRequest);
+  if (!isBrowserPreset(input.preset)) {
+    throw new ApiError(403, 'preset_not_allowed', { preset: input.preset });
+  }
+  const economy = await publishChecks(c, s, input);
+  const videos = input.tracks.filter((t) => t.kind === 'video');
+  const audios = input.tracks.filter((t) => t.kind === 'audio');
+  const video = videos[0];
+  const rids = video?.rids ?? [];
+  if (
+    videos.length !== 1 ||
+    audios.length > 1 ||
+    input.tracks.some((t) => t.codec && t.codec !== 'h264') ||
+    !browserRids(rids)
+  ) {
+    throw new ApiError(400, 'invalid_message', { path: '/tracks' });
+  }
+  // H.264 only: the codec is dropped, as on the helper's route.
+  const tracks = input.tracks.map((t) => ({
+    mid: t.mid,
+    trackName: t.trackName,
+    kind: t.kind,
+    ...(t.rids ? { rids: t.rids } : {}),
+  }));
+  return reply(
+    c,
+    await room(c, s.roomId).rtcBrowserPublish(s.context, { ...input, tracks }, economy),
+  );
+});
+
+/** PUT /api/rtc/rooms/:roomId/browser/publish/renegotiate (web, since 1.22). */
+rtc.put('/rtc/rooms/:roomId/browser/publish/renegotiate', async (c) => {
+  const s = await streamScope(c);
+  webOf(s);
+  const input = await body(c, publishRenegotiate);
+  return reply(
+    c,
+    await room(c, s.roomId).rtcPublishRenegotiate(
+      s.context,
+      null,
+      input.sfuSessionId,
+      input.sessionDescription,
+    ),
+  );
+});
+
+/**
+ * POST /api/rtc/rooms/:roomId/browser/unpublish (web, since 1.22): also the tab's beacon on
+ * pagehide, so the body may come as text/plain. No capability check: cleanup.
+ */
+rtc.post('/rtc/rooms/:roomId/browser/unpublish', async (c) => {
+  const s = await scope(c);
+  webOf(s);
+  const { sfuSessionId } = await body(c, sfuSessionRequest);
+  return reply(c, await room(c, s.roomId).rtcUnpublish(s.context, null, sfuSessionId));
 });
 
 /** POST /api/rtc/rooms/:roomId/session (viewer, before any click). */
@@ -398,11 +494,12 @@ rtc.post('/rtc/leave', async (c) => {
 
 /**
  * PUT /api/rtc/rooms/:roomId/streams/:streamId/thumbnail (helper; docs/PROTOCOL.md 11.3): the
- * stream's latest snapshot, a small JPEG. The room stores it in the private R2 bucket.
+ * stream's latest snapshot, a small JPEG. The room stores it in the private R2 bucket. Since 1.22
+ * a web session uploads its own browser stream's (deviceId null).
  */
 rtc.put('/rtc/rooms/:roomId/streams/:streamId/thumbnail', async (c) => {
   const s = await streamScope(c);
-  const deviceId = helperOf(s);
+  const deviceId = s.deviceId;
   const streamId = c.req.param('streamId');
   if (!id.safeParse(streamId).success) throw new ApiError(404, 'stream_not_found', { streamId });
   const type = (c.req.header('Content-Type') ?? '').split(';')[0]?.trim().toLowerCase();

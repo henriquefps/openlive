@@ -6,7 +6,7 @@
   "x-openlive": {
     "phase": 2,
     "channels": ["room"],
-    "from": ["helper"],
+    "from": ["helper", "web"],
     "to": ["server"],
     "replies": ["ack", "error"]
   },

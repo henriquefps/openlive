@@ -336,6 +336,8 @@
       "reconnectingHint": "Quem está aqui pode estar desatualizado até a conexão voltar.",
       "quotaExceeded": "Este servidor atingiu um limite diário gratuito da Cloudflare. A Cloudflare documenta a volta às 00:00 UTC, mas pode levar até 24 horas para liberar.",
       "quotaExceededHint": "A sala tenta de novo a cada 15 minutos. Nada que você faça aqui resolve antes disso.",
+      "quotaBrake": "Pausado pelo freio de limites desta instância: um limite da Cloudflare está perto de acabar. Libera às 00:00 UTC, ou antes se o admin liberar.",
+      "quotaBrakeHint": "A sala tenta de novo a cada 15 minutos. Nada que você faça aqui resolve antes.",
       "retryNow": "Tentar agora",
       "replaced": "Aberta em outra aba",
       "replacedHint": "Esta sala está aberta em outra aba ou janela deste navegador.",
@@ -673,6 +675,46 @@
           "last24h": "últimas 24 horas",
           "month": "este mês"
         }
+      },
+      "brake": {
+        "title": "Freio de limites",
+        "intro": "A cada 5 minutos o Openlive lê os números da Cloudflare, manda e-mail aos admins da plataforma em 50 %, 70 % e na fração do freio, e pausa a instância antes que um limite acabe, para que um bug não esgote o free tier (e, com ele, os outros projetos da conta) nem gere uma conta no Workers Paid.",
+        "state": {
+          "armed": "Armado",
+          "engaged": "Acionado",
+          "released": "Liberado por hoje",
+          "off": "Desligado"
+        },
+        "armedAt": "Pausa salas, spaces e conexões ao vivo quando qualquer limite chega a {{share}}. O login e este painel continuam funcionando.",
+        "engagedSince": "Pausado desde {{since}} por {{what}}. Libera sozinho às {{until}}, ou libere agora.",
+        "byHand": "um admin, manualmente",
+        "byMetric": "{{metric}} em {{share}}",
+        "byUsd": "o excedente de hoje chegando a {{usd}}",
+        "releasedUntil": "Liberado manualmente: o monitor não aciona de novo antes de {{until}}. Os alertas continuam chegando.",
+        "offHint": "Nada é pausado antes dos limites da própria Cloudflare; os alertas continuam chegando.",
+        "release": "Liberar",
+        "engage": "Acionar agora",
+        "engageTitle": "Pausar a instância agora?",
+        "engageBody": "Todas as salas, spaces e conexões ao vivo ficam pausados até 00:00 UTC ou até você liberar. As pessoas veem que o freio de limites da instância pausou tudo. O login e o painel de admin continuam funcionando.",
+        "noSnapshot": "Nenhum número guardado ainda: o monitor precisa de CLOUDFLARE_API_TOKEN e CLOUDFLARE_ACCOUNT_ID, e roda a cada 5 minutos.",
+        "snapshotFree": "Hoje (UTC) contra os limites diários gratuitos, como o monitor leu às {{time}}.",
+        "snapshotPaid": "Este mês contra o que o Workers Paid inclui, como o monitor leu às {{time}}.",
+        "unknown": "indisponível",
+        "todayUsd": "Excedente hoje: {{usd}} (neste mês: {{month}}), a preço de tabela.",
+        "accountWide": "Estes números são da conta Cloudflare inteira, de todos os Workers dela, não só do Openlive: o freio para abaixo de 100 % para que os outros projetos da conta mantenham a parte deles.",
+        "enabled": "Freio de limites",
+        "enabledHint": "Pausa a instância antes que um limite da Cloudflare acabe.",
+        "offTitle": "Desligar o freio de limites?",
+        "offWarning": "Sem o freio nada para antes da Cloudflare. No Workers Free um bug descontrolado pode esgotar um limite diário da conta inteira, desta instância e de todos os outros projetos nela, até a Cloudflare liberar (até 24 horas). No Workers Paid o uso acima do incluído é cobrado, e a Cloudflare não tem teto de gastos.",
+        "turnOff": "Desligar",
+        "percent": "Acionar em (% de um limite)",
+        "percentHint": "De {{min}} a {{max}}. No Workers Free, de cada limite diário gratuito; no Workers Paid, do incluído no mês (quando escolhido abaixo). Alertas em {{levels}}.",
+        "paidIncluded": "Workers Paid: o incluído no mês",
+        "paidIncludedHint": "Aplica a fração acima ao que o Workers Paid inclui por mês; o freio então vale até o mês virar.",
+        "paidUsd": "Workers Paid: excedente por dia (USD)",
+        "paidUsdNone": "Sem teto",
+        "paidUsdHint": "Também pausa quando o uso de hoje acima do incluído chega a este valor a preço de tabela; vale até 00:00 UTC. Deixe vazio para não ter teto.",
+        "save": "Salvar freio"
       }
     },
     "settings": {
@@ -1186,7 +1228,9 @@
       "failed": "Falhou"
     },
     "watch": "Assistir à transmissão de {{name}}",
-    "economy": "Econômico"
+    "economy": "Econômico",
+    "browser": "Navegador",
+    "browserHint": "Transmitido de uma aba do navegador, até 1080p60"
   },
   "status": {
     "ok": "OK",
@@ -1238,6 +1282,7 @@
     "quota_exhausted": "Este space já usou toda a banda do mês.",
     "helper_offline": "Seu helper está offline. Abra-o no seu computador.",
     "helper_busy": "Seu helper já está transmitindo.",
+    "browser_stream_busy": "Você já está transmitindo de uma aba do navegador nesta sala.",
     "source_not_found": "Essa janela ou tela não está mais disponível.",
     "not_found": "Esta página ou recurso não existe.",
     "space_not_found": "Este space não existe ou você não é membro.",
@@ -1292,7 +1337,8 @@
     "chat_message_too_long": "A mensagem é longa demais (no máximo {{limit}} caracteres).",
     "chat_write_not_allowed": "Convidados não podem escrever neste chat.",
     "chat_message_not_found": "Essa mensagem não existe mais.",
-    "do_quota_exceeded": "Este servidor atingiu um limite diário gratuito da Cloudflare. A Cloudflare documenta a volta às 00:00 UTC, mas pode levar até 24 horas para liberar."
+    "do_quota_exceeded": "Este servidor atingiu um limite diário gratuito da Cloudflare. A Cloudflare documenta a volta às 00:00 UTC, mas pode levar até 24 horas para liberar.",
+    "do_quota_exceeded_brake": "Pausado pelo freio de limites desta instância: um limite da Cloudflare está perto de acabar. Libera às 00:00 UTC, ou antes se o admin liberar."
   },
   "roles": {
     "owner": "Dono",
@@ -1738,6 +1784,45 @@
       "encoder": "Encoder",
       "layers": "Camadas",
       "layer": "{{rid}} {{height}}p{{fps}} {{rate}}"
+    },
+    "browser": {
+      "link": "ou transmita pelo navegador",
+      "install": {
+        "title": "Instale o helper (recomendado)",
+        "body": "O helper do Openlive transmite com o codificador de hardware do seu computador.",
+        "benefitQuality": "Até 1440p e 120 fps",
+        "benefitAudio": "Som de um app só, não do computador inteiro",
+        "benefitCpu": "Menos uso de CPU, e a transmissão continua se esta aba fechar",
+        "download": "Baixar o helper",
+        "windows": "O helper para Windows ainda não está disponível. Por enquanto, você pode transmitir pelo navegador.",
+        "devices": "Dispositivos pareados"
+      },
+      "start": "Transmitir pelo navegador",
+      "note": "Qualidade limitada (até 1080p60). Mantenha esta aba aberta enquanto transmite.",
+      "title": "Transmitir pelo navegador",
+      "description": "O navegador pergunta o que compartilhar: uma tela, uma janela ou uma aba. O som vai junto quando o navegador permite.",
+      "back": "Voltar para o helper",
+      "starting": "Esperando a sua escolha…",
+      "label": {
+        "monitor": "Tela",
+        "window": "Janela",
+        "browser": "Aba do navegador"
+      },
+      "live": {
+        "on": "Transmitindo desta aba do navegador",
+        "keepOpen": "mantenha esta aba aberta",
+        "limited": "O navegador está enviando menos: {{reason}}.",
+        "limitedCpu": "o computador está ocupado",
+        "limitedBandwidth": "a conexão está lenta",
+        "limitedOther": "{{reason}}",
+        "noAudio": "Sem som: o navegador não compartilhou nenhum."
+      },
+      "nudge": {
+        "title": "Transmita melhor com o helper",
+        "body": "Até 1440p e 120 fps, som de um app só, menos CPU e nenhuma aba para manter aberta.",
+        "download": "Baixar o helper",
+        "dismiss": "Dispensar"
+      }
     }
   },
   "metrics": {
@@ -1782,6 +1867,11 @@
       "none": "Nenhum erro neste período.",
       "decode_one": "{{count}} erro de reprodução nos players",
       "decode_other": "{{count}} erros de reprodução nos players"
+    },
+    "breaker": {
+      "title": "Disparos do disjuntor",
+      "none": "Nenhum objeto foi parado neste período.",
+      "hint": "Um Durable Object foi parado por 10 minutos (ou um socket foi fechado) porque foi chamado muito além do uso normal. Os logs do Worker identificam o objeto."
     },
     "table": {
       "space": "Space",

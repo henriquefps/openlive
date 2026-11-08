@@ -61,8 +61,12 @@ describe('scheduled handler', () => {
       .mockImplementation(async () => Response.json(twoDays));
     await runScheduled(configured, Date.parse('2026-10-27T15:00:00Z'));
 
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-    const [url, init] = fetchSpy.mock.calls[0] ?? [];
+    // The limits monitor's queries run first; one call is the usage copy's.
+    const usageCalls = fetchSpy.mock.calls.filter(([, init]) =>
+      String(init?.body ?? '').includes('appIds'),
+    );
+    expect(usageCalls).toHaveLength(1);
+    const [url, init] = usageCalls[0] ?? [];
     expect(url).toBe(GRAPHQL_ENDPOINT);
     expect(JSON.parse(init?.body as string).variables).toMatchObject({
       account: 'acct-1',
@@ -112,6 +116,9 @@ describe('scheduled handler', () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(
       async () => new Response('nope', { status: 500 }),
     );
-    await expect(runScheduled(configured, Date.now())).rejects.toThrow(/HTTP 500/);
+    // On the quarter hour, when the usage copy runs (the limits monitor runs every 5 minutes).
+    await expect(runScheduled(configured, Date.parse('2026-10-27T15:15:00Z'))).rejects.toThrow(
+      /HTTP 500/,
+    );
   });
 });

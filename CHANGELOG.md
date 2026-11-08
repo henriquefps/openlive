@@ -5,6 +5,48 @@ The wire protocol has its own version, in [docs/PROTOCOL.md](docs/PROTOCOL.md).
 
 ## Unreleased
 
+**Added**
+
+- Stream from the browser, without the helper (protocol 1.22). On a desktop browser the Go live
+  panel offers "Stream from the browser": the browser asks what to share (a screen, a window or
+  a tab, with its sound where the browser allows it) and the tab streams at up to 1080p60, with
+  the helper's three quality layers. It is a fallback with limited quality: the helper stays the
+  recommended way (up to 1440p and 120 fps, one app's sound, lower CPU). With a helper online the
+  panel is as before, with a link to the browser option; without one, it leads with installing
+  the helper and offers the browser second (on Windows, where there is no helper yet, it says so).
+  While live: resolution, frame rate and bitrate, pause, 1080p30 or 1080p60, stop; the stream
+  ends 15 s after the tab closes. Viewers need nothing new; cards show a small "Browser" badge.
+- Limits monitor and brake. Every 5 minutes the server reads today's Cloudflare figures for each
+  Workers, Durable Objects and D1 limit (and on Workers Paid the month's), stores them for the
+  admin panel, and e-mails the platform admins at 50 %, 70 % and the brake's share, once a day
+  each. At the brake's share (80 % by default, 50 to 95 %, or off) the instance pauses itself
+  before Cloudflare's limit: room, space and hub connections and the API calls that reach them
+  are refused with "Paused by this instance's limits brake" (503 / close 1013, reason
+  `limits_brake`), and the rooms that were awake close their sockets and stop their alarms. Login
+  and the admin panel keep working. It releases at 00:00 UTC (on a Paid monthly budget, when the
+  month turns over), or by hand from the admin panel's new Limits brake card, which also engages
+  it by hand. On Workers Paid the budget is a share of the month's included amounts and/or a
+  maximum overage in USD a day. The figures are account-wide, which is why it stops below 100 %.
+  The cron now runs every 5 minutes; the usage copy and the sweeps keep their 15.
+
+**Self-host and costs**
+
+- A circuit breaker inside every room, space and user hub object stops one that goes wild before
+  it can use up the Cloudflare Durable Objects daily limits. Each object counts its alarms,
+  requests and WebSocket messages in memory; far above any real use (for example, more than 120
+  alarms in a minute) it stops for 10 minutes: its alarm is deleted, it refuses everything, and
+  the trip is logged once and shown on the admin and space status pages. A single socket that
+  floods the server with messages is closed on its own. A busy room never comes near the limits.
+
+**Fixed**
+
+- An expired quick room no longer runs its alarm in a loop. After closing the room at its expiry,
+  the room kept the past expiry as a deadline and re-armed an alarm that fired at once, forever,
+  until Cloudflare refused requests for exceeding the Durable Objects free tier. The room now
+  closes once for its expiry and never schedules it again, and a deadline still due after the
+  alarm ran is retried a minute later instead of at once. A chat message exactly at its retention
+  deadline is deleted by that sweep instead of left due.
+
 ## 0.1.7 (2026-11-06)
 
 **Android app (beta)**
