@@ -5,6 +5,14 @@ The wire protocol has its own version, in [docs/PROTOCOL.md](docs/PROTOCOL.md).
 
 ## Unreleased
 
+## 0.1.8 (2026-11-10)
+
+**Changed**
+
+- New app icon: an olive square with a one-colour glyph, a monitor and its stand with a solid
+  "live" circle in front. The web app (favicon, PWA icons, header mark), the mobile app, the helper
+  (tray, Linux and macOS icons), the README header and the social preview use it.
+
 **Added**
 
 - Stream from the browser, without the helper (protocol 1.22). On a desktop browser the Go live

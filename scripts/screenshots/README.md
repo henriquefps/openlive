@@ -59,3 +59,21 @@ node $R scripts/social-preview.html docs/img/social-preview.png .stage 1360
 node $R scripts/readme-header.html docs/img/readme-header-light.png .light 1360
 node $R scripts/readme-header.html docs/img/readme-header-dark.png .dark 1360
 ```
+
+## Rebuilding the app icon
+
+The icon is drawn in the Designer (`scripts/glyph.designer.json`, name "Openlive app icon"; open it
+in the Designer (File, Open project file) and save back in place). Everything else is rebuilt from it:
+
+```sh
+DESIGNER="github:henriquefps/logo-designer#c4d17a026120"
+bunx --bun "$DESIGNER" to-svg scripts/glyph.designer.json --glyph -o scripts/glyph.svg   # then re-add the one-line comment header
+bunx --bun "$DESIGNER" icons scripts/glyph.designer.json -o /tmp/icons --site /tmp/icons/site --tile '#5b7a3a'
+# copy /tmp/icons/docs-img/* to docs/img, /tmp/icons/site/* to apps/web/public,
+# ios/AppIcon.appiconset/AppIcon-1024.png to apps/mobile/assets/icon.png,
+# android/res/mipmap-xxxhdpi/ic_launcher_foreground.png (resized to 512) to apps/mobile/assets/adaptive-icon.png,
+# docs/img/icon.svg to packaging/linux/icons/dev.hfps.OpenliveHelper.svg (and into packaging/macos/AppIcon.svg)
+```
+
+Then update by hand what embeds the glyph: `apps/web/src/components/AppMark.tsx`, the paths in
+`helper/internal/tray/icons.go`, and re-render the README header and social preview (above).
