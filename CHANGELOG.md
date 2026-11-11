@@ -55,6 +55,13 @@ The wire protocol has its own version, in [docs/PROTOCOL.md](docs/PROTOCOL.md).
   alarm ran is retried a minute later instead of at once. A chat message exactly at its retention
   deadline is deleted by that sweep instead of left due.
 
+**Android app (beta)**
+
+- New app icon: the olive square with the monitor, its stand and the "live" circle.
+- Streams sent from a browser tab show a small "Browser" badge on their cards.
+- When the instance's limits brake pauses it, the room's banner says so instead of a plain
+  "reconnecting".
+
 ## 0.1.7 (2026-11-06)
 
 **Android app (beta)**
